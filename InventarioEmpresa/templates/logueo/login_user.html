@@ -1,0 +1,153 @@
+{% load static %}
+{% include 'inc/header.html' %}
+<link rel="stylesheet" href="{% static 'css/login_user.css' %}">
+
+<div class="contenedor_logueo">
+    <div class="login-reg-panel">
+        <!-- Información de login -->
+        <div class="login-info-box">
+            <h2>¿Ya tienes una cuenta?</h2>
+            <p>Inicia sesión aquí</p>
+            <button id="login-button" class="button button-login">Iniciar sesión</button>
+            
+        </div>
+        
+        <!-- Información de registro -->
+        <div class="register-info-box">
+            <h2>¿No tienes una cuenta?</h2>
+            <p>Regístrate aquí</p>
+            <button id="register-button" class="button button-register">Registrarse</button>
+        </div>
+
+        <!-- Panel blanco que cambia entre login y registro -->
+        <div class="white-panel">
+            <!-- Formulario de Iniciar Sesión -->
+            <div class="login-show">
+                <h2 class="ui header">INICIAR SESIÓN</h2>
+                <form class="ui form" method="post" action="">
+                    {% csrf_token %}
+                    <div class="field">
+                        <div class="ui left icon input large">
+                            <i class="envelope icon"></i>
+                            <input type="email" name="email" placeholder="Correo electrónico" required style="font-size: 1.2em; padding: 15px;">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="ui left icon input large">
+                            <i class="lock icon"></i>
+                            <input type="password" name="password" placeholder="Contraseña" required style="font-size: 1.2em; padding: 15px;">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <a href="#" style="font-size: 1em; color: #4183c4;">¿Olvidaste tu contraseña?</a>
+                    </div>
+                    <!-- Botón de iniciar sesión con el nuevo estilo -->
+                    <button type="submit" class="button" style="font-size: 1.2em; padding: 15px 30px;">Iniciar sesión</button>
+                </form>
+            </div>
+
+            <!-- Formulario de Registro -->
+            <div class="register-show">
+                <h2 class="ui header">REGISTRARSE</h2>
+                <form class="ui form" method="post" action="" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="two fields">
+                        <div class="field">
+                            <div class="ui left icon input">
+                                <i class="user icon"></i>
+                                <input type="text" name="full_name" placeholder="Nombre completo" required>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="ui left icon input">
+                                <i class="id card outline icon"></i>
+                                <select class="ui dropdown" name="tipo_documento" required>
+                                    <option value="" disabled selected>Tipo de documento</option>
+                                    <option value="cc">Cédula de ciudadanía</option>
+                                    <option value="ti">Tarjeta de identidad</option>
+                                    <option value="ce">Cédula de extranjería</option>
+                                    <option value="pa">Pasaporte</option>
+                                    <option value="rc">Registro civil de nacimiento</option>
+                                    <option value="cd">Carné diplomático</option>
+                                    <option value="pep">Permiso especial de permanencia</option>
+                                    <option value="dni">Documento nacional de identidad (DNI)</option>
+                                    <option value="nit">Número de identificación tributaria (NIT)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="two fields">
+                        <div class="field">
+                            <div class="ui left icon input">
+                                <i class="id card icon"></i>
+                                <input type="text" name="num_documento" placeholder="Número de documento" required>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="ui left icon input">
+                                <i class="phone icon"></i>
+                                <input type="tel" name="telefono" placeholder="Número de teléfono" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="two fields">
+                        <div class="field">
+                            <div class="ui left icon input">
+                                <i class="lock icon"></i>
+                                <input type="password" name="password1" placeholder="Contraseña" required>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="ui left icon input">
+                                <i class="lock icon"></i>
+                                <input type="password" name="password2" placeholder="Confirmar contraseña" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="envelope icon"></i>
+                            <input type="email" name="email" placeholder="Correo electrónico" required>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="image icon"></i>
+                            <input type="file" name="foto" placeholder="Foto" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="button">Registrarse</button>
+                </form>
+            </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginPanel = document.querySelector('.login-show');
+            const registerPanel = document.querySelector('.register-show');
+            const whitePanel = document.querySelector('.white-panel');
+
+            function moverDerecha() {
+                whitePanel.style.left = '50%'; // Mover el panel blanco a la derecha
+            }
+
+            function moverIzquierda() {
+                whitePanel.style.left = '0%'; // Mover el panel blanco a la izquierda
+            }
+
+            document.getElementById('login-button').addEventListener('click', function() {
+                loginPanel.style.display = 'flex';
+                registerPanel.style.display = 'none';
+                moverIzquierda();
+            });
+
+            document.getElementById('register-button').addEventListener('click', function() {
+                loginPanel.style.display = 'none';
+                registerPanel.style.display = 'flex';
+                moverDerecha();
+            });
+        });
+    </script>
+</div>
+
+{% include 'inc/footer.html' %}

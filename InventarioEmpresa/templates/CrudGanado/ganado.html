@@ -1,0 +1,345 @@
+{% load static %}
+{% include 'inc/header.html' %}
+<link rel="stylesheet" href="{% static 'css/ganado.css' %}">
+
+<div class="ui container">
+    <h1 class="centrarTitulo">Listado del ganado</h1>
+
+    <!-- Formulario para agregar Vacuno -->
+    <div id="swal-form-ganado" style="display:none;">
+        <h2>Agregar Nuevo Vacuno</h2>
+        <form id="ganadoFormAdd" method="post" enctype="multipart/form-data" action="{% url 'agregar_vacuno' %}" onmouseover="ValidarForm()">
+            {% csrf_token %}
+            
+            <div class="field">
+                <label for="codigo">Código del Vacuno</label>
+                <input id="codigo" name="codigo" placeholder="Código único" type="text" required maxlength="8" onblur="validar(this)">
+            </div>
+        
+            <div class="field">
+                <label for="crias">Número de Crías</label>
+                <input id="crias" name="crias" placeholder="Número de crías" type="number" min="0" required onblur="validar(this)">
+            </div>
+        
+            <div class="field">
+                <label for="CodigoPapa">Código del Padre</label>
+                <input id="CodigoPapa" name="CodigoPapa" placeholder="Código del Padre" type="text" required onblur="validar(this)">
+            </div>
+        
+            <div class="field">
+                <label for="CodigoMama">Código de la Madre</label>
+                <input id="CodigoMama" name="CodigoMama" placeholder="Código de la Madre" type="text" required onblur="validar(this)">
+            </div>
+        
+            <div class="field">
+                <label for="raza">Raza</label>
+                <select id="raza" name="raza" required onblur="validar(this)">
+                    <option value="" disabled selected>Selecciona una raza</option>
+                    {% for tipo in razas %}
+                    <option value="{{ tipo.id }}">{{ tipo.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        
+            <div class="field">
+                <label for="edad">Edad (en años)</label>
+                <input id="edad" name="edad" placeholder="Edad del vacuno" type="number" min="0" max="99" required onblur="validar(this)">
+            </div>
+        
+            <div class="field">
+                <label for="proposito">Propósito</label>
+                <select id="proposito" name="proposito" required onblur="validar(this)">
+                    <option value="" disabled selected>Selecciona un propósito</option>
+                    <option value="CARNE">Carne</option>
+                    <option value="LECHE">Leche</option>
+                    <option value="VENTA">Venta</option>
+                </select>
+            </div>
+        
+            <div class="field">
+                <label for="origen">Origen</label>
+                <select id="origen" name="origen" required onblur="validar(this)">
+                    <option value="" disabled selected>Selecciona un origen</option>
+                    <option value="CRIADA">Criada</option>
+                    <option value="REGALADA">Regalada</option>
+                    <option value="COMPRADA">Comprada</option>
+                </select>
+            </div>
+        
+            <div class="field">
+                <label for="estado">Estado</label>
+                <select id="estado" name="estado" required onblur="validar(this)">
+                    <option value="" disabled selected>Selecciona un estado</option>
+                    <option value="MUERTA">Muerta</option>
+                    <option value="INACTIVA">Inactiva</option>
+                    <option value="VENDIDA">Vendida</option>
+                    <option value="ACTIVA">Activa</option>
+                </select>
+            </div>
+        
+            <div class="field">
+                <label for="Dia_vacunada">Fecha de Vacunación</label>
+                <input id="Dia_vacunada" name="Dia_vacunada" type="date" required onblur="validar(this)">
+            </div>
+        
+            <div class="field">
+                <label for="Dia_caduca_vacunada">Fecha de Caducidad de la Vacunación</label>
+                <input id="Dia_caduca_vacunada" name="Dia_caduca_vacunada" type="date" required onblur="validar(this)">
+            </div>
+        
+            <div class="field">
+                <label for="parcela">Parcela</label>
+                <select id="parcela" name="parcela" required onblur="validar(this)">
+                    <option value="" disabled selected>Selecciona una parcela</option>
+                    {% for tipo in parcelas %}
+                    <option value="{{ tipo.id }}">{{ tipo.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        
+            <div class="field">
+                <label for="alimentacion">Alimentación</label>
+                <textarea id="alimentacion" name="alimentacion" placeholder="Tipo de alimentación" required onblur="validar(this)"></textarea>
+            </div>
+        
+            <div class="field">
+                <label for="enfermedades">Enfermedades</label>
+                <textarea id="enfermedades" name="enfermedades" placeholder="Enfermedades conocidas" required onblur="validar(this)"></textarea>
+            </div>
+        
+            <div class="field">
+                <label for="vacunas">Vacunas</label>
+                <textarea id="vacunas" name="vacunas" placeholder="Vacunas aplicadas" required onblur="validar(this)"></textarea>
+            </div>
+        
+            <div class="field">
+                <label for="ImagenVacuno">Imagen del Vacuno</label>
+                <input id="ImagenVacuno" name="ImagenVacuno" type="file" required onblur="validar(this)">
+            </div>
+        
+            <button type="submit" class="ui purple button" id="EnviarInfo">Enviar</button>
+        </form>           
+    </div>
+
+    <button class="btn" onclick="agregar_vacuno()">
+        <div class="wrapper">
+            <p class="text">Agregar</p>
+            <div class="flower flower1">
+                <img src="{% static 'img/vaca_girando.png' %}" alt="" style="width: 70px; height: 70px;">
+            </div>
+            <div class="flower flower2">
+                <img src="{% static 'img/vaca_girando.png' %}" alt="" style="width: 70px; height: 70px;">
+            </div>
+            <div class="flower flower3">
+                <img src="{% static 'img/vaca_girando.png' %}" alt="" style="width: 70px; height: 70px;">
+            </div>
+            <div class="flower flower4">
+                <img src="{% static 'img/vaca_girando.png' %}" alt="" style="width: 70px; height: 70px;">
+            </div>
+            <div class="flower flower5">
+                <img src="{% static 'img/vaca_girando.png' %}" alt="" style="width: 70px; height: 70px;">
+            </div>
+            <div class="flower flower6">
+                <img src="{% static 'img/vaca_girando.png' %}" alt="" style="width: 70px; height: 70px;">
+            </div>
+        </div>
+    </button>
+    <br>
+
+    <!-- Estructura para mostrar el ganado -->
+    <div class="containercards">
+        {% if ganado %}
+        {% for vacuno in ganado %}
+            <div class="card">
+                <!-- Card con información básica del vacuno -->
+                <p class="codigo color_alerta_ver_mas">{{ vacuno.codigo }}</p>
+                <img src="{% if vacuno.ImagenVacuno %}{% static 'ImagenesGanado' %}{{ vacuno.ImagenVacuno }}{% else %}{% static 'img/vaca_girando.png' %}{% endif %}" alt="Imagen del ganado" class="imagen_ver_mas">
+                <div class="caja_contenido">
+                    <div class="contenido">
+                        <button class="ui yellow button" onclick="VerInformacionGanado('{{ vacuno.id }}')">Ver más</button>
+                        <button class="ui blue button" onclick="Actualizar_vacuno('{{vacuno.id }}')">Actualizar</button>
+                        <button class="ui red button" onclick="borrar_vacuno('{{ vacuno.id }}')">Eliminar</button>
+                    </div>
+                </div>
+            </div>        
+
+            <!-- Sección de Detalles del Ganado -->
+            <div id="ganado-detalle-{{ vacuno.id }}" class="ganado-detalle" style="display:none;">
+                <div class="contenido_alerta_ver_mas">
+                    <!-- Imagen del ganado, con una imagen por defecto si no hay imagen disponible -->
+                    <img src="{% if vacuno.ImagenVacuno %}{% static 'ImagenesGanado' %}{{ vacuno.ImagenVacuno }}{% else %}{% static 'img/vaca_girando.png' %}{% endif %}" alt="Imagen del ganado" class="imagen_ver_mas">
+                    <div class="box_ver_mas">
+                        <div class="texto">
+                            <div class="texto2">
+                                <div class="info-general">
+                                    <div class="columna">
+                                        <p><strong class="color_alerta_ver_mas">Código:</strong> {{ vacuno.codigo }}</p>
+                                        <p><strong class="color_alerta_ver_mas">Crías:</strong> {{ vacuno.crias }}</p>
+                                        <p><strong class="color_alerta_ver_mas">Origen:</strong> {{ vacuno.origen }}</p>
+                                        <p><strong class="color_alerta_ver_mas">Código del Padre:</strong> {{ vacuno.CodigoPapa }}</p>
+                                        <p><strong class="color_alerta_ver_mas">Código de la Madre:</strong> {{ vacuno.CodigoMama }}</p>
+                                        <p><strong class="color_alerta_ver_mas">Raza:</strong> {{ vacuno.raza.nombre }}</p>
+                                    </div>
+                                    <div class="columna">
+                                        <p><strong class="color_alerta_ver_mas">Día Vacunada:</strong> {{ vacuno.Dia_vacunada }}</p>
+                                        <p><strong class="color_alerta_ver_mas">Edad:</strong> {{ vacuno.edad }}</p>
+                                        <p><strong class="color_alerta_ver_mas">Caducidad de la Vacuna:</strong> {{ vacuno.Dia_caduca_vacunada }}</p>
+                                        <p><strong class="color_alerta_ver_mas">Estado:</strong> {{ vacuno.estado }}</p>
+                                        <p><strong class="color_alerta_ver_mas">Propósito:</strong> {{ vacuno.proposito }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="clear: both;"></div>
+                </div>
+            
+                <!-- Sección de Detalles Extensos -->
+                <button onclick="mas_grande(this)" class="boton_estilo_ver_mas">
+                    <span>más detalles</span>
+                </button>
+                <div class="caja_mas_detaller_vacuno">
+                    <code><h1 class="color_alerta_ver_mas">Alimentación:</h1><p>{{ vacuno.alimentacion }}</p></code>
+                    <code><h1 class="color_alerta_ver_mas">Enfermedades:</h1><p>{{ vacuno.enfermedades }}</p></code>
+                    <code><h1 class="color_alerta_ver_mas">Vacunas:</h1><p>{{ vacuno.vacunas }}</p></code>
+                </div>
+            </div>
+
+            <!-- Formulario para Actualizar Vacuno (oculto inicialmente) -->
+            <div id="swal-form-ganado_actualizar-{{ vacuno.id }}" style="display: none;">
+                <h2>Actualizar Vacuno</h2>
+                <form id="ganadoFormActualizar" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="caja_imagen_actualizar">
+                        <img class="Imagen_actualizar" src="{% if vacuno.ImagenVacuno %}{% static 'ImagenesGanado' %}{{ vacuno.ImagenVacuno }}{% else %}{% static 'img/vaca_girando.png' %}{% endif %}" alt="Imagen del ganado" class="imagen_ver_mas">
+                    </div>
+                    
+            
+                    <div class="field">
+                        <label for="codigo">Código del Vacuno</label>
+                        <input id="codigo" name="codigo" placeholder="Código único" type="text" value="{{ vacuno.codigo }}" required onblur="validar(this)" maxlength="8">
+                    </div>
+                
+                    <div class="field">
+                        <label for="crias">Número de Crías</label>
+                        <input id="crias" name="crias" placeholder="Número de crías" type="number" min="0" value="{{ vacuno.crias }}" required onblur="validar(this)">
+                    </div>
+                
+                    <div class="field">
+                        <label for="CodigoPapa">Código del Padre</label>
+                        <input id="CodigoPapa" name="CodigoPapa" placeholder="Código del Padre" type="text" value="{{ vacuno.CodigoPapa }}" required onblur="validar(this)">
+                    </div>
+                
+                    <div class="field">
+                        <label for="CodigoMama">Código de la Madre</label>
+                        <input id="CodigoMama" name="CodigoMama" placeholder="Código de la Madre" type="text" value="{{ vacuno.CodigoMama }}" required onblur="validar(this)">
+                    </div>
+                
+                    <div class="field">
+                        <label for="raza">Raza</label>
+                        <select id="raza" name="raza" required onblur="validar(this)">
+                            <option value="" disabled>Selecciona una raza</option>
+                            {% for tipo in razas %}
+                            <option value="{{ tipo.id }}" {% if vacuno.raza.id == tipo.id %}selected{% endif %}>{{ tipo.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                
+                    <div class="field">
+                        <label for="edad">Edad (en años)</label>
+                        <input id="edad" name="edad" placeholder="Edad del vacuno" type="number" min="0" max="99" value="{{ vacuno.edad }}" required onblur="validar(this)">
+                    </div>
+                
+                    <div class="field">
+                        <label for="proposito">Propósito</label>
+                        <select id="proposito" name="proposito" required onblur="validar(this)">
+                            <option value="" disabled>Selecciona un propósito</option>
+                            <option value="CARNE" {% if vacuno.proposito == "CARNE" %}selected{% endif %}>Carne</option>
+                            <option value="LECHE" {% if vacuno.proposito == "LECHE" %}selected{% endif %}>Leche</option>
+                            <option value="VENTA" {% if vacuno.proposito == "VENTA" %}selected{% endif %}>Venta</option>
+                        </select>
+                    </div>
+                
+                    <div class="field">
+                        <label for="origen">Origen</label>
+                        <select id="origen" name="origen" required onblur="validar(this)">
+                            <option value="" disabled>Selecciona un origen</option>
+                            <option value="CRIADA" {% if vacuno.origen == "CRIADA" %}selected{% endif %}>Criada</option>
+                            <option value="REGALADA" {% if vacuno.origen == "REGALADA" %}selected{% endif %}>Regalada</option>
+                            <option value="COMPRADA" {% if vacuno.origen == "COMPRADA" %}selected{% endif %}>Comprada</option>
+                        </select>
+                    </div>
+                
+                    <div class="field">
+                        <label for="estado">Estado</label>
+                        <select id="estado" name="estado" required onblur="validar(this)">
+                            <option value="" disabled>Selecciona un estado</option>
+                            <option value="MUERTA" {% if vacuno.estado == "MUERTA" %}selected{% endif %}>Muerta</option>
+                            <option value="INACTIVA" {% if vacuno.estado == "INACTIVA" %}selected{% endif %}>Inactiva</option>
+                            <option value="VENDIDA" {% if vacuno.estado == "VENDIDA" %}selected{% endif %}>Vendida</option>
+                            <option value="ACTIVA" {% if vacuno.estado == "ACTIVA" %}selected{% endif %}>Activa</option>
+                        </select>
+                    </div>
+                
+                    <div class="field">
+                        <label for="Dia_vacunada">Fecha de Vacunación</label>
+                        <input id="Dia_vacunada" name="Dia_vacunada" type="date" value="{{ vacuno.Dia_vacunada }}" required onblur="validar(this)">
+                    </div>
+                    
+                    <div class="field">
+                        <label for="Dia_caduca_vacunada">Fecha de Caducidad de la Vacunación</label>
+                        <input id="Dia_caduca_vacunada" name="Dia_caduca_vacunada" type="date" value="{{ vacuno.Dia_caduca_vacunada }}" required onblur="validar(this)">
+                    </div>
+                    
+                    <div class="field">
+                        <label for="parcela">Parcela</label>
+                        <select id="parcela" name="parcela" required onblur="validar(this)">
+                            <option value="" disabled>Selecciona una parcela</option>
+                            {% for tipo in parcelas %}
+                            <option value="{{ tipo.id }}" {% if vacuno.parcela.id == tipo.id %}selected{% endif %}>{{ tipo.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                
+                    <div class="field">
+                        <label for="alimentacion">Alimentación</label>
+                        <textarea id="alimentacion" name="alimentacion" placeholder="Tipo de alimentación" required onblur="validar(this)">{{ vacuno.alimentacion }}</textarea>
+                    </div>
+                
+                    <div class="field">
+                        <label for="enfermedades">Enfermedades</label>
+                        <textarea id="enfermedades" name="enfermedades" placeholder="Enfermedades conocidas" required onblur="validar(this)">{{ vacuno.enfermedades }}</textarea>
+                    </div>
+                    
+                    <div class="field">
+                        <label for="vacunas">Vacunas</label>
+                        <textarea id="vacunas" name="vacunas" placeholder="Vacunas aplicadas" required onblur="validar(this)">{{ vacuno.vacunas }}</textarea>
+                    </div>
+            
+                    <div class="field">
+                        <label for="ImagenVacuno">Imagen del Vacuno</label>
+                        <input id="ImagenVacuno" name="ImagenVacuno" type="file" onblur="validar(this)">
+                        <p>Imagen actual: {{ vacuno.ImagenVacuno }}</p>
+                    </div>
+                        <a href="{% url 'actualizar_vacuno' vacuno.id %}">
+                            <button type="button" class="ui purple button">Actualizar</button>
+                        </a>
+                    <div class="caaj_boton"></div>
+                </form>
+            </div>
+            
+            
+        {% endfor %}
+        {% else %}
+        <div class="ui warning message">
+            <div class="header">Sin información disponible</div>
+            <p>No se tiene información de ningún cultivo.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script src="{% static 'js/ganado.js' %}"></script>
+<script src="{% static 'js/validar_form_ganado.js' %}"></script>
+
+{% include 'inc/footer.html' %}

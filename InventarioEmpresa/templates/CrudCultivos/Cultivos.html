@@ -1,0 +1,205 @@
+{% load static %}
+{% include 'inc/header.html' %}
+<link rel="stylesheet" href="{% static 'css/Cultivos.css' %}">
+<div class="ui container">
+    <h1 class="centrarTitulo">Listado de Cultivos</h1>
+
+    <!-- Formulario y botón para agregar cultivos -->
+    <div id="swal-form" style="display:none;">
+        <form id="cultivoForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Selección de Categoría de Cultivo -->
+            <div class="field">
+                <label for="CategoriaCultivo">Categoría de Cultivo</label>
+                <select id="CategoriaCultivo" name="CategoriaCultivo" class="ui dropdown" required>
+                    <option value="" disabled selected>Selecciona una categoría</option>
+                    <option value="FRUTA">Fruta</option>
+                    <option value="VEGETAL">Vegetal</option>
+                </select>
+            </div>
+
+            <!-- Selección de Tipo de Cultivo -->
+            <div class="field">
+                <label for="Tipo_Cultivo">Tipo de Cultivo</label>
+                <select id="Tipo_Cultivo" name="Tipo_Cultivo" class="ui dropdown" required>
+                    <option value="" disabled selected>Selecciona un tipo</option>
+                    {% for tipo in tipo_Cultivo %}
+                    <option value="{{ tipo.nombre }}">{{ tipo.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Descripción del Cultivo -->
+            <div class="field">
+                <label for="Descripcion">Descripción del Cultivo</label>
+                <textarea id="Descripcion" name="Descripcion" class="swal2-textarea" placeholder="Problemas ocurridos"
+                    required></textarea>
+            </div>
+
+            <!-- Cantidad Cosechada -->
+            <div class="field">
+                <label for="cantidad">Cantidad Cosechada</label>
+                <input id="cantidad" name="cantidad" class="swal2-input" placeholder="Cantidad cosechada" type="number"
+                    min="0" required>
+            </div>
+
+            <!-- Fecha de Cosecha -->
+            <div class="field">
+                <label for="fecha_cosechado">Fecha de Cosecha</label>
+                <input id="fecha_cosechado" name="fecha_cosechado" type="date" class="swal2-input" required>
+            </div>
+
+            <!-- Botón de Enviar -->
+            <button type="button" class="ui purple button" onclick="Agregar_valores()">Enviar</button>
+        </form>
+    </div>
+
+    <!-- este es el form para eidtar -->
+    <div id="swal-form" style="display:none;">
+        <form id="cultivoForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Selección de Categoría de Cultivo -->
+            <div class="field">
+                <label for="CategoriaCultivo">Categoría de Cultivo</label>
+                <select id="CategoriaCultivo" name="CategoriaCultivo" class="ui dropdown" required>
+                    <option value="" disabled selected>Selecciona una categoría</option>
+                    <option value="FRUTA">Fruta</option>
+                    <option value="VEGETAL">Vegetal</option>
+                </select>
+            </div>
+
+            <!-- Selección de Tipo de Cultivo -->
+            <div class="field">
+                <label for="Tipo_Cultivo">Tipo de Cultivo</label>
+                <select id="Tipo_Cultivo" name="Tipo_Cultivo" class="ui dropdown" required>
+                    <option value="" disabled selected>Selecciona un tipo</option>
+                    {% for tipo in tipo_Cultivo %}
+                    <option value="{{ tipo.nombre }}">{{ tipo.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Descripción del Cultivo -->
+            <div class="field">
+                <label for="Descripcion">Descripción del Cultivo</label>
+                <textarea id="Descripcion" name="Descripcion" class="swal2-textarea" placeholder="Problemas ocurridos"
+                    required></textarea>
+            </div>
+
+            <!-- Cantidad Cosechada -->
+            <div class="field">
+                <label for="cantidad">Cantidad Cosechada</label>
+                <input id="cantidad" name="cantidad" class="swal2-input" placeholder="Cantidad cosechada" type="number"
+                    min="0" required>
+            </div>
+
+            <!-- Fecha de Cosecha -->
+            <div class="field">
+                <label for="fecha_cosechado">Fecha de Cosecha</label>
+                <input id="fecha_cosechado" name="fecha_cosechado" type="date" class="swal2-input" required>
+            </div>
+
+            <!-- Botón de Enviar -->
+            <button type="button" class="ui purple button" onclick="EditarCultivo()">Enviar</button>
+        </form>
+    </div>
+
+    <button class="btn" onclick="agregar_cultivo()">
+        <div class="wrapper">
+            <p class="text">Agregar</p>
+
+            <div class="flower flower1">
+                <div class="petal one"></div>
+                <div class="petal two"></div>
+                <div class="petal three"></div>
+                <div class="petal four"></div>
+            </div>
+            <div class="flower flower2">
+                <div class="petal one"></div>
+                <div class="petal two"></div>
+                <div class="petal three"></div>
+                <div class="petal four"></div>
+            </div>
+            <div class="flower flower3">
+                <div class="petal one"></div>
+                <div class="petal two"></div>
+                <div class="petal three"></div>
+                <div class="petal four"></div>
+            </div>
+            <div class="flower flower4">
+                <div class="petal one"></div>
+                <div class="petal two"></div>
+                <div class="petal three"></div>
+                <div class="petal four"></div>
+            </div>
+            <div class="flower flower5">
+                <div class="petal one"></div>
+                <div class="petal two"></div>
+                <div class="petal three"></div>
+                <div class="petal four"></div>
+            </div>
+            <div class="flower flower6">
+                <div class="petal one"></div>
+                <div class="petal two"></div>
+                <div class="petal three"></div>
+                <div class="petal four"></div>
+            </div>
+        </div>
+    </button>
+    <br>
+
+    <!-- Estructura para mostrar los cultivos -->
+    <div class="containercards">
+        {% if cultivos %}
+        {% for cultivo in cultivos %}
+        <div class="card">
+            <img src="{% static 'img/fondo_vegetales.jpg' %}" alt="Imagen del cultivo">
+            <div class="caja_contenido">
+                <div class="contenido">
+                    <p class="texto_contenido">Tipo de Cosecha: {{ cultivo.Tipo_Cultivo.nombre }}</p>
+                    <p class="texto_contenido">Cantidad Cosechada: {{ cultivo.cantidad }}</p>
+                    <p class="texto_contenido">Fecha de Plantación: {{ cultivo.fecha_cultivado }}</p>
+                    <button class="ui yellow button" onclick="VerInformacionCultivo('{{ cultivo.id }}')">Ver
+                        más</button>
+                    <button class="ui blue button" onclick="editar_cultivo('{{ cultivo.id }}')">Actualizar</button>
+                    <button class="ui red button" onclick="borrar_info('{{cultivo.id}}')">Eliminar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- HTML oculto para vista detallada del cultivo -->
+        <div id="cultivo-detalle-{{ cultivo.id }}" class="cultivo-detalle" style="display:none;">
+            <div class="contenido_alerta_ver_mas">
+                <img src="{% static 'img/fondo_vegetales.jpg' %}" alt="Imagen del cultivo" class="imagen_ver_mas">
+                <div class="box_ver_mas">
+                    <div class="texto">
+                        <h1>Informacion Actual</h1>
+                        <div class="texto2">
+                            <p><strong>Categoría:</strong> {{ cultivo.CategoriaCultivo }}</p>
+                            <p><strong>Tipo:</strong> {{ cultivo.Tipo_Cultivo.nombre }}</p>
+                            <p><strong>Problemas ocurridos</strong></p>
+                            <p class="problemas">{{ cultivo.Descripcion }}</p>
+                            <p><strong>Cantidad Cosechada:</strong> {{ cultivo.cantidad }}</p>
+                            <p><strong>Fecha de Cosecha:</strong> {{ cultivo.fecha_cosechado }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div style="clear: both;"></div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="ui warning message">
+            <div class="header">Sin información disponible</div>
+            <p>No se tiene información de ningún cultivo.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- Archivo JS -->
+<script src="{% static 'js/Cultivos.js' %}"></script>
+{% include 'inc/footer.html' %}

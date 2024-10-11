@@ -1,0 +1,643 @@
+/* Estilo de botón con flores animadas */
+.btn {
+  height: 4em;
+  width: 12em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0px solid black;
+  cursor: pointer;
+}
+
+.wrapper {
+  height: 2em;
+  width: 8em;
+  position: relative;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.text {
+  font-size: 17px;
+  z-index: 1;
+  color: #000;
+  padding: 4px 12px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.7);
+  transition: all 0.5s ease;
+}
+
+.flower {
+  display: grid;
+  grid-template-columns: 1em 1em;
+  position: absolute;
+  transition: grid-template-columns 0.8s ease;
+}
+
+.flower1 {
+  top: -12px;
+  left: -13px;
+  transform: rotate(5deg);
+}
+
+.flower2 {
+  bottom: -5px;
+  left: 8px;
+  transform: rotate(35deg);
+}
+
+.flower3 {
+  bottom: -15px;
+  transform: rotate(0deg);
+
+}
+
+.flower4 {
+  top: -14px;
+  transform: rotate(15deg);
+}
+
+.flower5 {
+  right: 11px;
+  top: -3px;
+  transform: rotate(25deg);
+}
+
+.flower6 {
+  right: -15px;
+  bottom: -15px;
+  transform: rotate(30deg);
+}
+
+.petal {
+  height: 1em;
+  width: 1em;
+  border-radius: 40% 70% / 7% 90%;
+  background: linear-gradient(#ff77a9, #ff9bbf); /* Tonos rosados */
+  border: 0.5px solid #ff6f9e; /* Color de borde rosado */
+  z-index: 0;
+  transition: width 0.8s ease, height 0.8s ease;
+}
+
+.two {
+  transform: rotate(90deg);
+}
+
+.three {
+  transform: rotate(270deg);
+}
+
+.four {
+  transform: rotate(180deg);
+}
+
+.btn:hover .petal {
+  background: linear-gradient(#ff66b2, #ff99c8); /* Tonos rosados en hover */
+  border: 0.5px solid #ff4f81; /* Color de borde rosado en hover */
+}
+
+.btn:hover .flower {
+  grid-template-columns: 1.5em 1.5em;
+}
+
+.btn:hover .flower .petal {
+  width: 1.5em;
+  height: 1.5em;
+}
+
+.btn:hover .text {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.btn:hover div.flower1 {
+  animation: 15s linear 0s normal none infinite running flower1;
+}
+
+@keyframes flower1 {
+  0% {
+      transform: rotate(5deg);
+  }
+  100% {
+      transform: rotate(365deg);
+  }
+}
+
+.btn:hover div.flower2 {
+  animation: 13s linear 1s normal none infinite running flower2;
+}
+
+@keyframes flower2 {
+  0% {
+      transform: rotate(35deg);
+  }
+  100% {
+      transform: rotate(-325deg);
+  }
+}
+
+.btn:hover div.flower3 {
+  animation: 16s linear 1s normal none infinite running flower3;
+}
+
+@keyframes flower3 {
+  0% {
+      transform: rotate(0deg);
+  }
+  100% {
+      transform: rotate(360deg);
+  }
+}
+
+.btn:hover div.flower4 {
+  animation: 17s linear 1s normal none infinite running flower4;
+}
+
+@keyframes flower4 {
+  0% {
+      transform: rotate(15deg);
+  }
+  100% {
+      transform: rotate(375deg);
+  }
+}
+
+.btn:hover div.flower5 {
+  animation: 20s linear 1s normal none infinite running flower5;
+}
+
+@keyframes flower5 {
+  0% {
+      transform: rotate(25deg);
+  }
+  100% {
+      transform: rotate(-335deg);
+  }
+}
+
+.btn:hover div.flower6 {
+  animation: 15s linear 1s normal none infinite running flower6;
+}
+
+@keyframes flower6 {
+  0% {
+      transform: rotate(30deg);
+  }
+  100% {
+      transform: rotate(390deg);
+  }
+}
+
+/* Estilo de las tarjetas */
+.containercards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  padding: 10px;
+  background-color: #f5f5f5;
+}
+
+.card {
+  width: 100%;
+  max-width: 325px;
+  max-height: 325px;
+  background-color: #ffff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.codigo{
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: white;
+  padding: 5px 10px;
+  border-radius: 10px 0px 6px 0px;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.caja_contenido {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.card:hover .caja_contenido {
+  opacity: 1;
+}
+
+.texto_contenido {
+  color: white;
+  margin: 5px 0;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Estilo de botones Semantic UI */
+.ui.button {
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.ui.green.button {
+  background-color: #28a745;
+  color: white;
+}
+
+.ui.green.button:hover {
+  background-color: #218838;
+}
+
+.ui.red.button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.ui.red.button:hover {
+  background-color: #c82333;
+}
+
+.ui.purple.button {
+  width: 100%;
+  padding: 10px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+/* Estilo de formulario */
+form {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.field {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #333333;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select,
+textarea {
+  padding: 10px;
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+select:focus,
+textarea:focus {
+  border-color: #28a745;
+  outline: none;
+}
+
+/* Estilo de botón personalizado */
+.boton_estilo_ver_mas {
+  top: 10px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  background: #4F7349;
+  font-family: "Montserrat", sans-serif;
+  box-shadow: 0px 6px 24px 0px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  cursor: pointer;
+  border: none;
+  padding: 10px;
+  margin: 0 auto;
+  text-align: center;
+}
+.color_alerta_ver_mas{
+  color: #4F7349;
+}
+
+.boton_estilo_ver_mas:after {
+  content: " ";
+  width: 0%;
+  height: 100%;
+  background: #F2B749;
+  position: absolute;
+  transition: all 0.4s ease-in-out;
+  right: 0;
+}
+
+.boton_estilo_ver_mas:hover::after {
+  right: auto;
+  left: 0;
+  width: 100%;
+}
+
+.boton_estilo_ver_mas span {
+  text-align: center;
+  text-decoration: none;
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 1.125em;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #F2B749;
+  z-index: 1;
+  transition: all 0.3s ease-in-out;
+}
+
+.boton_estilo_ver_mas:hover span {
+  color: #4F7349;
+  animation: scaleUp 0.3s ease-in-out;
+}
+
+@keyframes scaleUp {
+  0% {
+      transform: scale(1);
+  }
+  50% {
+      transform: scale(0.95);
+  }
+  100% {
+      transform: scale(1);
+  }
+}
+
+/* Estilo para las alertas y detalles */
+.contenido_alerta_ver_mas {
+  display: flex;
+}
+
+.box_ver_mas {
+  width: 50%;
+  height: 100%;
+}
+
+.texto {
+  transform: translateY(40px);
+  margin-left: 15px;
+}
+
+.texto2 {
+  text-align: left;
+}
+
+.problemas {
+  padding: 10px;
+  max-height: 200px;
+  overflow-y: scroll;
+}
+
+.imagen_ver_mas {
+  width: 60%;
+  height: 100%;
+}
+
+.custom-popup {
+  max-height: 96vh;
+  overflow-y: auto;
+}
+
+.info-general {
+  display: flex;
+}
+
+.columna {
+  width: 50%;
+}
+
+.caja_mas_detaller_vacuno {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  overflow: hidden;
+  max-height: 0px;
+  transition:  0.5s ease;
+  margin-top: 25px;
+  gap: 10px;
+}
+.caja_mas_detaller_vacuno code{
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  padding: 10px;
+}
+
+.caja_mas_detaller_vacuno.expandido {
+  max-height: 1000px;
+}
+
+/* el scroll  */
+.custom-popup {
+  max-height: 600px; /* Limita la altura para que aparezca el scroll */
+  overflow-y: auto;  /* Habilita el scroll vertical si el contenido sobrepasa la altura */
+}
+
+/* Estilo inicial del scroll */
+.custom-popup::-webkit-scrollbar {
+  width: 12px;  /* Ancho del scroll */
+}
+
+/* Estilo del "thumb" del scroll (la parte que puedes arrastrar) */
+.custom-popup::-webkit-scrollbar-thumb {
+  background-color: #B4BF8A; /* Color del scroll */
+  border-radius: 10px; /* Opcional: para redondear las esquinas del scroll */
+}
+
+/* Cambia el color del scroll cuando se pasa el mouse por encima */
+.custom-popup:hover::-webkit-scrollbar-thumb {
+  background-color: #4F7349; /* Cambia el color a amarillo cuando se pasa el mouse */
+}
+
+#swal-form-ganado {
+  display: none;
+}
+
+#ganadoFormAdd {
+  background-color: #f9f9f9;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+#swal-form-ganado h2 {
+  font-size: 2.2rem;
+  text-align: center;
+  width: 100%;
+  margin-bottom: 20px;
+  color: #4F7349;
+}
+
+.field {
+  flex: 1 1 calc(33.33% - 20px); /* Tres columnas */
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.field.full-width {
+  flex: 1 1 100%; /* Campo de ancho completo */
+}
+
+label {
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+input, select, textarea {
+  font-size: 1.1rem;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+}
+
+input[type="date"] {
+  padding: 10px;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+button.ui.purple.button {
+  font-size: 1.2rem;
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 20px;
+  background-color: #4F7349;
+  color: white;
+  cursor: pointer;
+  width: 100%;
+  text-transform: uppercase;
+  transition: .5s linear;
+}
+
+button.ui.purple.button:hover {
+  background-color: #385533;
+}
+
+@media screen and (max-width: 768px) {
+  .field {
+    flex: 1 1 100%; /* Para pantallas pequeñas, columnas a una sola fila */
+  }
+}
+
+#ganadoFormActualizar {
+  background-color: #f9f9f9;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+#swal-form-ganado_actualizar {
+  display: none;
+}
+
+#swal-form-ganado_actualizar {
+  background-color: #f9f9f9;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+}
+.caja_imagen_actualizar{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.Imagen_actualizar{
+  max-height: auto;
+  width: 65%;
+  object-fit: cover;
+  box-shadow: 0px 0px 4px 2px rgba(0, 0, 0, 0.25);
+}
+
+#ganadoFormAdd input.valid, 
+#ganadoFormAdd select.valid, 
+#ganadoFormAdd textarea.valid {
+  border: 2px solid green;
+}
+
+#ganadoFormAdd input.invalid, 
+#ganadoFormAdd select.invalid, 
+#ganadoFormAdd textarea.invalid {
+  border: 2px solid red;
+}
+
+#ganadoFormActualizar input.valid, 
+#ganadoFormActualizar select.valid, 
+#ganadoFormActualizar textarea.valid {
+  border: 2px solid green;
+}
+
+#ganadoFormActualizar input.invalid, 
+#ganadoFormActualizar select.invalid, 
+#ganadoFormActualizar textarea.invalid {
+  border: 2px solid red;
+}
