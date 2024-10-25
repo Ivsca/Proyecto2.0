@@ -1,0 +1,189 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Editar vacuno</title>
+        <!-- Required meta tags -->
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <link rel="icon" type="image/x-icon" href="{% static 'img/logo_c&sla.png' %}">
+
+        <!-- Bootstrap CSS v5.2.1 -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+            crossorigin="anonymous"
+        />
+    </head>
+    <style>
+        body{
+            background-color:rgb(1, 61, 1);
+            padding: 50px 0px;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        .card{
+            width: 90%;
+            height: auto;
+        }
+        .box_content_form{
+            width: 100%;
+            height: 90%;
+
+        }
+        .box_content_form form{
+            display: grid;
+            grid-template-columns:  auto auto auto;
+            text-align: center;
+            gap: 7px;
+            padding: 0px 20px 0px 20px;
+        }
+        #codigo,
+        #crias,
+        #CodigoPapa,
+        #CodigoMama,
+        #raza,
+        #edad,
+        #proposito,
+        #estado,
+        #vacunas,
+        #Dia_vacunada,
+        #Dia_caduca_vacunada,
+        #parcela,
+        #alimentacion,
+        #enfermedades,
+        #origen{
+            width: 100%;
+            padding: 5px 0px;
+            text-align: center;
+        }
+        .caja_boton_form_agregar{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #imagen-clear_id{
+            background-color: green;
+        }
+        .boton_span {
+            height: auto;
+            float: left;
+            transition: .5s linear;
+            position: relative;
+            display: block;
+            overflow: hidden;
+            padding: 15px 35px;
+            text-align: center;
+            margin: 0 5px;
+            background: transparent;
+            text-transform: uppercase;
+            font-weight: 900;
+            transform: translateY(-20px);
+        }
+        .boton_span:before {
+            position: absolute;
+            content: '';
+            left: 0;
+            bottom: 0;
+            height: 4px;
+            width: 100%;
+            border-bottom: 2px solid transparent;
+            border-left: 2px solid transparent;
+            box-sizing: border-box;
+            transform: translateX(100%);
+        }
+        
+        .boton_span:after {
+            position: absolute;
+            content: '';
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            border-top: 2px solid transparent;
+            border-right: 2px solid transparent;
+            box-sizing: border-box;
+            transform: translateX(-100%);
+        }
+        
+        .boton_span:hover {
+            box-shadow: 0 0px 5px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .boton_span:hover:before {
+            border-color: #262626;
+            height: 100%;
+            transform: translateX(0);
+            transition: .3s transform linear, .3s height linear .3s;
+        }
+        
+        .boton_span:hover:after {
+            border-color: #262626;
+            height: 100%;
+            transform: translateX(0);
+            transition: .3s transform linear, .3s height linear .5s;
+        }
+        .boton_boton {
+            margin-top: 15px;
+            color: #444;
+            text-decoration: none;
+            cursor: pointer;
+            outline: none;
+            border: none;
+            background: transparent;
+            transition: .5s;
+        }
+        .boton_boton:hover{
+            color: black;
+        }
+    </style>
+    <body>
+        <header>
+            <!-- place navbar here -->
+        </header>
+        <div class="card">
+            <div class="card-header"><a href="/ganado"><button>x</button></a></div>
+            <div class="card-body">
+                <div class="box_content_form">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for dato in form %}
+                            <div class="item_form">
+                                {{ dato.label }}
+                                <br>
+                                {{ dato }}
+                                <br>
+                            </div>
+                            
+                        {% endfor %}
+                        <div class="caja_boton_form_agregar">
+                            <button type="submit" class="boton_boton">
+                                <span class="boton_span">
+                                    Guardar
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bootstrap JavaScript Libraries -->
+        <script
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+            integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+            crossorigin="anonymous"
+        ></script>
+
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+            integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+            crossorigin="anonymous"
+        ></script>
+    </body>
+</html>

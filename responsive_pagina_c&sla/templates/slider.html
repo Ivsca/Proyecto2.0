@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="slider1.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="icon" type="image/x-icon" href="img/logo_c&sla.png">
+    <title>C&SLA</title>
+</head>
+<body>
+    <header class="header">
+        <a href="../inicio/index.html" class="logo">C&SLA</a>
+        <div class="social-media">
+            <a href="https://api.whatsapp.com/send/?phone=573133442665&text&type=phone_number&app_absent=0">
+                <div class="tooltip-container">
+                    <span class="tooltip titulo verde">Usuarios</span>
+                    <span class="text"><i class='bx bxl-whatsapp tama_icon verde' ></i></span>
+                </div>  
+            </a>
+            <a href="https://api.whatsapp.com/send/?phone=573112821476&text&type=phone_number&app_absent=0">
+                <div class="tooltip-container">
+                    <span class="tooltip titulo verde">Empresas</span>
+                    <span class="text"><i class='bx bxl-whatsapp tama_icon verde'></i></span>
+                </div>  
+            </a>
+            <a href="https://www.facebook.com/cyslasas">
+                <div class="tooltip-container">
+                    <span class="tooltip titulo azul">Facebook</span>
+                    <span class="text"><i class='bx bxl-facebook tama_icon azul' ></i></span>
+                </div>  
+            </a>
+            <a href="https://www.instagram.com/cysla.sas/?igshid=YmMyMTA2M2Y%3D">
+                <div class="tooltip-container">
+                    <span class="tooltip titulo rosa">Instagram</span>
+                    <span class="text"><i class='bx bxl-instagram tama_icon rosa'></i></span>
+                </div>  
+            </a>
+        </div>
+        <nav class="navbar">
+            <a href="/">pag. principal</a>
+            <a href="/cerrar_sesion">cerrar sesion</a>
+        </nav>
+    </header>
+    <section class="banner">
+        <div class="slider">
+            <div class="slide active">
+                <img src="fondo_vaca.jpg" alt="">
+                <div class="left-info">
+                    <div class="penetrate-blur">
+                        <h1>Gan</h1>
+                    </div>
+                    <div class="content">
+                        <h3>01. china forest tour</h3>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus inventore aspernatur sapiente molestiae tenetur, adipisci fugit facilis nisi, laborum debitis cum quidem, eveniet modi sint alias vel neque consequatur aliquam?</p>
+                        <a href="/ganado" class="btn"><strong>Ver lista</strong></a>
+                    </div>
+                </div>
+                <div class="righ-info">
+                    <h1>ado</h1>
+                    <h3>C&SLA</h3>
+                </div>
+            </div>
+            <div class="slide active">
+                <img src="fondo_vaca.jpg" alt="">
+                <div class="left-info">
+                    <div class="penetrate-blur">
+                        <h1>solici</h1>
+                    </div>
+                    <div class="content">
+                        <h3>02. china forest tour</h3>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus inventore aspernatur sapiente molestiae tenetur, adipisci fugit facilis nisi, laborum debitis cum quidem, eveniet modi sint alias vel neque consequatur aliquam?</p>
+                        <a href="/ganado" class="btn"><strong>Ver lista</strong></a>
+                    </div>
+                </div>
+                <div class="righ-info">
+                    <h1>tudes</h1>
+                    <h3>C&SLA</h3>
+                </div>
+            </div>
+            <div class="slide slide1" >
+                <img src="fondo_vegetales.jpg" alt="imagen_rotada">
+                <div class="left-info">
+                    <div class="penetrate-blur">
+                        <h1>cult</h1>
+                    </div>
+                    <div class="content">
+                        <h3>03. serbia forest tour</h3>
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus inventore aspernatur sapiente molestiae tenetur, adipisci fugit facilis nisi, laborum debitis cum quidem, eveniet modi sint alias vel neque consequatur aliquam?</p>
+                        <a href="/cultivos" class="btn"><strong>Ver lista</strong></a>
+                    </div>
+                </div>
+                <div class="righ-info">
+                    <h1>ivos</h1>
+                    <h3>C&SLA</h3>
+                </div>
+            </div> 
+        </div>
+        <div class="navigation">
+            <span class="prev-btn">
+                <i class='bx bx-chevron-left' ></i>
+            </span>
+            <span class="next-btn">
+                <i class='bx bx-chevron-right' ></i>
+            </span>
+        </div>
+    </section>
+<script>
+    const nextBtn= document.querySelector('.next-btn')
+    const prevBtn= document.querySelector('.prev-btn')
+    const slides= document.querySelectorAll('.slide')
+    const numberOfSlides = slides.length;
+    let slideNumber = 0;
+    nextBtn.onclick =()=>{
+        slides.forEach((slide) =>{
+            slide.classList.remove('active');
+        })
+
+        slideNumber++;
+        if(slideNumber > (numberOfSlides - 1)){
+            slideNumber = 0;
+        }
+        slides[slideNumber].classList.add('active');
+    }
+    prevBtn.onclick =()=>{
+        slides.forEach((slide) =>{
+            slide.classList.remove('active');
+        })
+
+        slideNumber--;
+        if(slideNumber < 0){
+            slideNumber = numberOfSlides -1;
+        }
+        slides[slideNumber].classList.add('active');
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de cultivos</title>
+    <link rel="stylesheet" href="../css/cultivo1.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="icon" type="image/x-icon" href="{% static 'img/logo_c&sla.png' %}">
+</head>
+<body>
+    <section id="section">
+        <div class="box">
+            <button  onclick="agregar_cultivo_cerrar()" class="boton_boton1">
+                <span class="boton_span1">
+                    x
+                </span>
+            </button>
+            <div class="box_content_form">
+                <form method="post" class="form_ingresar_datos">
+                 
+                    <button  type="submit" class="boton_boton">
+                        <span class="boton_span">
+                            Guardar
+                        </span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+    <header id="header">
+        <div class="caja_centrada">
+            <div class="caja_botones">
+                <button onclick="cerrar_menu()" id="cerrar_menu"><i class='bx bx-chevrons-left'></i></button>
+                <button onclick="abrir_menu()" id="activar_menu"><i class='bx bx-chevrons-right' ></i></button>
+            </div>
+            <ul>
+                <a href="/"><li>home</li></a>
+                <a href="/ganado"><li>ganado</li></a>
+                <a id="id_funcion"><li id="texto_li">Buscar</li></a>
+                <a href="/cerrar_sesion"><li>cerrar sesion</li></a>
+            </ul>
+            <button  onclick="agregar_cultivo_activar()" class="boton_boton">
+                <span class="boton_span">
+                    Agregar
+                </span>
+            </button>
+        </div>
+    </header>
+    <div id="content_barra_navegacion">
+        <div class="content">
+            <form method="post">
+        
+                <input type="text" name="consulta" placeholder="Busqueda por tipo de cultivo">
+                <button type="submit"><i class='bx bx-search-alt-2'></i></button>
+            </form>
+        </div>
+    </div>
+    <main>
+        <table>
+            <thead>
+                <tr>
+                    <th>conteo</th>
+                    <th>Tipo de cultivo</th>
+                    <th>Nombre del cultivo</th>
+                    <th>Novedades</th>
+                    <th>Cantidad</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+          
+            <tr>
+                <td><article class="article1"></article></td>
+                <td><article class="article"></article></td>
+                <td><article class="article"></article></td>
+                <td><article class="article tama_article_table"><p></p></article></td>
+                <td><article class="article"></article></td>
+                <td>
+                    <article class="article2">
+                        <div class="box_settings">
+                            <a href="{% url 'editar_cultivo' campo.id %}" class="a">
+                                <button class="button1">
+                                    <span>
+                                        <i class='bx bxs-edit-alt' id="tama"></i>
+                                    </span>
+                                </button>
+                            </a>
+                            <a href="{% url 'eliminar_cultivo' campo.id %}" class="a">
+                                <button class="button1">
+                                    <span>
+                                        <i class='bx bxs-message-square-x' id="tama"></i>
+                                    </span>
+                                </button>
+                            </a>
+                        </div>
+                    </article>
+                </td>
+            </tr>
+            
+            <tr>
+                <td><h1>No se encuentran resultados</h1></td>
+            </tr>
+            
+        </table>
+    </main>
+
+
+
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+
+    <script>
+        function agregar_cultivo_activar(){
+            document.getElementById('section').style.visibility="visible"
+        }
+        function agregar_cultivo_cerrar(){
+            document.getElementById('section').style.visibility="hidden"
+        }
+        function cerrar_menu(){
+            document.getElementById("header").style.transform="translateX(-100%)"
+            document.getElementById("cerrar_menu").style.visibility="hidden"
+            document.getElementById("activar_menu").style.visibility="visible"
+        }
+        function abrir_menu(){
+            document.getElementById("header").style.transform="translateX(0%)"
+            document.getElementById("activar_menu").style.visibility="hidden"
+            document.getElementById("cerrar_menu").style.visibility="visible"
+        }
+        let movimiento=true;
+        let texto_barra_busqueda=document.getElementById('texto_li')
+        function mover_buscador(){
+            const box = document.getElementById('content_barra_navegacion');
+            if (movimiento){
+                box.style.transform='translateY(0%)';
+                texto_barra_busqueda.innerHTML="No buscar"
+                movimiento=false;
+            }else{
+                box.style.transform='translateY(-100%)';
+                texto_barra_busqueda.innerHTML="Buscar"
+                movimiento=true;
+            }
+        }
+        window.onload = function() {
+            document.getElementById('id_funcion').onclick = mover_buscador;
+        }
+    </script>
+</body>
+</html>

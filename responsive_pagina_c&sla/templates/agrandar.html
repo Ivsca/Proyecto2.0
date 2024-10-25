@@ -1,0 +1,97 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Informacion del vacuno</title>
+        <!-- Required meta tags -->
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+
+        <!-- Bootstrap CSS v5.2.1 -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+            crossorigin="anonymous"
+        />
+        <link rel="icon" type="image/x-icon" href="{% static 'img/logo_c&sla.png' %}">
+    </head>
+    <style>
+        body{
+            width: 100%;
+            background-color: rgb(51, 122, 51) ;
+        }
+        .card{
+            margin-top: 5px;
+            box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.1);
+            width: 70%;
+            min-height: 90%;
+            margin-left: 15%;
+        }
+        main{
+            width: 100%;
+            min-height: 60vh;
+            
+        }
+        .caja_textos_largos{
+            width: 100%;
+            display: grid;
+            grid-template-columns: auto auto auto;
+            gap: 30px;
+        }
+        .contenedor_img{
+            transform: translateY(-10px);
+            width: 95%;
+            height: 84vh;
+            background-image: url("{{ vaca.imagen.url }}");
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            background-position:center;
+            border-radius: 10px;
+            margin-left: 2.5%;
+    
+        }
+    </style>
+    <body>
+        
+            <div class="card">
+                <div class="card-header"> <h2>{{ vaca.codigo }}</h2></div>
+                <div class="card-body">
+                    <main>
+                        <div class="contenedor_img"></div>
+                        <div class="caja_textos_largos">
+                            <p><strong>Codigo del vacuno: </strong>{{ vaca.codigo }}</p>
+                            <p><strong>Número de crías del vacuno: </strong>{{ vaca.crias }}</p>
+                            <p><strong>Código del papá: </strong>{{ vaca.CodigoPapa }}</p>
+                            <p><strong>Código de la mamá: </strong>{{ vaca.CodigoMama }}</p>
+                            <p><strong>Raza del vacuno: </strong>{{ vaca.raza }}</p>
+                            <p><strong>Edad del vacuno: </strong>{{ vaca.edad }}</p>
+                            <p><strong>Proposito del vacuno: </strong>{{ vaca.proposito }}</p>
+                            <p><strong>En que estado se encuentra el vacuno: </strong>{{ vaca.estado }}</p>
+                            <p><strong>Fecha de vacunación</strong>{{ vaca.Dia_vacunada }}</p>
+                            <p><strong>Fecha cuando se debe renovar la vacuna: </strong>{{ vaca.Dia_caduca_vacunada }}</p>
+                            <p><strong>Parcela donde se encuentra el vacuno: </strong>{{ vaca.parcela }}</p>
+                            <p><strong>Lugar del que proviene el vacuno: </strong>{{ vaca.origen }}</p>
+                            <p><strong>Enfermedades que padece el vacuno: </strong>{{ vaca.enfermedades }}</p>
+                            <p><strong>Alimentación que lleva el vacuno: </strong>{{ vaca.alimentacion }}</p>
+                            <p style="width: 300px;"><strong>Vacunas del vacuno: </strong>{{ vaca.vacunas }}</p>
+                        </div>
+                    </main>
+                </div>
+            </div>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+            integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+            crossorigin="anonymous"
+        ></script>
+
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+            integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+            crossorigin="anonymous"
+        ></script>
+    </body>
+</html>

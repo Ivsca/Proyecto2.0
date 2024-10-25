@@ -1,0 +1,172 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/ganado.css' %}">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="icon" type="image/x-icon" href="{% static 'img/logo_c&sla.png' %}">
+    <title>Registro del ganado</title>
+</head>
+<body>
+    <section id="section">
+        <div class="box">
+            <button onclick="agregar_cultivo_cerrar()">x</button>
+            <div class="box_content_form">
+                <form method="post">
+                    {% csrf_token %}
+                    {% for dato in form %}
+                        <div class="item_form">
+                            {{ dato.label }}
+                            <br>
+                            {{ dato }}
+                            <br>
+                        </div>
+                        
+                    {% endfor %}
+                    <div class="caja_boton_form_agregar">
+                        <button type="submit" class="boton_boton">
+                            <span class="boton_span">
+                                Guardar
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+    <header id="header">
+        <div class="caja_centrada">
+            <div class="caja_botones">
+                <button onclick="cerrar_menu()" id="cerrar_menu"><i class='bx bx-chevrons-left'></i></button>
+                <button onclick="abrir_menu()" id="activar_menu"><i class='bx bx-chevrons-right' ></i></button>
+            </div>
+            <ul>
+                <a href="/"><li>home</li></a>
+                <a href="/cultivos"><li>cultivos</li></a>
+                <a id="id_funcion"><li id="texto_li">Buscar</li></a>
+                <a href="/cerrar_sesion"><li>cerrar sesion</li></a>
+            </ul>
+            <button onclick="agregar_cultivo_activar()" class="boton_boton">
+                <span class="boton_span">
+                    Agregar
+                </span>
+            </button>
+        </div>
+    </header>
+    <div id="content_barra_navegacion">
+        <div class="content">
+            <form method="post">
+                {% csrf_token %}
+                <input type="text" name="consulta" placeholder="Busqueda por tipo de cultivo">
+                <button type="submit"><i class='bx bx-search-alt-2'></i></button>
+            </form>
+        </div>
+    </div>
+    <main>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Conteo</th>
+                    <th>Codigo</th>
+                    <th>Codigo papá</th>
+                    <th>Codigo mamá</th>
+                    <th>Raza</th>
+                    <th>Años</th>
+                    <th>Uso</th>
+                    <th>R. Vacunas</th>
+                    <th>Estado</th>
+                    <th>acciones</th>
+                </tr>
+            </thead>
+            {% for vacuno in lista_vacunos %}
+            <tr class="caja">
+                <td><article class="primero">{{ forloop.counter }}</article></td>
+                <td><article>{{ vacuno.codigo }}</article></td>
+                <td><article>{{ vacuno.CodigoPapa }}</article></td>
+                <td><article>{{ vacuno.CodigoMama }}</article></td>
+                <td><article>{{ vacuno.raza }}</article></td>
+                <td><article>{{ vacuno.edad }}</article></td>
+                <td><article>{{ vacuno.proposito }}</article></td>
+                <td><article>{{ vacuno.Dia_caduca_vacunada }}</article></td>
+                <td><article>{{ vacuno.estado }}</article></td>
+                <td>
+                    <div class="caja_diseno">
+                        <div class="box_settings">
+                            <div class="caja_opcional_settings">
+                                <a href="{% url 'agrandar' vacuno.id %}">
+                                    <button class="button1">
+                                        <span>
+                                            <svg viewBox="0 0 24 24" height="24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M9.145 18.29c-5.042 0-9.145-4.102-9.145-9.145s4.103-9.145 9.145-9.145 9.145 4.103 9.145 9.145-4.102 9.145-9.145 9.145zm0-15.167c-3.321 0-6.022 2.702-6.022 6.022s2.702 6.022 6.022 6.022 6.023-2.702 6.023-6.022-2.702-6.022-6.023-6.022zm9.263 12.443c-.817 1.176-1.852 2.188-3.046 2.981l5.452 5.453 3.014-3.013-5.42-5.421z"></path></svg>
+                                        </span>
+                                    </button>
+                                </a>
+                                <a href="{% url 'editar_vacuno' vacuno.id %}" class="a">
+                                    <button class="button1">
+                                        <span>
+                                            <i class='bx bxs-edit-alt' id="tama"></i>
+                                        </span>
+                                    </button>
+                                </a>
+                                <a href="{% url 'eliminar_vacuno' vacuno.id %}" class="a">
+                                    <button class="button1">
+                                        <span>
+                                            <i class='bx bxs-message-square-x' id="tama"></i>
+                                        </span>
+                                    </button>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        {% empty %}
+        <tr>
+            <td><h1>No se encuentran resultados</h1></td>
+        </tr>
+        {% endfor %}
+        </table>
+    </main>
+    
+
+
+    <script>
+        function cerrar_menu(){
+            document.getElementById("header").style.transform="translateX(-100%)"
+            document.getElementById("cerrar_menu").style.visibility="hidden"
+            document.getElementById("activar_menu").style.visibility="visible"
+        }
+        function abrir_menu(){
+            document.getElementById("header").style.transform="translateX(0%)"
+            document.getElementById("activar_menu").style.visibility="hidden"
+            document.getElementById("cerrar_menu").style.visibility="visible"
+        }
+        function agregar_cultivo_activar(){
+            document.getElementById('section').style.visibility="visible"
+        }
+        function agregar_cultivo_cerrar(){
+            document.getElementById('section').style.visibility="hidden"
+        }
+        let movimiento=true;
+        let texto_barra_busqueda=document.getElementById('texto_li')
+        function mover_buscador(){
+            const box = document.getElementById('content_barra_navegacion');
+            if (movimiento){
+                box.style.transform='translateY(0%)';
+                texto_barra_busqueda.innerHTML="No buscar"
+                movimiento=false;
+            }else{
+                box.style.transform='translateY(-100%)';
+                texto_barra_busqueda.innerHTML="Buscar"
+                movimiento=true;
+            }
+        }
+        window.onload = function() {
+            document.getElementById('id_funcion').onclick = mover_buscador;
+        }
+    </script>
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+</body>
+</html>

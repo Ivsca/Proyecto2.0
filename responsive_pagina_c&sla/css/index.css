@@ -1,0 +1,286 @@
+*{
+    margin: 0%;
+    padding: 0%;
+    
+}
+body{
+    min-height: 100vh;
+    
+}
+:root{
+    --letra:'Courier New', Courier, monospace;
+    --titulo: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+.main_all{
+    width: 100%;
+    max-width: 10000px;
+    background-color: rgb(83, 143, 83);
+    padding-top: 60px;
+    padding-bottom: 40px;
+    
+}
+main{
+    margin-left: 2%;
+    width: 96%;
+    background-color: white;
+    border-radius: 10px;
+}
+nav{
+    padding: 10px 0px;
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.menu{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    transform: translateX(50px);
+}
+.menu a{
+    text-decoration: none;
+    color: black;
+}
+.caja_botones_menu{
+    display: flex;
+    flex-direction: row;
+    transform: translateX(-30px) translateY(30px);
+}
+.social-media{
+    transform: translateX(-10px);
+}
+.social-media a{
+    display: inline-flex;
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    text-decoration: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.tooltip-container {
+    border-radius: 8px;
+    border: 1px solid #fff;
+    padding: 3px 6px ;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #252525;
+    border-radius: 8px; /* Rounded edges */
+}
+.tooltip-container:hover .verde{
+    color: green;
+}
+.tooltip-container:hover .azul{
+    color: blue;
+}
+.tooltip-container:hover .rosa{
+    color: rgb(206, 46, 121);
+}
+
+.boton_span {
+    height: auto;
+    float: left;
+    transition: .5s linear;
+    position: relative;
+    display: block;
+    overflow: hidden;
+    padding: 15px 35px;
+    text-align: center;
+    margin: 0 5px;
+    background: transparent;
+    text-transform: uppercase;
+    font-weight: 900;
+    transform: translateY(-20px);
+  }
+  .boton_span:before {
+    position: absolute;
+    content: '';
+    left: 0;
+    bottom: 0;
+    height: 4px;
+    width: 100%;
+    border-bottom: 2px solid transparent;
+    border-left: 2px solid transparent;
+    box-sizing: border-box;
+    transform: translateX(100%);
+  }
+  
+  .boton_span:after {
+    position: absolute;
+    content: '';
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    border-top: 2px solid transparent;
+    border-right: 2px solid transparent;
+    box-sizing: border-box;
+    transform: translateX(-100%);
+  }
+  
+  .boton_span:hover {
+    box-shadow: 0 0px 5px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .boton_span:hover:before {
+    border-color: #262626;
+    height: 100%;
+    transform: translateX(0);
+    transition: .3s transform linear, .3s height linear .3s;
+  }
+  
+  .boton_span:hover:after {
+    border-color: #262626;
+    height: 100%;
+    transform: translateX(0);
+    transition: .3s transform linear, .3s height linear .5s;
+  }
+.boton_boton {
+    margin-top: 15px;
+    color: #444;
+    text-decoration: none;
+    cursor: pointer;
+    outline: none;
+    border: none;
+    background: transparent;
+    transition: .5s;
+}
+.boton_boton:hover{
+    color: black;
+}
+
+
+
+.titulo{
+    font-size: 1.2em;
+}
+.tama_icon{
+    font-size: 1.6em;
+}
+  /* Style for the bubble tooltip */
+.tooltip{
+    position: absolute;
+    top: -100%; /* Initially hidden above the container */
+    left: 50%;
+    transform: translateX(-50%) translateY(-10%);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: all 0.3s;
+  }
+  /* Tooltip appearance on hover */
+  .tooltip-container:hover {
+    box-shadow: 0px 0px 4px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .tooltip-container:hover .tooltip {
+    top: -90%; /* Adjusted position for the bubble tooltip */
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    background-color: white;
+    border: solid 1px rgba(0, 0, 0, 0.582);
+    padding: 7px 9px  0px 7px;
+    border-radius: 6px;
+  }
+.caja_slider_texto_position{
+    width: 100%;
+    height:  600px;
+    display: flex;
+    flex-direction: row;
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(375px,1fr));
+  
+}
+.box{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.box_slider{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.box_icons{
+    transform: translateY(20px);
+}
+.tama_img_icon{
+    width: 77px;
+}
+#carouselExampleCaptions{
+    transform: translateX(-50px);
+    overflow: hidden;
+}
+.sobre_nosotros{
+    width: 100%;
+    height: 80vh;
+    display: flex;
+    justify-content: space-around;
+}
+.sobre_nosotros_contect{
+    width: 43%;
+    height: 100%;
+}
+.sobre_nosotros_contect:nth-child(2){
+    transform: translateX(-60px) translatey(70px);
+    width: 38%;
+}
+.caja_buenas_practicas{
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+.buenas_practicas{
+    width: 30%;
+    height: 270px;
+}
+.funcionalidades{
+    width: 100%;
+    min-height: 90vh;
+    margin-top: 200px;
+    
+}
+.funcionalidades h2{
+    text-align: center;
+}
+.box_funciones{
+    width: 100%;
+    height: 100%;
+}
+.funcion{
+    display: flex;
+    justify-content: space-around;
+}
+.texto h1{
+    font-size: 3.5em;
+    font-family:var(--letra);
+   
+}
+.caja_texto{
+    width: 50%;
+    height: 570px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+.h1_texto{
+    transform: translateX(-60px);
+    font-size: 5em;
+    width: 100%;
+    display: flex-end;
+    align-items: center;
+}
+.tipo_letra{
+    font-family: var(--titulo);
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+ 

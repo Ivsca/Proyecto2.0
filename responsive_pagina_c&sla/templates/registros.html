@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/registros.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'img/logo_c&sla.png' %}">
+    <title>Cuentas</title>
+</head>
+<style>
+    .caja_grid{
+        width: 100%;
+        height: 100%;
+    }
+    #password1{
+        grid-area: p1;
+        background-color: red;
+    }
+    #password2{
+        grid-area: pp;
+        background-color: blue;
+    }
+    .caja_grid{
+        width: 100%;
+        height: 100%;
+        display: grid;
+        grid-template-columns: auto auto;
+    }
+    .caja_center_items h1{
+        font-size: 1.8em;
+    }
+</style>
+<body>
+    <main>
+        <div class="box_contect">
+            <div id="contect">
+                <section>
+                    <article id="register">
+                        <div class="caja_center_items">
+                            <h1>Registrarse</h1>
+                            <form method="post" id="form_register">
+                                {% csrf_token %}
+                                <div class="caja_grid">
+                                    {% for elemento in form_register %}
+                                        <div class="caja">
+                                            {{ elemento.label }}
+                                            <br>
+                                            {{elemento}}
+                                            <br>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <input type="submit" value="Enviar">
+                            </form>
+                        </div>
+                    </article>
+                    <article id="login">
+                        <div class="caja_center_items">
+                            <h1 class="title_login">Iniciar sesion</h1>
+                            <form method="post" class="form_login input-container" >
+                                {% csrf_token %}
+                                <input type="text">
+                                <input type="text">
+                                <input type="text">
+                                <input type="text">
+                                <button type="submit">
+                                    <span class="box">
+                                        Ingresar
+                                    </span>
+                                </button>
+                            </form>
+                        </div>
+                    </article>
+                </section>
+            </div>
+        </div>
+        <div class="box1">
+            <div class="item">
+                <h1>Inicia sesion </h1>
+                <h2>todo bien mano</h2>
+                <button onclick="iniciar_sesion()">
+                    <span class="box">
+                        Iniciar sesion
+                    </span>
+                </button>
+            </div>
+        </div>
+        <div class="box2">
+            <div class="item">
+                <h1>¿Aun no tienes cuenta?</h1>
+                <h2>todo bien mano</h2>
+                <button onclick="crear_cuenta()">
+                    <span class="box">
+                        Registrarse
+                    </span>
+                </button>
+            </div>
+        </div>
+    </main>
+    <script>
+        function crear_cuenta(){
+            document.getElementById('contect').style.transform="translateX(100%)";
+            document.getElementById('register').style.visibility="visible";
+            document.getElementById('login').style.visibility="hidden";
+        }
+        function iniciar_sesion(){
+            document.getElementById('contect').style.transform="translateX(0%)";
+            document.getElementById('register').style.visibility="hidden";
+            document.getElementById('login').style.visibility="visible";
+        }
+    </script>
+</body>
+</html>
