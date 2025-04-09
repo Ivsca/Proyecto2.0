@@ -1,0 +1,165 @@
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"/>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="{% static 'Css/logueo/Logueo.css' %}">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .hidden {
+            display: none;
+        }
+        .carousel-item img {
+            width: 100%;
+            height: auto;
+        }
+        .transition {
+            transition: transform 0.5s ease;
+        }
+        .form-container {
+            max-height: 500px; /* Ajusta la altura máxima según sea necesario */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="container mx-auto p-6">
+        <div class="flex flex-col md:flex-row bg-white rounded-lg shadow-lg overflow-hidden">
+            <!-- Formulario de Inicio de Sesión -->
+            <div class="w-full md:w-1/2 p-8 transition form-container" id="login-form">
+                <h2 class="text-2xl font-bold text-center mb-4">Iniciar Sesión</h2>
+                <form id="loginForm" action="{% url 'LoginUser' %}" method="post" class="max-h-[400px] overflow-y-auto p-1">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Nombre de Usuario</label>
+                        <input class="w-full border p-2 rounded-lg" type="text" name="username" id="UserName" required oninput="validarNombre()">
+                        <span id="errorUserName" class="text-red-500 text-sm"></span>
+                    </div>
+                
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Correo</label>
+                        <input class="w-full border p-2 rounded-lg" type="email" name="correo" id="Correo" required oninput="validarCorreo()">
+                        <span id="errorCorreo" class="text-red-500 text-sm"></span>
+                    </div>
+                
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Contraseña</label>
+                        <input class="w-full border p-2 rounded-lg" type="password" name="clave" id="Clave" required oninput="validarClave()">
+                        <span id="errorClave" class="text-red-500 text-sm"></span>
+                    </div>
+                
+                    <button type="submit" class="bg-teal-600 text-white w-full py-2 rounded-lg">Ingresar</button>
+                    <p class="text-center mt-4 cursor-pointer text-blue-500" onclick="toggleForms()">¿No tienes cuenta? Regístrate</p>
+                </form>
+            </div>
+            
+            <!-- Formulario de Registro -->
+            <div class="w-full md:w-1/2 p-8  hidden transition form-container" id="register-form">
+                <h2 class="text-2xl font-bold text-center mb-4">Regístrate</h2>
+                    <form id="registerForm" action="{% url 'RegisterUser' %}" method="post">
+                        {% csrf_token %}
+                        <div class="container_scroll">
+                            <div class="mb-4">
+                                <label class="block text-gray-700">Nombre de Usuario</label>
+                                <input class="w-full border p-2 rounded-lg" type="text" name="UserName" id="username" required oninput="validarUsername()">
+                                <span id="errorusername" class="text-red-500 text-sm"></span>
+                            </div>
+    
+                            <div class="mb-4">
+                                <label class="block text-gray-700">Nombres</label>
+                                <input class="w-full border p-2 rounded-lg" type="text" name="Nombres" id="nombres" required oninput="validarNombres()">
+                                <span id="errornombres" class="text-red-500 text-sm"></span>
+                            </div>
+    
+                            <div class="mb-4">
+                                <label class="block text-gray-700">Apellidos</label>
+                                <input class="w-full border p-2 rounded-lg" type="text" name="Apellidos" id="apellidos" required oninput="validarApellidos()">
+                                <span id="errorapellidos" class="text-red-500 text-sm"></span>
+                            </div>
+    
+                            <div class="mb-4">
+                                <label class="block text-gray-700">Correo</label>
+                                <input class="w-full border p-2 rounded-lg" type="email" name="Correo" id="correo" required oninput="validarCorreoRegistro()">
+                                <span id="errorcorreo" class="text-red-500 text-sm"></span>
+                            </div>
+    
+                            <div class="mb-4">
+                                <label class="block text-gray-700">Tipo de Documento</label>
+                                <select class="w-full border p-2 rounded-lg" name="TipoDocumento" id="tipoDocumento" onchange="validarTipoDocumento()">
+                                    <option value="">Seleccione una opción</option>
+                                    {% for documento in tipos_documentos %}
+                                        <option value="{{ documento.id }}">{{ documento }}</option>
+                                    {% endfor %}
+                                </select>
+                                <span id="errortipoDocumento" class="text-red-500 text-sm"></span>
+                            </div>
+    
+                            <div class="mb-4">
+                                <label class="block text-gray-700">Número de Documento</label>
+                                <input class="w-full border p-2 rounded-lg" type="text" name="NumeroDocumento" id="numeroDocumento" required oninput="validarNumeroDocumento()">
+                                <span id="errornumeroDocumento" class="text-red-500 text-sm"></span>
+                            </div>
+    
+                            <div class="mb-4">
+                                <label class="block text-gray-700">Contraseña</label>
+                                <input class="w-full border p-2 rounded-lg" type="password" name="Clave1" id="clave1" required oninput="validarClaveRegistro()">
+                                <span id="errorclave1" class="text-red-500 text-sm"></span>
+                            </div>
+    
+                            <div class="mb-4">
+                                <label class="block text-gray-700">Confirmar contraseña</label>
+                                <input class="w-full border p-2 rounded-lg" type="password" name="Clave2" id="clave2" required oninput="validarConfirmacionClave()">
+                                <span id="errorclave2" class="text-red-500 text-sm"></span>
+                            </div>
+                        </div>
+
+                        <!-- Botón de Registro y Cambio de Formulario -->
+                        <button type="submit" class="bg-teal-600 text-white w-full py-2 rounded-lg">Registrarse</button>
+                        <p class="text-center mt-4 cursor-pointer text-blue-500" onclick="toggleForms()">¿Ya tienes cuenta? Inicia sesión</p>
+                    </form>
+            </div>
+
+           
+            <!-- Slider de Imágenes -->
+            <div class="w-full md:w-1/2">
+                <div id="carouselExampleIndicators" class="carousel slide h-full" data-ride="carousel">
+                    <ol class="carousel-indicators">
+                        <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+                        <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+                        <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+                    </ol>
+                    <div class="carousel-inner h-full">
+                        <div class="carousel-item active h-full">
+                            <img src="{% static 'Image/img/Vaca_slider1.jpg' %}" alt="Slide 1" class="h-full object-cover">
+                        </div>
+                        <div class="carousel-item h-full">
+                            <img src="{% static 'Image/img/img_slider_campo.jpg' %}" alt="Slide 2" class="h-full object-cover">
+                        </div>
+                        <div class="carousel-item h-full">
+                            <img src="https://storage.googleapis.com/a1aa/image/_Ft_Hk4z-5191YHvvHm1n0kXYkaiUFPKwtOTowQQ-ok.jpg" alt="Slide 3" class="h-full object-cover">
+                        </div>
+                    </div>
+                    <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'JavaScripts/Logueo/iniciar_sesion_validacion.js' %}"></script>
+    <script src="{% static 'JavaScripts/Logueo/register_validacion.js' %}"></script>
+</body>

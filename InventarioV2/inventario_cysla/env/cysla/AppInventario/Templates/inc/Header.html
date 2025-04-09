@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C&sla</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'Image/img/logo_c&sla.png' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+    <link rel="stylesheet" href="{% static 'Css/HeaderFooter.css' %}">
+</head>
+
+<body>
+    <header>
+        <img src="{% static 'Image/img/logo_c&sla.png' %}" alt="Logo" style="width: 65px; height: 65px;">
+        <div class="navegacion">
+            <a href="/">Home</a>
+            <div class="dropdown">
+                <a>Inventario</a>
+                <div class="submenu">
+                    <a href="/cultivos/list/">Cultivos</a>
+                    <a href="/">Tipos de cultivos</a>
+                    <a href="/ganado/list/">Ganado</a>
+                    <a onclick="race()">Razas de ganado</a>
+                    <a href="/">Parceras de la finca</a>
+                </div>
+            </div>
+            <div class="dropdown">
+                <a>Usuarios</a>
+                <div class="submenu">
+                    <a href="{% url 'TablaSolicitudesUser' %}">Ver Solicitudes</a>
+                    <a href="{% url 'TablaUsuarios' %}">Ver usuarios</a>
+                </div>
+            </div>
+            <a href="#">sdfd</a>
+            <a href="#">sdfd</a>
+            <a href="#">sdfd</a>
+        </div>
+        <div class="right menu">
+            <a class="item" href="{% url 'PlantillaLogueo' %}" style="border-bottom: none;">
+                <button class="custom-button">Iniciar Sesión</button>
+            </a>
+        </div>
+    </header>
+
+    <div id="box_race">
+
+    </div>
+
+    <script src="{% static 'js/header.js' %}"></script>
