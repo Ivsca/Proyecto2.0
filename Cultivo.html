@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C&sla</title>
+    <link rel="icon" type="image/x-icon" href="img/logo_c&sla.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+    <link rel="stylesheet" href="Cultivo.css">
+</head>
+
+<body>
+    <header>
+        <img src="img/logo_c&sla.png" alt="Logo" style="width: 65px; height: 65px;">
+    
+        <!-- Botón hamburguesa -->
+        <button class="hamburguesa" id="toggleMenu">☰</button>
+    
+        <!-- Menú de navegación -->
+        <div class="navegacion" id="menu">
+            <a href="/">Home</a>
+    
+            <div class="dropdown">
+                <a>Inventario</a>
+                <div class="submenu">
+                    <a href="/cultivos/list/">Cultivos</a>
+                    <a href="/">Tipos de cultivos</a>
+                    <a href="/ganado/list/">Ganado</a>
+                    <a onclick="race()">Razas de ganado</a>
+                    <a href="/">Parceras de la finca</a>
+                </div>
+            </div>
+    
+            <div class="dropdown">
+                <a>Usuarios</a>
+                <div class="submenu">
+                    <a href="{% url 'TablaSolicitudesUser' %}">Ver Solicitudes</a>
+                    <a href="{% url 'TablaUsuarios' %}">Ver usuarios</a>
+                </div>
+            </div>
+    
+            <a href="#">sdfd</a>
+            <a href="#">sdfd</a>
+            <a href="#">sdfd</a>
+        </div>
+    
+        <!-- Botón de login -->
+        <div class="right menu">
+            <a class="item" href="{% url 'PlantillaLogueo' %}" style="border-bottom: none;">
+                <button class="custom-button">Iniciar Sesión</button>
+            </a>
+        </div>
+    </header>
+    
+
+    <div id="box_race">
+
+    </div>
+
+    <!-- BUSCADOR -->
+
+    <div class="box">
+        <div class="agregar_buscador">
+            <button onclick="agregarFormulario()">Agregar</button>
+            <form action="#" method="">
+                <input type="text">
+                <select name="" id="">
+                    <option value="">1</option>
+                    <option value="">2</option>
+                    <option value="">3</option>
+                    <option value="">4</option>
+                </select>
+                <button>Buscar</button>
+            </form>
+        </div>
+        <div class="info_buscador" style="display: block;" ></div>
+
+        <!-- CARDS -->
+
+        <div class="cultivos">
+            <section class="container">
+                <div class="card">
+                    <div class="img-box">
+                        
+                    </div>
+                    <div class="content">
+                        <h2>01<br><span>Tomate</span> <a href="https://www.instagram.com/cp0031/" class="instagram" target="_blank"><i class="fab fa-instagram"></i></a></h2>
+                        <table>
+                            <tr>
+                                <button class="btn-ver" onclick="abrirFormularioVer()">Ver</button>
+                                <button class="btn-editar" onclick="mostrarFormulario()">Editar</button>
+                        </table>
+                        <button class="btn-eliminar">Eliminar</button>
+                        
+                    </div>
+                </div>
+           
+                <div class="card">
+                    <div class="img-box-b">
+                        
+                    </div>
+                    <div class="content">
+                        <h2>02<br><span>Lechuga</span> <a href="https://www.instagram.com/mcdavid97/" class="instagram" target="_blank"><i class="fab fa-instagram"></i></a></h2>
+                        <table>
+                            <tr>
+                                <button class="btn-ver" onclick="abrirFormularioVer()">Ver</button>
+                                <button class="btn-editar" onclick="mostrarFormulario()">Editar</button>
+                            </tr>
+                        </table>
+                        <button class="btn-eliminar">Eliminar</button>
+
+                    </div>
+                </div>
+        
+                <div class="card">
+                    <div class="img-box-c">
+                        
+                    </div>
+                    <div class="content">
+                        <h2>03<br><span>Maiz</span> <a href="https://www.instagram.com/larswilliamkarlsson/" class="instagram" target="_blank"><i class="fab fa-instagram"></i></a></h2>
+                        <table>
+                            <tr>
+                                <button class="btn-ver" onclick="abrirFormularioVer()">Ver</button>
+                                <button class="btn-editar" onclick="mostrarFormulario()">Editar</button>
+                            </tr>
+                        </table>
+                        <button class="btn-eliminar">Eliminar</button>
+                    </div>
+                </div>
+
+                 <!-- Formulario Editar -->
+                    <div id="formularioEditar" class="formulario-editar">
+                        <h3>Editar Información</h3>
+                        <form action="#" method="post" enctype="multipart/form-data">
+                            <label for="nombre">Nombre del cultivo:</label>
+                            <input type="text" id="nombre" name="nombre"> <br>
+
+                            <label for="tipo">Tipo:</label>
+                            <input type="text" id="tipo" name="tipo"> <br>
+
+                            <label for="cantidad">Cantidad:</label>
+                            <input type="number" id="cantidad" name="cantidad"> <br>
+
+                            <label for="categoria">Categoría:</label>
+                            <select id="categoria" name="categoria">
+                                <option value="vegetal">Vegetal</option>
+                                <option value="fruta">Fruta</option>
+                            </select> 
+                                                
+                            <label for="fecha">Fecha de siembra:</label>
+                            <input type="date" id="fecha" name="fecha"> 
+
+                            <label for="cosecha">fecha de cosecha:</label>
+                            <input type="date" id="cosecha" name="cosecha"> 
+
+                            <label for="imagen">Imagen</label>
+                            <input type="file" id="imagen" name="imagen" accept="image/*">
+
+                            <button type="submit">Guardar</button>
+                            <button type="button" onclick="cerrarFormulario()">Cancelar</button>
+                        </form>
+                    </div>
+
+                <!-- Formulario Ver -->
+                <div id="formularioVer" class="formulario-ver">
+                    <h3>Información del Cultivo</h3>
+                    <div class="contenedor-flex">
+                        <div class="datos-cultivo">
+                            <p><strong>Nombre del cultivo:</strong> Tomate Cherry</p>
+                            <p><strong>Tipo:</strong> Tomate</p>
+                            <p><strong>Cantidad:</strong> 45</p>
+                            <p><strong>Categoría:</strong> Vegetal</p>
+                            <p><strong>Fecha de siembra:</strong> 2024-10-15</p>
+                            <p><strong>Fecha de cosecha:</strong> 2025-01-20</p>
+                        </div>
+                        <img src="img/cocktail-tomatoes-7461032_1280.jpg" alt="Imagen del cultivo" class="imagen-ver">
+                    </div>
+                    <button type="button" onclick="cerrarFormularioVer()">Cerrar</button>
+                </div>
+
+                <!-- Formulario Agregar -->
+                <div id="formularioAgregar" class="formulario-agregar">
+                    <h3>Agregar Nuevo Cultivo</h3>
+                    <form action="#" method="post" enctype="multipart/form-data">
+                        <label for="nuevoNombre">Nombre del cultivo:</label>
+                        <input type="text" id="nuevoNombre" name="nuevoNombre">
+
+                        <label for="nuevoTipo">Tipo:</label>
+                        <input type="text" id="nuevoTipo" name="nuevoTipo">
+
+                        <label for="nuevaCantidad">Cantidad:</label>
+                        <input type="number" id="nuevaCantidad" name="nuevaCantidad">
+
+                        <label for="nuevaCategoria">Categoría:</label>
+                        <select id="nuevaCategoria" name="nuevaCategoria">
+                            <option value="vegetal">Vegetal</option>
+                            <option value="fruta">Fruta</option>
+                        </select>
+
+                        <label for="nuevaFecha">Fecha de siembra:</label>
+                        <input type="date" id="nuevaFecha" name="nuevaFecha">
+
+                        <label for="nuevaCosecha">Fecha de cosecha:</label>
+                        <input type="date" id="nuevaCosecha" name="nuevaCosecha">
+
+                        <label for="nuevaImagen">Imagen</label>
+                        <input type="file" id="nuevaImagen" name="nuevaImagen" accept="image/*">
+
+                        <button type="submit">Agregar</button>
+                        <button type="button" onclick="cerrarFormularioAgregar()">Cancelar</button>
+                    </form>
+                </div>
+
+            </section>
+        </div>
+    </div>
+
+
+
+    <script src="Cultivo.js"></script>
+    <script src="{% static 'js/header.js' %}"></script>
+
+</body>    
