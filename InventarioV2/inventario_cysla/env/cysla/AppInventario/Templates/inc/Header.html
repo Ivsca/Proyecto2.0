@@ -21,7 +21,7 @@
                 <div class="submenu">
                     <a href="/cultivos/list/">Cultivos</a>
                     <a href="/">Tipos de cultivos</a>
-                    <a href="/ganado/list/">Ganado</a>
+                    <a href="{% url 'TablaGanado' %}">Ganado</a>
                     <a onclick="race()">Razas de ganado</a>
                     <a href="/">Parceras de la finca</a>
                 </div>
@@ -29,7 +29,7 @@
             <div class="dropdown">
                 <a>Usuarios</a>
                 <div class="submenu">
-                    <a href="{% url 'TablaSolicitudesUser' %}">Ver Solicitudes</a>
+                    <a href="{% url 'TablaSolicitudesUsuarios' %}">Ver Solicitudes</a>
                     <a href="{% url 'TablaUsuarios' %}">Ver usuarios</a>
                 </div>
             </div>

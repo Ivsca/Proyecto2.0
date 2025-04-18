@@ -1,6 +1,8 @@
 {% load static %}
 {% include 'inc/Header.html' %}
 <link rel="stylesheet" href="{% static 'Css/bootstrap.min.css' %}">
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
     .profile-container {
@@ -48,7 +50,7 @@
 <div class="container my-5">
     {% if usuarios.0.estado == "Solicitud" %}
         <h2 class="text-center text-success mb-5">Listado de Hojas de Vida</h2>
-        {% for usuario in usuarios %}
+        {% for usuario in usuarios  %}
             <div class="profile-container solicitud-style p-4 rounded mb-5">
                 <h4 class="text-center text-dark mb-4">Solicitud de acceso de {{ usuario.nombres }} {{ usuario.apellidos }}</h4>
                 <div class="row justify-content-center">
@@ -92,8 +94,8 @@
                                         <th scope="row">Acciones</th>
                                         <td>
                                             <div class="d-flex gap-2">
-                                                <button class="btn btn-success btn-sm">Aceptar</button>
-                                                <button class="btn btn-danger btn-sm">Eliminar</button>
+                                                <a href="{% url 'SolicitudAceptada' usuario.id %}" class="btn btn-success btn-sm">Aceptar</a>
+                                                <button class="btn btn-danger btn-sm" onclick="EliminarSolicitud('{{ usuario.id }}')">Eliminar</button>
                                             </div>
                                         </td>
                                     </tr>
@@ -185,4 +187,7 @@
 </div>
 
 <script src="{% static 'JavaScripts/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'JavaScripts/Logueo/EliminarSolicitud.js' %}" ></script>
+
+
 {% include 'inc/Footer.html' %}

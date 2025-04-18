@@ -1,6 +1,9 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse
-from .models import TablaRazas,TipoDocumentos,Usuarios
+from .models import TablaRazas,TipoDocumentos,Usuarios,Ganado
+from django.core.serializers import serialize
+from django.core.paginator import Paginator
+
 
 
 # Create your views here.
@@ -16,12 +19,34 @@ def plantilla_logue(request):
     return render(request,'Logueo/Logueo.html',{
         'tipos_documentos':tipos_documentos
     })
+# region solicitudes de acceso
 
 def TablaSolicitudesUsuarios(request):
     usuarios = Usuarios.objects.filter(estado="Solicitud")
     return render(request, 'Logueo/Table.html',{
         'usuarios':usuarios
     })
+
+# def TablaSolicitudesUsuarios(request):
+#     solicitudes = Usuarios.objects.filter(estado="Solicitud").order_by("id")
+#     paginator = Paginator(solicitudes, 5)  # Muestra 5 solicitudes por página
+#     page_number = request.GET.get("page")
+#     page_obj = paginator.get_page(page_number)
+#     return render(request, 'Logueo/Table.html', {'page_obj': page_obj})
+
+
+def SolicitudAceptada(request, id_solicitud):
+    solicitud = Usuarios.objects.get(id=id_solicitud)
+    solicitud.estado = "Usuario"
+    solicitud.save()
+    return redirect("TablaSolicitudesUsuarios")
+
+
+def EliminarSolicitud(request,id_solicitud):
+    Solicitud = Usuarios.objects.get(id=id_solicitud)
+    Solicitud.delete()
+    return redirect("TablaSolicitudesUsuarios")
+# endregion
 
 def TablaUsuarios(request):
     usuarios = Usuarios.objects.filter(estado="Usuario")
@@ -71,6 +96,27 @@ def LoginUser(request):
 
 # endregion
 
-# def info_razas(request):
-#     razas = TablaRazas.objects.all()
-#     return HttpResponse("razas")
+# region ganado
+def TablaGanado(request):
+    
+    return render(request, 'Ganado/Table.html')
+
+def InfoBuscador(request,TipoBusqueda,valor):
+    if TipoBusqueda == 'documento':
+        ganado = Ganado.objects.filter(documento__icontains=valor)
+    elif TipoBusqueda == 'nombre':
+        ganado = Ganado.objects.filter(nombre__icontains=valor)
+    elif TipoBusqueda == 'apellido':
+        ganado = Ganado.objects.filter(apellido__icontains=valor)
+    elif TipoBusqueda == 'celular':
+        ganado = Ganado.objects.filter(celular__icontains=valor)
+    elif TipoBusqueda == 'direccion':
+        ganado = Ganado.objects.filter(direccion__icontains=valor)
+    elif TipoBusqueda == 'cargo':
+        ganado = Ganado.objects.filter(cargo__icontains=valor)
+    else:
+        ganado = Ganado.objects.none()
+    
+    ganadojson = serialize('json', ganado)
+    return HttpResponse(ganadojson, content_type='application/json')
+# endregion

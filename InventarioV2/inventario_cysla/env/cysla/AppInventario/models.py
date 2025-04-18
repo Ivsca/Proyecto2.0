@@ -123,7 +123,8 @@ from django.db import models
 
 
 class Enfermedades(models.Model):
-    nombre = models.CharField(max_length=150)
+    nombre = models.CharField(db_column='nombre',max_length=150)
+    descripcion = models.CharField(db_column='Descripcion',max_length=150)
 
     class Meta:
         managed = False
