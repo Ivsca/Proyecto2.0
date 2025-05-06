@@ -15,6 +15,7 @@ urlpatterns = [
     path('Logueo/TablaUsuarios/',views.TablaUsuarios, name='TablaUsuarios'),
     # endregion
     # region ganado
-    path('Ganado/Tabla/',views.TablaGanado, name="TablaGanado")
+    path('Ganado/Tabla/',views.TablaGanado, name="TablaGanado"),
+    path('Ganado/Tabla/Eliminar/vacuno/<int:id>',views.EliminarVacuno, name="EliminarVacuno"),
     # endregion
 ]

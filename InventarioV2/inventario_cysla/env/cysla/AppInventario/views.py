@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from django.http import HttpResponse
 from .models import TablaRazas,TipoDocumentos,Usuarios,Ganado
 from django.core.serializers import serialize
@@ -98,8 +98,14 @@ def LoginUser(request):
 
 # region ganado
 def TablaGanado(request):
+    ganado = Ganado.objects.all()
     
-    return render(request, 'Ganado/Table.html')
+    return render(request, 'Ganado/Table.html',{'ganado':ganado})
+
+def EliminarVacuno(id):
+    vacuno = get_object_or_404(Ganado, id=id)
+    vacuno.delete()
+    return redirect('TablaGanado')
 
 def InfoBuscador(request,TipoBusqueda,valor):
     if TipoBusqueda == 'documento':
