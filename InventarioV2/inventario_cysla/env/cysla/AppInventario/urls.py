@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 urlpatterns = [
     path("",views.Home,name="Home"),
     # region logueo
@@ -14,8 +16,18 @@ urlpatterns = [
     # endregion
     path('Logueo/TablaUsuarios/',views.TablaUsuarios, name='TablaUsuarios'),
     # endregion
+    
     # region ganado
     path('Ganado/Tabla/',views.TablaGanado, name="TablaGanado"),
     path('Ganado/Tabla/Eliminar/vacuno/<int:id>',views.EliminarVacuno, name="EliminarVacuno"),
     # endregion
-]
+    
+    #region cultivo
+    path('Cultivo/Tabla/', views.TablaCultivo, name="TablaCultivo"),
+    path('Cultivo/obtener/<int:id>/', views.obtener_cultivo, name='obtener_cultivo'),
+    path('Cultivo/editar/', views.editar_cultivo, name='editar_cultivo'),
+    path('Cultivo/eliminar/', views.eliminar_cultivo, name='eliminar_cultivo'),
+
+    #endregion
+    
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

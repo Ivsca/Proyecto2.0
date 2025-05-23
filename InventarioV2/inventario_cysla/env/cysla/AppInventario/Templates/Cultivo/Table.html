@@ -1,0 +1,403 @@
+{% load static %}
+<title>Gestor de Cultivo</title>
+<!-- Inclusión de archivos CSS -->
+<link rel="stylesheet" href="{% static 'Css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'Css/Cultivo/Cultivo.css' %}">
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+    <!-- Formulario oculto -->
+    <form id="formularioCultivoOriginal" style="display: none; padding: 5px 20px 20px 20px" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="d-flex gap-4 align-items-start">
+            <!-- Columna Izquierda: Imagen -->
+            <div class="text-center flex-shrink-0" style="width: 50%;">
+                <div id="imagePreview" class="mt-3 border rounded p-2 bg-light" >
+                    <!-- Vista previa -->
+                </div>
+                <label for="cattleImage" class="form-label fw-bold">Foto del cultivo</label>
+                <input type="file" class="form-control" id="cattleImage" name="foto" accept="image/*" required>
+            </div>
+
+            <!-- Columna Derecha: Inputs -->
+            <div class="flex-grow-1">
+                <div class="mb-3">
+                    <label for="nombre" class="form-label">Nombre del cultivo</label>
+                    <input type="text" name="nombre" id="nombre" class="form-control" placeholder="Ej. Maíz" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="tipo_cultivo" class="form-label">Tipo de cultivo</label>
+                    <select name="tipo_cultivo" id="tipo_cultivo" class="form-select" required>
+                        <option value="">Selecciona tipo de cultivo</option>
+                        <option value="vegetal">Vegetal</option>
+                        <option value="frutal">Frutal</option>
+                        
+                    </select>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="fecha_siembra" class="form-label">Fecha de siembra</label>
+                        <input type="date" name="fecha_siembra" id="fecha_siembra" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="fecha_cosecha" class="form-label">Fecha de cosecha</label>
+                        <input type="date" name="fecha_cosecha" id="fecha_cosecha" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="cantidad" class="form-label">Cantidad</label>
+                    <input type="number" name="cantidad" id="cantidad" class="form-control" placeholder="Ej. 100" required>
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+
+
+
+
+    {% include 'inc/Header.html' %}
+    <div class="container mt-5">
+            <div class="text-end mb-3">
+                <button class="btn btn-success" onclick="mostrarFormularioCultivo()">
+                    <i class="fas fa-plus"></i> Agregar Cultivo
+                </button>
+            </div>
+
+            <!-- Título principal -->
+            <h2 class="text-center mb-4">Gestión de Cultivo</h2>
+            
+            <!-- BUSCADOR MEJORADO -->
+            <div class="search-container">
+                <form class="search-form" action="" method="post">
+                    {% csrf_token %}
+                    <select class="search-select" name="TipoBusqueda" id="TipoBusqueda">
+                        <option value="">Buscar en todo</option>
+                        <option value="codigo">Vegetal</option>
+                        <option value="raza">Fruta</option>
+                    </select>
+                    
+                    <input type="text" class="search-input" name="valor" 
+                        placeholder="¿Qué cultivo buscas hoy?" required>
+                    
+                    <button type="submit" class="search-btn">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </form>
+            </div>
+
+        <div class="row justify-content-center">
+            {% for cultivo in cultivos %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card cultivo-card h-100">
+                        {% if cultivo.foto %}
+                            <img src="{{ cultivo.foto.url }}" class="card-img-top" alt="{{ cultivo.nombre }}">
+                        {% else %}
+                            <img src="{% static 'Image/img/hn.jpg' %}" class="card-img-top" alt="Sin imagen">
+                        {% endif %}
+                        
+                        <div class="cultivo-overlay">
+                            <div class="cultivo-info">
+                                <h5 class="card-title">{{ cultivo.nombre }}</h5>
+                                <p><strong>Tipo:</strong> {{ cultivo.tipo_cultivo }}</p>
+                                <p><strong>Fecha Siembra:</strong> {{ cultivo.fecha_siembra }}</p>
+                                <p><strong>Fecha Cosecha:</strong> {{ cultivo.fecha_cosecha }}</p>
+                                <p><strong>Cantidad:</strong> {{ cultivo.cantidad }}</p>
+                            </div>
+                            <div class="cultivo-buttons">
+                                <button class="btn btn-warning" onclick="editar_cultivo('{{ cultivo.id }}')">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="eliminarCultivo({{ cultivo.id }})">
+                                    Eliminar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            {% empty %}
+                <div class="col-12 text-center">
+                    <div class="alert alert-info">
+                        No se encontraron cultivos registrados.
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Formulario Editar -->
+    <form id="formularioEditarOriginal" style="display: none; padding: 5px 20px 20px 20px" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="d-flex gap-4 align-items-start">
+            <!-- Columna Izquierda -->
+            <div class="text-center flex-shrink-0" style="width: 50%;">
+                <div id="imagePreview" class="mt-3 border rounded p-2 bg-light"></div>
+                <label for="cattleImage" class="form-label fw-bold">Foto del cultivo</label>
+                <input type="file" class="form-control" id="cattleImage" name="foto" accept="image/*" required>
+            </div>
+            <!-- Columna Derecha -->
+            <div class="flex-grow-1">
+                <div class="mb-3">
+                    <label for="nombre" class="form-label">Nombre del cultivo</label>
+                    <input type="text" name="nombre" id="nombre" class="form-control" placeholder="Ej. Maíz" required>
+                </div>
+                <div class="mb-3">
+                    <label for="tipo_cultivo" class="form-label">Tipo de cultivo</label>
+                    <select name="tipo_cultivo" id="tipo_cultivo" class="form-select" required>
+                        <option value="">Selecciona tipo de cultivo</option>
+                        <option value="vegetal">Vegetal</option>
+                        <option value="frutal">Fruta</option>
+                    </select>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="fecha_siembra" class="form-label">Fecha de siembra</label>
+                        <input type="date" name="fecha_siembra" id="fecha_siembra" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="fecha_cosecha" class="form-label">Fecha de cosecha</label>
+                        <input type="date" name="fecha_cosecha" id="fecha_cosecha" class="form-control" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="cantidad" class="form-label">Cantidad</label>
+                    <input type="number" name="cantidad" id="cantidad" class="form-control" placeholder="Ej. 100" required>
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+<!-- Inclusión de scripts -->
+<script src="{% static 'JavaScripts/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'JavaScripts/Ganado/Alertas.js' %}"></script>
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% include 'inc/Footer.html' %}
+
+<script>
+function mostrarFormularioCultivo() {
+    const formOriginal = document.getElementById('formularioCultivoOriginal');
+    const formClonado = formOriginal.cloneNode(true);
+    formClonado.id = 'formCultivo';
+    formClonado.style.display = 'block';
+
+    // Mostrar el formulario en SweetAlert
+    Swal.fire({
+        title: 'Agregar Cultivo',
+        html: formClonado,
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        focusConfirm: false,
+        width: '70%',
+        didOpen: () => {
+            // Agregar el formulario clonado al Swal (ya se hace con html)
+            Swal.getPopup().appendChild(formClonado);
+
+            const popup = Swal.getPopup();
+            const actions = popup.querySelector('.swal2-actions');
+            if (actions) {
+                formClonado.appendChild(actions);
+                actions.style.justifyContent = 'center'; // Opcional: centrar botones
+                actions.style.marginTop = '20px';        // Espacio entre inputs y botones
+            }
+
+            // Listener para mostrar vista previa de imagen
+            const inputImagen = Swal.getPopup().querySelector('#cattleImage');
+            const preview = Swal.getPopup().querySelector('#imagePreview');
+
+            inputImagen.addEventListener('change', function () {
+                const file = this.files[0];
+                preview.innerHTML = ''; // Limpiar vista previa
+
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        preview.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });         
+            
+           
+            
+ 
+        },
+        preConfirm: () => {
+            const form = document.getElementById('formCultivo');
+            const formData = new FormData(form);
+
+            const imagen = form.querySelector('#cattleImage').files[0];
+
+            if (!imagen) {
+                Swal.showValidationMessage('Debes subir una imagen del cultivo.');
+                return false;
+            }
+
+            return fetch('/Cultivo/Tabla/', {
+
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: formData
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al agregar el cultivo, todos los campos deben estar llenos');
+                }
+                return response.json();
+            }).catch(error => {
+                Swal.showValidationMessage(error.message);
+            });
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire('¡Éxito!', 'Cultivo agregado correctamente', 'success')
+            .then(() => location.reload());
+        }
+    });
+
+}
+
+//Botones Ver, Editar y Eliminar
+
+function editar_cultivo(id) {
+    fetch(`/Cultivo/obtener/${id}/`)
+        .then(response => response.json())
+        .then(data => {
+            const formOriginal = document.getElementById('formularioEditarOriginal');
+            const formClonado = formOriginal.cloneNode(true);
+            formClonado.id = 'formCultivoEditar';
+            formClonado.style.display = 'block';
+
+            // Prellenar valores
+            formClonado.querySelector('#nombre').value = data.nombre;
+            formClonado.querySelector('#tipo_cultivo').value = data.tipo_cultivo;
+            formClonado.querySelector('#fecha_siembra').value = data.fecha_siembra;
+            formClonado.querySelector('#fecha_cosecha').value = data.fecha_cosecha;
+            formClonado.querySelector('#cantidad').value = data.cantidad;
+
+            // Vista previa de la imagen
+            const preview = formClonado.querySelector('#imagePreview');
+            preview.innerHTML = data.foto ? `<img src="${data.foto}" class="img-fluid rounded" style="max-height: 200px;">` : '';
+
+            Swal.fire({
+                title: 'Editar Cultivo',
+                html: formClonado,
+                showCancelButton: true,
+                confirmButtonText: 'Guardar cambios',
+                focusConfirm: false,
+                width: '70%',
+                didOpen: () => {
+                    Swal.getPopup().appendChild(formClonado);
+                    const actions = Swal.getPopup().querySelector('.swal2-actions');
+                    if (actions) {
+                        formClonado.appendChild(actions);
+                        actions.style.justifyContent = 'center';
+                        actions.style.marginTop = '20px';
+                    }
+
+                    // Actualizar imagen
+                    const inputImagen = formClonado.querySelector('#cattleImage');
+                    inputImagen.addEventListener('change', function () {
+                        const file = this.files[0];
+                        preview.innerHTML = '';
+
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = function (e) {
+                                const img = document.createElement('img');
+                                img.src = e.target.result;
+                                preview.appendChild(img);
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                },
+                preConfirm: () => {
+                    const form = document.getElementById('formCultivoEditar');
+                    const formData = new FormData(form);
+                    formData.append('id', id); // Muy importante
+
+                    return fetch('/Cultivo/editar/', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: formData
+                    }).then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error al editar el cultivo, todos los campos deben estar llenos');
+                        }
+                        return response.json();
+                    }).catch(error => {
+                        Swal.showValidationMessage(error.message);
+                    });
+                }
+            }).then(result => {
+                if (result.isConfirmed) {
+                    Swal.fire('¡Actualizado!', 'Cultivo editado correctamente', 'success')
+                        .then(() => location.reload());
+                }
+            });
+        })
+        .catch(error => {
+            Swal.fire('Error', 'No se pudo cargar el cultivo', 'error');
+            console.error(error);
+        });
+}
+
+//Eliminar CUltivo
+
+function eliminarCultivo(id) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "Esta acción no se puede deshacer.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/Cultivo/eliminar/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}', // Asegúrate de incluir el token si estás en un template
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `id=${id}`
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al eliminar el cultivo');
+                }
+                return response.json();
+            })
+            .then(data => {
+                Swal.fire('¡Eliminado!', data.message, 'success').then(() => {
+                    location.reload(); // recargar la página
+                });
+            })
+            .catch(error => {
+                Swal.fire('Error', error.message, 'error');
+            });
+        }
+    });
+}
+
+
+
+
+</script>
