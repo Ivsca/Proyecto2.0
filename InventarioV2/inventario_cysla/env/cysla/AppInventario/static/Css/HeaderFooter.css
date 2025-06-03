@@ -1,39 +1,50 @@
-/* Estilos del encabezado */
+/* Estilos generales del header */
 header {
-    width: 100%;
-    padding: 15px 30px 20px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 15px 30px;
     background-color: #efefef;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    font-family: 'Josefin Sans', sans-serif;
-    z-index: 3;
+    position: relative;
+    flex-wrap: wrap;
 }
 
-header img {
-    width: 70px;
-    height: 70px;
+.logo {
+    width: 65px;
+    height: 65px;
+    z-index: 101; /* Para que esté sobre el menú móvil */
 }
 
-/* Estilos de navegación */
-.navegacion {
+/* Botón hamburguesa - Oculto en desktop */
+.hamburger-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 100;
+    padding: 10px;
+}
+
+/* Menú principal */
+.main-nav {
     display: flex;
     align-items: center;
+    gap: 20px;
 }
 
-.navegacion a {
-    margin: 0px 15px;
-    text-decoration: none;
+.main-nav a, .dropbtn {
     color: #212121;
+    text-decoration: none;
     font-weight: bold;
     font-size: 16px;
     position: relative;
-    padding-bottom: 5px;
-    transition: color 0.3s ease-in-out;
+    padding: 5px 0;
+    transition: color 0.3s;
 }
 
-.navegacion a::after {
+.main-nav a::after, .dropbtn::after {
     content: "";
     position: absolute;
     width: 0;
@@ -41,61 +52,52 @@ header img {
     bottom: 0;
     left: 0;
     background-color: #91c986;
-    transition: width 0.3s ease-in-out;
+    transition: width 0.3s;
 }
 
-.navegacion a:hover {
+.main-nav a:hover, .dropbtn:hover {
     color: rgb(21, 126, 21);
 }
 
-.navegacion a:hover::after {
+.main-nav a:hover::after, .dropbtn:hover::after {
     width: 100%;
 }
 
-/* Dropdown personalizado */
+/* Dropdown styles */
 .dropdown {
     position: relative;
 }
 
-.submenu {
+.dropdown-content {
     display: none;
     position: absolute;
     background-color: white;
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-    z-index: 2;
-    padding: 10px;
-    border-radius: 8px;
     min-width: 180px;
-    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-    opacity: 0;
-    transform: translateY(-10px);
-    z-index: 100;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 5px;
+    padding: 10px 0;
 }
 
-.dropdown:hover .submenu,
-.submenu:hover {
-    display: block;
-    opacity: 1;
-    transform: translateY(4px);
-}
-
-.submenu a {
+.dropdown-content a {
     color: #212121;
-    padding: 8px 12px;
+    padding: 10px 15px;
     text-decoration: none;
     display: block;
-    transition: background-color 0.3s ease-in-out;
-    white-space: nowrap;
     font-size: 14px;
     font-weight: normal;
 }
 
-.submenu a:hover {
+.dropdown-content a:hover {
     background-color: rgb(21, 126, 21);
     color: white;
 }
 
-/* Botón personalizado */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Botón de login */
 .custom-button {
     padding: 10px 20px;
     border: none;
@@ -106,7 +108,7 @@ header img {
     font-size: 14px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: all 0.3s;
 }
 
 .custom-button:hover {
@@ -114,54 +116,91 @@ header img {
     transform: scale(1.05);
 }
 
-@media (max-width: 768px) {
-    header {
-      flex-wrap: wrap;
-      justify-content: space-between;
-      padding: 10px;
-    }
-  
-    .hamburguesa {
-      display: block;
-      position: absolute;
-      top: 15px;
-      right: 20px;
-    }
-  
-    .navegacion {
-      display: none;
-      flex-direction: column;
-      align-items: flex-start;
-      background-color: #efefef;
-      width: 100%;
-      padding: 20px;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      z-index: 3;
-    }
-  
-    .navegacion.mostrar {
-      display: flex;
-    }
-  
-    .dropdown:hover .submenu {
-      position: relative;
-      display: block;
-      opacity: 1;
-      transform: none;
-      box-shadow: none;
-      margin-left: 10px;
-    }
-  
-    .right.menu {
-      width: 100%;
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 10px;
-    }
+.desktop-login {
+    display: block;
 }
 
+.mobile-login-btn {
+    display: none;
+}
+
+/* Estilos para móviles (764px o menos) */
+@media (max-width: 857px) {
+    .hamburger-btn {
+        display: block;
+    }
+    
+    .main-nav {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 70%;
+        height: 100vh;
+        background-color: #efefef;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 80px 30px 30px;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+        transition: right 0.3s ease;
+        z-index: 100;
+    }
+    
+    .main-nav.active {
+        right: 0;
+    }
+    
+    .main-nav a, .dropbtn {
+        width: 100%;
+        padding: 12px 0;
+        margin: 5px 0;
+      
+    }
+    
+    .dropdown {
+        width: 100%;
+    }
+    
+    .dropbtn {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: none;
+        font: inherit;
+        cursor: pointer;
+        padding: 12px 0 !important;
+    }
+    
+    .dropdown-content {
+        position: static;
+        display: none;
+        width: 100%;
+        box-shadow: none;
+        padding: 0;
+        margin: 5px 0 5px 15px;
+    }
+    
+    .dropdown-content.show {
+        display: block;
+    }
+    
+    .dropdown-content a {
+        padding: 10px 0;
+    }
+    
+    .desktop-login {
+        display: none;
+    }
+    
+    .mobile-login-btn {
+        display: block;
+        width: 100%;
+        margin-top: 20px;
+    }
+    
+    .mobile-login-btn .custom-button {
+        width: 100%;
+    }
+}
 
 
 /* Footer*/

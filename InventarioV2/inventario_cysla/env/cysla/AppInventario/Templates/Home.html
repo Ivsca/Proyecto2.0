@@ -3,10 +3,8 @@
 <!--Fuentes Google-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bevan:ital@0;1&display=swap" rel="stylesheet">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bevan:ital@0;1&family=Comfortaa:wght@300..700&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
 <!--Iconos-->
 <link rel="stylesheet" href="https://www.flaticon.es/iconos-gratis/logotipo-de-instagram">
 <link rel="stylesheet" href="https://www.flaticon.es/iconos-gratis/whatsapp">
@@ -16,10 +14,10 @@
 
 <!-- Inicio  video -->
   <div class="video-container">
-    <video autoplay muted loop playsinline>
+    <video autoplay muted loop playsinline preload="none" loading="lazy">
       <source src="{% static 'Image/img/presentacion.mp4' %}" type="video/mp4">
     </video>
-    <div class="video-overlay">
+    <div id="Menu" class="video-overlay">
       <h1>Inventarios C&SLA</h1>
       <h1>Impulsamos el campo, construimos país</h1>
     </div>
@@ -29,12 +27,12 @@
 
   <div class="about-container">
     <!-- Imagen del Logo -->
-    <div class="logo">
+    <div class="logo_grande">
         <img src="{% static 'Image/img/logoact.png' %}" alt="logo"> 
     </div>
     
     <!-- Texto de información -->
-    <div class="sobreNosotros">
+    <div id="sobre-nosotros" class="sobreNosotros">
         <h2>Sobre Nosotros</h2>
         <h1>Sembramos desarrollo, cosechamos progreso</h1>
         <p>Nuestra línea agropecuaria se dedica al desarrollo del campo, impulsando la comercialización de productos agropecuarios. Nos enfocamos en crear nuevos proyectos que fortalezcan el sector, promoviendo tanto el crecimiento del campo como la generación de empleo.</p>
@@ -45,7 +43,7 @@
   <!--Sección Buenas prácticas-->
 
  
-    <div class="container">
+    <div id="Gestiona"class="container">
       <img src="{% static 'Image/img/farmm2.jpg' %}" alt="fondo">
       <!-- Panel izquierdo -->
       <div class="panel panel-left">
@@ -66,7 +64,7 @@
 
   
    
-   <div class="info">
+   <div id="Contactanos"class="info">
       <div class="content">
           <h1>Gestiona tu Ganado y/o cultivos con nosotros</h1>
           <p>¿Eres de Maceo y necesitas ayuda con tu información? <br>

@@ -1,24 +1,32 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>C&sla</title>
     <link rel="icon" type="image/x-icon" href="{% static 'Image/img/logo_c&sla.png' %}">
+    <!-- Agregar Font Awesome para los íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
     <link rel="stylesheet" href="{% static 'Css/HeaderFooter.css' %}">
 </head>
-
 <body>
     <header>
-        <img src="{% static 'Image/img/logo_c&sla.png' %}" alt="Logo" style="width: 65px; height: 65px;">
-        <div class="navegacion">
-            <a href="/">Home</a>
+        <img src="{% static 'Image/img/logo_c&sla.png' %}" alt="Logo" class="logo">
+        
+        <!-- Botón Hamburguesa - Visible solo en móviles -->
+        <button class="hamburger-btn" id="hamburgerBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <!-- Menú de navegación principal -->
+        <nav class="main-nav" id="mainNav">
+            <a href="/#Menu">Home</a>
+            
             <div class="dropdown">
-                <a>Inventario</a>
-                <div class="submenu">
+                <button class="dropbtn" style="border:none;">Inventario </button>
+                <div class="dropdown-content">
                     <a href="{% url 'TablaCultivo' %}">Cultivos</a>
                     <a href="/">Tipos de cultivos</a>
                     <a href="{% url 'TablaGanado' %}">Ganado</a>
@@ -26,26 +34,103 @@
                     <a href="/">Parceras de la finca</a>
                 </div>
             </div>
+            
             <div class="dropdown">
-                <a>Usuarios</a>
-                <div class="submenu">
+                <button class="dropbtn" style="border:none;">Usuarios </button>
+                <div class="dropdown-content">
                     <a href="{% url 'TablaSolicitudesUsuarios' %}">Ver Solicitudes</a>
                     <a href="{% url 'TablaUsuarios' %}">Ver usuarios</a>
                 </div>
             </div>
-            <a href="#">sdfd</a>
-            <a href="#">sdfd</a>
-            <a href="#">sdfd</a>
-        </div>
-        <div class="right menu">
-            <a class="item" href="{% url 'PlantillaLogueo' %}" style="border-bottom: none;">
+            
+            <a href="/#sobre-nosotros">Sobre Nosotros</a>
+            <a href="/#Gestiona">Gestiona</a>
+            <a href="/#Contactanos">Contáctanos</a>
+            
+            <!-- Botón de inicio de sesión - visible en móviles -->
+            <a href="{% url 'PlantillaLogueo' %}" class="mobile-login-btn">
+                <button class="custom-button">Iniciar Sesión</button>
+            </a>
+        </nav>
+        
+        <!-- Botón de inicio de sesión - visible en desktop -->
+        <div class="desktop-login">
+            <a href="{% url 'PlantillaLogueo' %}">
                 <button class="custom-button">Iniciar Sesión</button>
             </a>
         </div>
     </header>
 
-    <div id="box_race">
+    <div id="box_race"></div>
 
-    </div>
+    <script>
+        // Función para el menú hamburguesa
+        document.getElementById('hamburgerBtn').addEventListener('click', function() {
+            const nav = document.getElementById('mainNav');
+            nav.classList.toggle('active');
+            
+            // Cambiar ícono
+            const icon = this.querySelector('i');
+            icon.classList.toggle('fa-bars');
+            icon.classList.toggle('fa-times');
+        });
+        
+        // Cerrar menú al hacer clic en un enlace (para móviles)
+        document.querySelectorAll('#mainNav a').forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 764) {
+                    document.getElementById('mainNav').classList.remove('active');
+                    const btn = document.getElementById('hamburgerBtn');
+                    btn.querySelector('i').classList.add('fa-bars');
+                    btn.querySelector('i').classList.remove('fa-times');
+                }
+            });
+        });
+        
+        // Manejar dropdowns en móviles
+        document.querySelectorAll('.dropbtn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if (window.innerWidth <= 764) {
+                    e.preventDefault();
+                    const dropdown = this.nextElementSibling;
+                    dropdown.classList.toggle('show');
+                    
+                    // Rotar ícono
+                    const icon = this.querySelector('i');
+                    icon.classList.toggle('fa-rotate-180');
+                }
+            });
+        });
 
-    <script src="{% static 'js/header.js' %}"></script>
+        // Cerrar menú al hacer clic fuera
+        document.addEventListener('click', function(event) {
+            const nav = document.getElementById('mainNav');
+            const hamburgerBtn = document.getElementById('hamburgerBtn');
+            
+            // Si el clic no fue en el menú ni en el botón hamburguesa
+            if (!nav.contains(event.target) && !hamburgerBtn.contains(event.target)) {
+                if (window.innerWidth <= 764) {
+                    nav.classList.remove('active');
+                    hamburgerBtn.querySelector('i').classList.add('fa-bars');
+                    hamburgerBtn.querySelector('i').classList.remove('fa-times');
+                    
+                    // Cerrar también los dropdowns abiertos
+                    document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+                        dropdown.classList.remove('show');
+                    });
+                    
+                    // Restaurar íconos de flecha
+                    document.querySelectorAll('.dropbtn i').forEach(icon => {
+                        icon.classList.remove('fa-rotate-180');
+                    });
+                }
+            }
+        });
+
+        // Evitar que el clic dentro del menú se propague y cierre el menú
+        document.getElementById('mainNav').addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+     </script>
+</body>
+</html>
