@@ -149,7 +149,7 @@ def obtener_cultivo(request, id):
             'tipo_id': cultivo.tipo_id,  
             'tipo_nombre': cultivo.tipo.nombre_tipo if cultivo.tipo else '', 
             'fecha_siembra': cultivo.fecha_siembra.strftime('%Y-%m-%d'),
-            'fecha_cosecha': cultivo.fecha_cosecha.strftime('%Y-%m-%d'),
+            'fecha_cosecha': cultivo.fecha_cosecha.strftime('%Y-%m-%d'), 
             'cantidad': cultivo.cantidad,
             'foto': cultivo.foto.url if cultivo.foto else ''
         })
