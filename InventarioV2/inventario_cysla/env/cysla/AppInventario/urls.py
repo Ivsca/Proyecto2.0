@@ -27,7 +27,18 @@ urlpatterns = [
     path('Cultivo/obtener/<int:id>/', views.obtener_cultivo, name='obtener_cultivo'),
     path('Cultivo/editar/', views.editar_cultivo, name='editar_cultivo'),
     path('Cultivo/eliminar/', views.eliminar_cultivo, name='eliminar_cultivo'),
-
     #endregion
+    
+    #Region Parcela
+    path('agregar-parcela/', views.agregar_parcela, name='agregar_parcela'),
+    path('listar-parcelas/', views.listar_parcelas, name='listar_parcelas'),
+    path('parcelas/<int:registro_id>/cambiar-estado/', views.activar, name='cambiar_estado_parcela'),
+    path('parcelas/<int:registro_id>/cambiar/', views.Desactivar, name='cambiar_estado_parcela'),
+    #endRegion
+
+    #Region Razas
+    path('ListaRazas/', views.ListaRazas, name='ListaRazas'),
+    path('AgregarRaza/', views.AgregarRaza, name='AgregarRaza'),
+    #end Region
     
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

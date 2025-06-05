@@ -1,8 +1,15 @@
+import json
+from multiprocessing import connection
+from django.views.decorators.http import require_POST
 from django.shortcuts import render,redirect,get_object_or_404
-from django.http import HttpResponse, JsonResponse
-from .models import TablaRazas,TipoDocumentos,Usuarios,Ganado,Cultivo, TipoCultivo
+from django.http import HttpResponse
+from .models import TablaRazas,TipoDocumentos,Usuarios,Ganado, TipoCultivo, Cultivo
 from django.core.serializers import serialize
 from django.core.paginator import Paginator
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import TipoParcela
+import os
 
 
 
@@ -209,8 +216,89 @@ def InfoBuscador(request,TipoBusqueda,valor):
     ganadojson = serialize('json', ganado)
     return HttpResponse(ganadojson, content_type='application/json')
 
-    
-    
-
-
 # endregion
+
+#RegionParcelas
+def agregar_parcela(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            parcela = TipoParcela(
+                nombre=data.get('nombre'),
+                estado=data.get('estado')
+            )
+            parcela.save()
+            return JsonResponse({'success': True, 'id': parcela.id})  # Cambiado a 'success'
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+def listar_parcelas(request):
+    parcelas = TipoParcela.objects.all().values('id', 'nombre', 'estado')
+    return JsonResponse(list(parcelas), safe=False)
+
+@csrf_exempt
+@require_POST
+def activar(request, registro_id):
+    try:
+        parcela = TipoParcela.objects.get(id=registro_id)  # Cambiado a TipoParcela
+        # Cambiar el estado (1 a 2 o 2 a 1)
+        parcela.estado = 2 if parcela.estado == 1 else 1
+        parcela.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Estado de la parcela actualizado correctamente',
+            'nuevo_estado': parcela.estado
+        })
+    except TipoParcela.DoesNotExist:  # Cambiado a TipoParcela
+        return JsonResponse({
+            'success': False,
+            'message': 'Parcela no encontrada'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
+    
+def Desactivar(request, registro_id):
+    try:
+        parcela = TipoParcela.objects.get(id=registro_id)  # Cambiado a TipoParcela
+        # Cambiar el estado (1 a 2 o 2 a 1)
+        parcela.estado = 2 if parcela.estado == 1 else 2
+        parcela.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Estado de la parcela actualizado correctamente',
+            'nuevo_estado': parcela.estado
+        })
+    except TipoParcela.DoesNotExist:  # Cambiado a TipoParcela
+        return JsonResponse({
+            'success': False,
+            'message': 'Parcela no encontrada'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
+    
+def ListaRazas(request):
+    razas = TablaRazas.objects.all().values('id', 'nombre')
+    return JsonResponse(list(razas), safe=False)
+@csrf_exempt
+def AgregarRaza(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            razas = TablaRazas(
+                nombre=data.get('nombre'),
+            )
+            razas.save()
+            return JsonResponse({'success': True, 'id': razas.id})  # Cambiado a 'success'
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+#end region
