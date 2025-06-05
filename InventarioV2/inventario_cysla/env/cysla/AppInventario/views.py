@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from django.http import HttpResponse, JsonResponse
-from .models import TablaRazas,TipoDocumentos,Usuarios,Ganado,Cultivo
+from .models import TablaRazas,TipoDocumentos,Usuarios,Ganado,Cultivo, TipoCultivo
 from django.core.serializers import serialize
 from django.core.paginator import Paginator
 
@@ -110,23 +110,22 @@ def EliminarVacuno(id):
 
 # endregion
 
-#region cultivo
-
+# region cultivo
 def TablaCultivo(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
-        tipo = request.POST.get('tipo_cultivo', '').strip()
+        tipo_id = request.POST.get('tipo_id', '').strip()  # Cambiado de tipo_cultivo a tipo_id
         fecha_siembra = request.POST.get('fecha_siembra', '').strip()
         fecha_cosecha = request.POST.get('fecha_cosecha', '').strip()
         cantidad = request.POST.get('cantidad', '').strip()
         foto = request.FILES.get('foto')
 
-        if not nombre or not tipo or not fecha_siembra or not fecha_cosecha or not cantidad or not foto:
+        if not nombre or not tipo_id or not fecha_siembra or not fecha_cosecha or not cantidad or not foto:
             return JsonResponse({'error': 'Todos los campos son obligatorios, incluyendo la imagen.'}, status=400)
 
         cultivo = Cultivo(
             nombre=nombre,
-            tipo_cultivo=tipo,
+            tipo_id=tipo_id,  # Usamos tipo_id en lugar de tipo_cultivo
             fecha_siembra=fecha_siembra,
             fecha_cosecha=fecha_cosecha,
             cantidad=cantidad,
@@ -135,20 +134,20 @@ def TablaCultivo(request):
         cultivo.save()
         return JsonResponse({'message': 'Cultivo agregado con éxito'})
 
-    cultivos = Cultivo.objects.all()
-    return render(request, 'Cultivo/Table.html', {'cultivos': cultivos})
-
-
-
-
+    cultivos = Cultivo.objects.select_related('tipo').all()
+    return render(request, 'Cultivo/Table.html', {
+        'cultivos': cultivos,
+        'tipos_cultivo': TipoCultivo.objects.all()  # Pasar los tipos disponibles al template
+    })
 
 def obtener_cultivo(request, id):
     try:
-        cultivo = Cultivo.objects.get(pk=id)
+        cultivo = Cultivo.objects.select_related('tipo').get(pk=id)
         return JsonResponse({
             'id': cultivo.id,
             'nombre': cultivo.nombre,
-            'tipo_cultivo': cultivo.tipo_cultivo,
+            'tipo_id': cultivo.tipo_id,  
+            'tipo_nombre': cultivo.tipo.nombre_tipo if cultivo.tipo else '', 
             'fecha_siembra': cultivo.fecha_siembra.strftime('%Y-%m-%d'),
             'fecha_cosecha': cultivo.fecha_cosecha.strftime('%Y-%m-%d'),
             'cantidad': cultivo.cantidad,
@@ -156,8 +155,6 @@ def obtener_cultivo(request, id):
         })
     except Cultivo.DoesNotExist:
         return JsonResponse({'error': 'Cultivo no encontrado'}, status=404)
-
-
 
 def editar_cultivo(request):
     if request.method == 'POST':
@@ -168,7 +165,7 @@ def editar_cultivo(request):
         try:
             cultivo = Cultivo.objects.get(pk=cultivo_id)
             cultivo.nombre = request.POST.get('nombre')
-            cultivo.tipo_cultivo = request.POST.get('tipo_cultivo')
+            cultivo.tipo_id = request.POST.get('tipo_id')  # Cambiado de tipo_cultivo a tipo_id
             cultivo.fecha_siembra = request.POST.get('fecha_siembra')
             cultivo.fecha_cosecha = request.POST.get('fecha_cosecha')
             cultivo.cantidad = request.POST.get('cantidad')
@@ -183,7 +180,6 @@ def editar_cultivo(request):
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
-
 def eliminar_cultivo(request):
     cultivo_id = request.POST.get('id')
     try:
@@ -192,8 +188,6 @@ def eliminar_cultivo(request):
         return JsonResponse({'message': 'Cultivo eliminado con éxito'})
     except Cultivo.DoesNotExist:
         return JsonResponse({'error': 'El cultivo no existe'}, status=404)
-    
-
 
 
 def InfoBuscador(request,TipoBusqueda,valor):
@@ -214,4 +208,9 @@ def InfoBuscador(request,TipoBusqueda,valor):
     
     ganadojson = serialize('json', ganado)
     return HttpResponse(ganadojson, content_type='application/json')
+
+    
+    
+
+
 # endregion

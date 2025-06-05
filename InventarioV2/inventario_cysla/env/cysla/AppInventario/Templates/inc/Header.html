@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
     <link rel="stylesheet" href="{% static 'Css/HeaderFooter.css' %}">
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <body>
     <header>
@@ -28,7 +30,7 @@
                 <button class="dropbtn" style="border:none;">Inventario </button>
                 <div class="dropdown-content">
                     <a href="{% url 'TablaCultivo' %}">Cultivos</a>
-                    <a href="/">Tipos de cultivos</a>
+                    <a href="#" id="btnCultivos">Tipos de cultivos</a>
                     <a href="{% url 'TablaGanado' %}">Ganado</a>
                     <a onclick="race()">Razas de ganado</a>
                     <a href="/">Parceras de la finca</a>
@@ -62,75 +64,6 @@
     </header>
 
     <div id="box_race"></div>
-
-    <script>
-        // Función para el menú hamburguesa
-        document.getElementById('hamburgerBtn').addEventListener('click', function() {
-            const nav = document.getElementById('mainNav');
-            nav.classList.toggle('active');
-            
-            // Cambiar ícono
-            const icon = this.querySelector('i');
-            icon.classList.toggle('fa-bars');
-            icon.classList.toggle('fa-times');
-        });
-        
-        // Cerrar menú al hacer clic en un enlace (para móviles)
-        document.querySelectorAll('#mainNav a').forEach(link => {
-            link.addEventListener('click', function() {
-                if (window.innerWidth <= 764) {
-                    document.getElementById('mainNav').classList.remove('active');
-                    const btn = document.getElementById('hamburgerBtn');
-                    btn.querySelector('i').classList.add('fa-bars');
-                    btn.querySelector('i').classList.remove('fa-times');
-                }
-            });
-        });
-        
-        // Manejar dropdowns en móviles
-        document.querySelectorAll('.dropbtn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                if (window.innerWidth <= 764) {
-                    e.preventDefault();
-                    const dropdown = this.nextElementSibling;
-                    dropdown.classList.toggle('show');
-                    
-                    // Rotar ícono
-                    const icon = this.querySelector('i');
-                    icon.classList.toggle('fa-rotate-180');
-                }
-            });
-        });
-
-        // Cerrar menú al hacer clic fuera
-        document.addEventListener('click', function(event) {
-            const nav = document.getElementById('mainNav');
-            const hamburgerBtn = document.getElementById('hamburgerBtn');
-            
-            // Si el clic no fue en el menú ni en el botón hamburguesa
-            if (!nav.contains(event.target) && !hamburgerBtn.contains(event.target)) {
-                if (window.innerWidth <= 764) {
-                    nav.classList.remove('active');
-                    hamburgerBtn.querySelector('i').classList.add('fa-bars');
-                    hamburgerBtn.querySelector('i').classList.remove('fa-times');
-                    
-                    // Cerrar también los dropdowns abiertos
-                    document.querySelectorAll('.dropdown-content').forEach(dropdown => {
-                        dropdown.classList.remove('show');
-                    });
-                    
-                    // Restaurar íconos de flecha
-                    document.querySelectorAll('.dropbtn i').forEach(icon => {
-                        icon.classList.remove('fa-rotate-180');
-                    });
-                }
-            }
-        });
-
-        // Evitar que el clic dentro del menú se propague y cierre el menú
-        document.getElementById('mainNav').addEventListener('click', function(event) {
-            event.stopPropagation();
-        });
-     </script>
+    <script src="{% static 'JavaScripts/Cultivo/Alerta.js' %}"></script>
 </body>
 </html>

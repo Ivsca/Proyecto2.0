@@ -210,11 +210,19 @@ class Usuarios(models.Model):
     
     
 # region cultivos
+class TipoCultivo(models.Model):
+    nombre_tipo = models.CharField(max_length=50)  
+    class Meta:
+        managed = False
+        db_table = 'tipo_cultivo'
+    
+    def __str__(self):
+        return self.nombre_tipo
+
 class Cultivo(models.Model):
     nombre = models.CharField(max_length=100)
     foto = models.ImageField(upload_to='cultivos/', null=True, blank=True)
-
-    tipo_cultivo = models.CharField(max_length=200)
+    tipo = models.ForeignKey(TipoCultivo, on_delete=models.CASCADE, db_column='tipo_id')  
     fecha_siembra = models.DateField()
     fecha_cosecha = models.DateField()
     cantidad = models.IntegerField()
