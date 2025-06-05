@@ -1,0 +1,49 @@
+<button class="add-button" onclick="showAddParcelAlert()">Agregar nueva parcela</button>
+
+<script>
+  function showAddParcelAlert() {
+    Swal.fire({
+      title: 'Agregar Parcela',
+      html: `
+        <input id="parcel-name" class="swal2-input" placeholder="Nombre">
+        <input id="parcel-description" class="swal2-input" placeholder="Descripción">
+        <input id="parcel-image" type="file" class="swal2-file" accept="image/*">
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      cancelButtonText: 'Cancelar',
+      preConfirm: () => {
+        return {
+          name: document.getElementById('parcel-name').value,
+          description: document.getElementById('parcel-description').value,
+          image: document.getElementById('parcel-image').files[0]
+        };
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Enviar datos a Django vía AJAX/Fetch
+        const formData = new FormData();
+        formData.append('name', result.value.name);
+        formData.append('description', result.value.description);
+        formData.append('image', result.value.image);
+
+        fetch('{% url "add_parcel" %}', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+          },
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire('¡Éxito!', 'Parcela agregada.', 'success');
+          } else {
+            Swal.fire('Error', data.error, 'error');
+          }
+        });
+      }
+    });
+  }
+</script>
