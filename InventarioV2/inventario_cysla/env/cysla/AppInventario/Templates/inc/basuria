@@ -1,0 +1,137 @@
+    <!-- Partes para entrar las parcelas  -->
+     <!-- Botón para activar la alerta (opcional) -->
+
+
+<!-- <script>
+  function showParcelsTable() {
+    // Datos de ejemplo (reemplázalos con los de tu base de datos)
+    const parcelas = [
+      { id: 1, nombre: "Parcela N°1", estado: "Desactivo." },
+      { id: 2, nombre: "Parcela N°2", estado: "Activo" },
+      { id: 3, nombre: "Parcela N°3", estado: "Activo." }
+    ];
+    
+
+    // Crear tabla HTML dinámica
+    let tableHtml = `
+    <button onclick="showAddParcelAlert()"  style="background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;" class="btn">Agregar Parcela</button>
+    <br>
+      <table class="swal2-table" style="width:100%; border-collapse: collapse;">
+        <thead>
+          <tr style="background: #f8f9fa;">
+            <th style="padding: 10px; text-align: left;">Nombre</th>
+            <th style="padding: 10px; text-align: left;">Estado</th>
+            <th style="padding: 10px; text-align: left;">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+            
+    `;
+
+    parcelas.forEach(parcela => {
+      tableHtml += `
+        <tr>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">${parcela.nombre}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">${parcela.estado}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">
+            <button 
+              onclick="viewParcelDetails(${parcela.id})" 
+              style="background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;"
+            >
+            Actuilizar 
+            </button>
+            <button 
+              onclick="viewParcelDetails(${parcela.id})" 
+              style="background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;"
+            >
+            Desabilitar 
+            </button>
+            
+          </td>
+        </tr>
+      `;
+    });
+
+    tableHtml += `</tbody></table>`;
+
+    // Mostrar alerta con tabla
+    Swal.fire({
+      title: 'Listado de Parcelas',
+      html: tableHtml,
+      width: '70%',
+      showConfirmButton: false,
+      showCloseButton: true
+    });
+  }
+
+  // Función para "Ver más"
+  function viewParcelDetails(id) {
+    // Aquí puedes cargar los datos desde Django vía AJAX o usar datos estáticos
+    const parcelaEjemplo = {
+      1: { nombre: "Parcela N°1", descripcion: "Terreno fértil para cultivos.", imagen: "{% static 'img/1.jpg' %}" },
+      2: { nombre: "Parcela N°2", descripcion: "Con acceso a agua potable.", imagen: "{% static 'img/2.jpg' %}" },
+      3: { nombre: "Parcela N°3", descripcion: "Ideal para ganadería.", imagen: "{% static 'img/3.jpg' %}" }
+    };
+
+    Swal.fire({
+      title: parcelaEjemplo[id].nombre,
+      html: `
+        <p>${parcelaEjemplo[id].descripcion}</p>
+        <img src="${parcelaEjemplo[id].imagen}" style="width:100%; max-height: 200px; object-fit: cover; border-radius: 8px; margin-top: 10px;">
+      `,
+      imageAlt: `Imagen de ${parcelaEjemplo[id].nombre}`,
+      confirmButtonText: 'Cerrar'
+    });
+  }
+</script>
+
+    
+    <script>
+  function showAddParcelAlert() {
+    Swal.fire({
+      title: 'Agregar Parcela',
+      html: `
+        <input id="parcel-name" class="swal2-input" placeholder="Nombre">
+        <input id="parcel-description" class="swal2-input" placeholder="Descripción">
+        
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Guardar',
+      cancelButtonText: 'Cancelar',
+      preConfirm: () => {
+        return {
+          name: document.getElementById('parcel-name').value,
+          description: document.getElementById('parcel-description').value,
+          
+        };
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Enviar datos a Django vía AJAX/Fetch
+        const formData = new FormData();
+        formData.append('name', result.value.name);
+        formData.append('description', result.value.description);
+        
+
+        fetch('{% url "add_parcel" %}', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+          },
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire('¡Éxito!', 'Parcela agregada.', 'success');
+            
+          } else {
+            Swal.fire('Error', data.error, 'error');
+          }
+        });
+      }
+    });
+  }
+  
+</script> -->
