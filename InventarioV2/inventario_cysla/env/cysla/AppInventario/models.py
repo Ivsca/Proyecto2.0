@@ -213,7 +213,6 @@ class Usuarios(models.Model):
 class TipoCultivo(models.Model):
     nombre_tipo = models.CharField(max_length=50)  
     class Meta:
-        managed = False
         db_table = 'tipo_cultivo'
     
     def __str__(self):
@@ -228,7 +227,7 @@ class Cultivo(models.Model):
     cantidad = models.IntegerField()
     
     class Meta:
-        managed = False  
+        managed = True  
         db_table = 'cultivo'
 
     def __str__(self):

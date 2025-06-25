@@ -25,8 +25,8 @@ function validarUsername() {
 
 function validarNombres() {
     const val = document.getElementById("nombres").value.trim();
-    if (val.length < 7) {
-        setValidState("nombres", false, "Debe tener al menos 7 caracteres.");
+    if (val.length < 3) {
+        setValidState("nombres", false, "Debe tener al menos 3 caracteres.");
         return false;
     }
     setValidState("nombres", true);

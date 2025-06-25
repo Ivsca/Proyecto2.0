@@ -71,6 +71,11 @@ document.getElementById('mainNav').addEventListener('click', function(event) {
 
 //Sección cultivos
 
+function getCurrentPage() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('page') || 1;
+}
+
 function mostrarFormularioCultivo() {
     const formOriginal = document.getElementById('formularioCultivoOriginal');
     const formClonado = formOriginal.cloneNode(true);
@@ -148,7 +153,9 @@ function mostrarFormularioCultivo() {
     }).then((result) => {
         if (result.isConfirmed) {
             Swal.fire('¡Éxito!', 'Cultivo agregado correctamente', 'success')
-            .then(() => location.reload());
+            .then(() => {
+                window.location.href = '?page=' + getCurrentPage();
+            });
         }
     });
 
@@ -231,7 +238,9 @@ function editar_cultivo(id) {
             }).then(result => {
                 if (result.isConfirmed) {
                     Swal.fire('¡Actualizado!', 'Cultivo editado correctamente', 'success')
-                        .then(() => location.reload());
+                        .then(() => {
+                            window.location.href = '?page=' + getCurrentPage();
+                        });
                 }
             });
         })
@@ -270,7 +279,7 @@ function eliminarCultivo(id) {
             })
             .then(data => {
                 Swal.fire('¡Eliminado!', data.message, 'success').then(() => {
-                    location.reload(); // recargar la página
+                    window.location.href = '?page=' + getCurrentPage();
                 });
             })
             .catch(error => {
@@ -321,6 +330,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-//Tipo Cultivos
 
 

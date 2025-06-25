@@ -1,4 +1,5 @@
 import json
+from django.core.paginator import Paginator
 from multiprocessing import connection
 from django.views.decorators.http import require_POST
 from django.shortcuts import render,redirect,get_object_or_404
@@ -132,7 +133,7 @@ def TablaCultivo(request):
 
         cultivo = Cultivo(
             nombre=nombre,
-            tipo_id=tipo_id,  # Usamos tipo_id en lugar de tipo_cultivo
+            tipo_id=tipo_id,  
             fecha_siembra=fecha_siembra,
             fecha_cosecha=fecha_cosecha,
             cantidad=cantidad,
@@ -141,9 +142,12 @@ def TablaCultivo(request):
         cultivo.save()
         return JsonResponse({'message': 'Cultivo agregado con éxito'})
 
-    cultivos = Cultivo.objects.select_related('tipo').all()
+    cultivos_list = Cultivo.objects.select_related('tipo').all()
+    paginator = Paginator(cultivos_list, 6)  # 6 cultivos por página (puedes ajustar)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     return render(request, 'Cultivo/Table.html', {
-        'cultivos': cultivos,
+        'page_obj': page_obj,
         'tipos_cultivo': TipoCultivo.objects.all()  # Pasar los tipos disponibles al template
     })
 
@@ -215,6 +219,30 @@ def InfoBuscador(request,TipoBusqueda,valor):
     
     ganadojson = serialize('json', ganado)
     return HttpResponse(ganadojson, content_type='application/json')
+
+def obtener_tipoCultivos(request):
+    tipos = list(TipoCultivo.objects.values("id", "nombre_tipo"))
+    return JsonResponse(tipos, safe=False)
+
+@csrf_exempt
+def agregar_tipoCultivo(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        nombre = data.get("nombre_tipo", "").strip()
+        if nombre:
+            nuevo = TipoCultivo(nombre_tipo=nombre)
+            nuevo.save()
+            return JsonResponse({"success": True})
+    return JsonResponse({"success": False}, status=400)
+
+@csrf_exempt
+def eliminar_tipoCultivo(request, id):
+    if request.method == "DELETE":
+        TipoCultivo.objects.filter(id=id).delete()
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False}, status=400)
+
+
 
 # endregion
 

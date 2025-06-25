@@ -30,7 +30,7 @@
                 <button class="dropbtn" style="border:none;">Inventario </button>
                 <div class="dropdown-content">
                     <a href="{% url 'TablaCultivo' %}">Cultivos</a>
-                    <a href="#" id="btnCultivos">Tipos de cultivos</a>
+                    <a href="#" id="btn-tipos-cultivo">Tipos de cultivos</a>
                     <a href="{% url 'TablaGanado' %}">Ganado</a>
                     <a onclick="ShowRazas()">Razas de ganado</a>
                     <a onclick="showParcelsTable()" >Parceras de la finca</a>
@@ -74,12 +74,33 @@
                     <style>
                         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
-                    .swal2-title {
-                    font-family: 'Poppins', sans-serif !important;
-                    font-weight: 600;
-                    font-size: 24px;
-                    color: #2e2e2e;
-                }    
+                            .swal2-title {
+                            font-family: 'Poppins', sans-serif !important;
+                            font-weight: 600;
+                            font-size: 24px;
+                            color: #2e2e2e;
+                        }
+                        
+                        .swal2-table {
+                            width: 100%;
+                            text-align: center;
+                        }
+                        
+                        .swal2-table th, .swal2-table td {
+                            text-align: center !important;
+                            vertical-align: middle !important;
+                        }
+                        
+                        .btn-container {
+                            display: flex;
+                            justify-content: center;
+                            gap: 8px;
+                        }
+                        
+                        .btn {
+                            margin: 0 auto;
+                            display: block;
+                        }    
                     </style>
                     <button onclick="showAddParcelAlert()"  style="background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;" class="btn">Agregar Parcela</button>
                     <br>
@@ -326,6 +347,8 @@
             });
         }
 
+        //Razas
+
         function ShowRazas() {
             fetch('{% url "ListaRazas" %}')
                 .then(response => response.json())
@@ -335,14 +358,37 @@
                         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
                     .swal2-title {
-                    font-family: 'Poppins', sans-serif !important;
-                    font-weight: 600;
-                    font-size: 24px;
-                    color: #2e2e2e;
-                }    
+                        font-family: 'Poppins', sans-serif !important;
+                        font-weight: 600;
+                        font-size: 24px;
+                        color: #2e2e2e;
+                    }   
+                    
+                    .swal2-table {
+                        width: 100%;
+                        text-align: center;
+                    }
+                        
+                    .swal2-table th, .swal2-table td {
+                        text-align: center !important;
+                        vertical-align: middle !important;
+                    }
+                        
+                    .btn-container {
+                        display: flex;
+                        justify-content: center;
+                        gap: 8px;
+                    }
+                        
+                    .btn {
+                        margin: 0 auto;
+                        display: block;
+                    }    
+
+
                     </style>
                         <button onclick="AgregarRaza()" 
-                            style="background: #3d9140; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; " 
+                            style="background: #3d9140; color: white; display: flex; justify-content: center; align-items: center; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; " 
                             class="btn">Agregar Razas</button>
                         <br><br>
                         <table class="swal2-table" style="width:100%; border-collapse: collapse;">
@@ -433,6 +479,141 @@
                 }
             });
         }
+
+        //Tipo Cultivo
+
+   document.getElementById("btn-tipos-cultivo").addEventListener("click", async function () {
+    const response = await fetch("/Cultivo/api/tipos/"); // Cambia la URL según tu ruta
+    const tipos = await response.json();
+
+    let tableHTML = `
+        <style>
+            .swal2-popup {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
+            .tabla-categorias {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 10px;
+                
+            }
+            .tabla-categorias th, .tabla-categorias td {
+                border-bottom: 1px solid #ddd;
+                padding: 8px;
+                text-align: center;
+            }
+            .tabla-categorias th {
+                background-color: #f2f2f2;
+                font-weight: bold;
+            }
+            .tabla-categorias tr:hover {
+                background-color: #f9f9f9;
+            }
+            .btn-eliminar {
+                background-color: #e74c3c;
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            .btn-eliminar:hover {
+                background-color: #c0392b;
+            }
+            #nueva-categoria {
+                width: 100%;
+                padding: 8px;
+                margin-top: 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+        </style>
+        <table class="tabla-categorias">
+            <thead>
+                <tr>
+                    <th>Categoría</th>
+                    <th>Eliminar</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${tipos.map(tipo => `
+                    <tr>
+                        <td>${tipo.nombre_tipo}</td>
+                        <td><button class="btn-eliminar" onclick="eliminarTipo(${tipo.id})">Eliminar</button></td>
+                    </tr>
+                `).join("")}
+            </tbody>
+        </table>
+        <input id="nueva-categoria" placeholder="Nueva categoría">
+    `;
+
+    Swal.fire({
+        title: "Categorías de cultivos",
+        html: tableHTML,
+        showCancelButton: true,
+        confirmButtonText: "Agregar",
+        focusConfirm: false,
+        preConfirm: () => {
+            const nueva = document.getElementById("nueva-categoria").value;
+            if (!nueva.trim()) {
+                Swal.showValidationMessage("Debes ingresar una categoría");
+                return false;
+            }
+            return fetch("/Cultivo/api/tipos/agregar/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCookie("csrftoken")
+                },
+                body: JSON.stringify({ nombre_tipo: nueva.trim() })
+            });
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire("Agregado", "La categoría fue agregada.", "success").then(() => {
+                window.location.href = '?page=' + getCurrentPage();
+            });
+        }
+    });
+});
+
+function eliminarTipo(id) {
+    Swal.fire({
+        title: "¿Eliminar categoría?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, eliminar",
+    }).then(result => {
+        if (result.isConfirmed) {
+            fetch(`/Cultivo/api/tipos/eliminar/${id}/`, {
+                method: "DELETE",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken")
+                }
+            }).then(() => {
+                Swal.fire("Eliminado", "Categoría eliminada", "success").then(() => {
+                    window.location.href = '?page=' + getCurrentPage();
+                });
+            });
+        }
+    });
+}
+
+// Obtener CSRF Token de la cookie
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === name + "=") {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 
 
     </script>

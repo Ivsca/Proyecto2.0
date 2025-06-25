@@ -267,3 +267,29 @@
     border-radius: 10px;
 }
 
+/* PAGINACIÓN CENTRADA Y ESTILO VERDE */
+.row.justify-content-center.mt-4 {
+    display: flex;
+    justify-content: center;
+}
+
+.pagination .page-link {
+    background-color: #198754;
+    color: #fff;
+    border: 1px solid #198754;
+    border-radius: 6px;
+    margin: 0 2px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.pagination .page-link:hover,
+.pagination .page-item.active .page-link {
+    background-color: #157347;
+    color: #fff;
+    border-color: #157347;
+}
+
+.pagination .page-item.active .page-link {
+    font-weight: bold;
+}
+

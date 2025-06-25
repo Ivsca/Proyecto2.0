@@ -27,6 +27,9 @@ urlpatterns = [
     path('Cultivo/obtener/<int:id>/', views.obtener_cultivo, name='obtener_cultivo'),
     path('Cultivo/editar/', views.editar_cultivo, name='editar_cultivo'),
     path('Cultivo/eliminar/', views.eliminar_cultivo, name='eliminar_cultivo'),
+    path('Cultivo/api/tipos/', views.obtener_tipoCultivos, name='obtener_tipos'),
+    path('Cultivo/api/tipos/agregar/', views.agregar_tipoCultivo, name='agregar_tipo'),
+    path('Cultivo/api/tipos/eliminar/<int:id>/', views.eliminar_tipoCultivo, name='eliminar_tipo'),
     #endregion
     
     #Region Parcela

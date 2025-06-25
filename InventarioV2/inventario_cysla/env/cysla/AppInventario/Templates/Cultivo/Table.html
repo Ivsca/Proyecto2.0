@@ -89,7 +89,7 @@
     </div>
 
     <div class="row justify-content-center">
-        {% for cultivo in cultivos %}
+        {% for cultivo in page_obj %}
             <div class="col-lg-4 col-md-6 mb-4 cultivo-item"
             data-nombre="{{ cultivo.nombre|lower }}"
             data-tipo="{{ cultivo.tipo.nombre_tipo|lower }}">
@@ -127,6 +127,27 @@
                 </div>
             </div>
         {% endfor %}
+    </div>
+
+    <!-- paginación centrada debajo de las cards -->
+    <div class="d-flex justify-content-center mt-4">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">« Anterior</a>
+                </li>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente »</a>
+                </li>
+            {% endif %}
+        </ul>
     </div>
 </div>
 
