@@ -89,11 +89,13 @@ def RegisterUser(request):
                 clave=clave,
                 estado=estado
             )
-            return HttpResponse('Usuario registrado')   
+            return redirect('registro_exitoso')   
         except TipoDocumentos.DoesNotExist:
             return HttpResponse('Tipo de documento inválido', status=400)
     return HttpResponse('Método no permitido', status=405)
 
+def registro_exitoso(request):
+    return render(request, 'Logueo/creado.html')
 #endregion 
 # region Login
 

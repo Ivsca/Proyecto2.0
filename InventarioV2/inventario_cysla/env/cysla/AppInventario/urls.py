@@ -8,6 +8,7 @@ urlpatterns = [
     path('Logueo/Plantilla/',views.plantilla_logue, name='PlantillaLogueo'),
     path('Logueo/Login/',views.LoginUser, name='LoginUser'),
     path('Logueo/Register/',views.RegisterUser, name='RegisterUser'),
+    path('Logueo/creado/', views.registro_exitoso, name='registro_exitoso'),
     # region solicitudes de acceso
     path('Logueo/TablaSolicitudesUser/',views.TablaSolicitudesUsuarios, name='TablaSolicitudesUsuarios'),
     path('Logueo/TablaSolicitudesUser/aceptada/<int:id_solicitud>', views.SolicitudAceptada, name='SolicitudAceptada'),
