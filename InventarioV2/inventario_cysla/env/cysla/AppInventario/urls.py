@@ -9,6 +9,8 @@ urlpatterns = [
     path('Logueo/Login/',views.LoginUser, name='LoginUser'),
     path('Logueo/Register/',views.RegisterUser, name='RegisterUser'),
     path('Logueo/creado/', views.registro_exitoso, name='registro_exitoso'),
+    path('Logueo/nocreado/', views.nocreada, name='nocreada'),
+    path('Logueo/Logout/', views.logout_view, name='LogoutUser'),
     # region solicitudes de acceso
     path('Logueo/TablaSolicitudesUser/',views.TablaSolicitudesUsuarios, name='TablaSolicitudesUsuarios'),
     path('Logueo/TablaSolicitudesUser/aceptada/<int:id_solicitud>', views.SolicitudAceptada, name='SolicitudAceptada'),

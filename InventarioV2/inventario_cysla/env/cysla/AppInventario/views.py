@@ -1,5 +1,6 @@
 import json
 from django.core.paginator import Paginator
+from .decoradores import login_requerido
 from multiprocessing import connection
 from django.views.decorators.http import require_POST
 from django.shortcuts import render,redirect,get_object_or_404
@@ -22,13 +23,14 @@ def Home(request):
 # endregion
 
 # region Logueo
+
 def plantilla_logue(request):
-    tipos_documentos= TipoDocumentos.objects.all()
-    return render(request,'Logueo/Logueo.html',{
-        'tipos_documentos':tipos_documentos
+    tipos_documentos = TipoDocumentos.objects.all()
+    return render(request, 'Logueo/Logueo.html', {
+        'tipos_documentos': tipos_documentos
     })
 # region solicitudes de acceso
-
+@login_requerido
 def TablaSolicitudesUsuarios(request):
     usuarios = Usuarios.objects.filter(estado="Solicitud")
     return render(request, 'Logueo/Table.html',{
@@ -42,26 +44,25 @@ def TablaSolicitudesUsuarios(request):
 #     page_obj = paginator.get_page(page_number)
 #     return render(request, 'Logueo/Table.html', {'page_obj': page_obj})
 
-
+@login_requerido
 def SolicitudAceptada(request, id_solicitud):
     solicitud = Usuarios.objects.get(id=id_solicitud)
     solicitud.estado = "Usuario"
     solicitud.save()
     return redirect("TablaSolicitudesUsuarios")
 
-
+@login_requerido
 def EliminarSolicitud(request,id_solicitud):
     Solicitud = Usuarios.objects.get(id=id_solicitud)
     Solicitud.delete()
     return redirect("TablaSolicitudesUsuarios")
 # endregion
-
+@login_requerido
 def TablaUsuarios(request):
     usuarios = Usuarios.objects.filter(estado="Usuario")
     return render(request, 'Logueo/Table.html',{
         'usuarios':usuarios
     })
-
 
 # region Register
 def RegisterUser(request):
@@ -74,8 +75,8 @@ def RegisterUser(request):
         numero_documento = request.POST['NumeroDocumento']
         clave = request.POST['Clave1']
         rol = "Usuario"
-        estado = "Usuario"
-        # Convertir el ID recibido en objeto TipoDocumentos
+        estado = "Solicitud"  # ✅ Ahora se requiere aprobación del admin
+
         try:
             tipo_documento_obj = TipoDocumentos.objects.get(id=tipo_documento_id)
             Usuarios.objects.create(
@@ -100,19 +101,55 @@ def registro_exitoso(request):
 # region Login
 
 def LoginUser(request):
-    return HttpResponse('bienvenido a la finca')
+    if request.method == "POST":
+        username = request.POST.get("username")
+        clave = request.POST.get("clave")
+        try:
+            usuario = Usuarios.objects.get(username=username, clave=clave)
+            if usuario.estado == "Solicitud":
+                return render(request, "Logueo/nocreada.html", {
+                    "error": "Tu cuenta aún no ha sido aprobada por el administrador.",
+                    "tipos_documentos": TipoDocumentos.objects.all()
+                })
 
+            # Guardar en sesión
+            request.session["usuario_id"] = usuario.id
+            request.session["username"] = usuario.username
+            request.session["rol"] = usuario.rol
+
+            return redirect("Home")  # o tu página de inicio
+        except Usuarios.DoesNotExist:
+            return render(request, "Logueo/Logueo.html", {
+                "error": "Credenciales inválidas",
+                "tipos_documentos": TipoDocumentos.objects.all()
+            })
+    else:
+        # Si es GET y ya está logueado, ir al home
+        if request.session.get("usuario_id"):
+            return redirect("Home")
+
+        # Si no está logueado, mostrar login
+        return redirect("PlantillaLogueo")
+
+def nocreada(request):
+    return render(request, 'Logueo/nocreado.html')
+
+
+def logout_view(request):
+    request.session.flush()  # Elimina todos los datos de sesión
+    return redirect("LoginUser") 
 #endregion 
 
 
 
 # region ganado
+@login_requerido
 def TablaGanado(request):
     ganado = Ganado.objects.all()
     
     return render(request, 'Ganado/Table.html',{'ganado':ganado})
 
-
+@login_requerido
 def EliminarVacuno(id):
     vacuno = get_object_or_404(Ganado, id=id)
     vacuno.delete()
@@ -121,6 +158,7 @@ def EliminarVacuno(id):
 # endregion
 
 # region cultivo
+@login_requerido
 def TablaCultivo(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
@@ -152,7 +190,7 @@ def TablaCultivo(request):
         'page_obj': page_obj,
         'tipos_cultivo': TipoCultivo.objects.all()  # Pasar los tipos disponibles al template
     })
-
+@login_requerido
 def obtener_cultivo(request, id):
     try:
         cultivo = Cultivo.objects.select_related('tipo').get(pk=id)
@@ -168,7 +206,7 @@ def obtener_cultivo(request, id):
         })
     except Cultivo.DoesNotExist:
         return JsonResponse({'error': 'Cultivo no encontrado'}, status=404)
-
+@login_requerido
 def editar_cultivo(request):
     if request.method == 'POST':
         cultivo_id = request.POST.get('id')
@@ -192,7 +230,7 @@ def editar_cultivo(request):
             return JsonResponse({'error': 'Cultivo no encontrado'}, status=404)
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
-
+@login_requerido
 def eliminar_cultivo(request):
     cultivo_id = request.POST.get('id')
     try:
@@ -202,7 +240,7 @@ def eliminar_cultivo(request):
     except Cultivo.DoesNotExist:
         return JsonResponse({'error': 'El cultivo no existe'}, status=404)
 
-
+@login_requerido
 def InfoBuscador(request,TipoBusqueda,valor):
     if TipoBusqueda == 'documento':
         ganado = Ganado.objects.filter(documento__icontains=valor)
@@ -221,12 +259,13 @@ def InfoBuscador(request,TipoBusqueda,valor):
     
     ganadojson = serialize('json', ganado)
     return HttpResponse(ganadojson, content_type='application/json')
-
+@login_requerido
 def obtener_tipoCultivos(request):
     tipos = list(TipoCultivo.objects.values("id", "nombre_tipo"))
     return JsonResponse(tipos, safe=False)
 
 @csrf_exempt
+@login_requerido
 def agregar_tipoCultivo(request):
     if request.method == "POST":
         data = json.loads(request.body)
@@ -249,6 +288,7 @@ def eliminar_tipoCultivo(request, id):
 # endregion
 
 #RegionParcelas
+@login_requerido
 def agregar_parcela(request):
     if request.method == 'POST':
         try:
@@ -262,7 +302,7 @@ def agregar_parcela(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
-
+@login_requerido
 def listar_parcelas(request):
     parcelas = TipoParcela.objects.all().values('id', 'nombre', 'estado')
     return JsonResponse(list(parcelas), safe=False)
@@ -314,11 +354,12 @@ def Desactivar(request, registro_id):
             'success': False,
             'message': str(e)
         }, status=500)
-    
+@login_requerido    
 def ListaRazas(request):
     razas = TablaRazas.objects.all().values('id', 'nombre')
     return JsonResponse(list(razas), safe=False)
 @csrf_exempt
+@login_requerido
 def AgregarRaza(request):
     if request.method == 'POST':
         try:

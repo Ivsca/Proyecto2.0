@@ -25,6 +25,7 @@
         <!-- Menú de navegación principal -->
         <nav class="main-nav" id="mainNav">
             <a href="/#Menu">Home</a>
+            {% if request.session.usuario_id %}
             
             <div class="dropdown">
                 <button class="dropbtn" style="border:none;">Inventario </button>
@@ -44,6 +45,7 @@
                     <a href="{% url 'TablaUsuarios' %}">Ver usuarios</a>
                 </div>
             </div>
+            {% endif %}
             
             <a href="/#sobre-nosotros">Sobre Nosotros</a>
             <a href="/#Gestiona">Gestiona</a>
@@ -56,11 +58,19 @@
         </nav>
         
         <!-- Botón de inicio de sesión - visible en desktop -->
+         
         <div class="desktop-login">
-            <a href="{% url 'PlantillaLogueo' %}">
-                <button class="custom-button">Iniciar Sesión</button>
-            </a>
-        </div>
+    {% if request.session.usuario_id %}
+        <form action="{% url 'LogoutUser' %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button class="custom-button bg-red-600 hover:bg-red-700">Cerrar Sesión</button>
+        </form>
+    {% else %}
+        <a href="{% url 'PlantillaLogueo' %}">
+            <button class="custom-button">Iniciar Sesión</button>
+        </a>
+    {% endif %}
+</div>
     </header>
 
     <div id="box_race"></div>
