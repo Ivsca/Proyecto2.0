@@ -4,15 +4,30 @@ from .decoradores import login_requerido
 from multiprocessing import connection
 from django.views.decorators.http import require_POST
 from django.shortcuts import render,redirect,get_object_or_404
-from django.http import HttpResponse
 from .models import TablaRazas,TipoDocumentos,Usuarios,Ganado, TipoCultivo, Cultivo
 from django.core.serializers import serialize
-from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import TipoParcela
 import os
+from datetime import datetime, date, timedelta
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
+from django.shortcuts import render, redirect, get_object_or_404
 
+
+
+from .models import (
+    TablaRazas,
+    TipoDocumentos,
+    Usuarios,
+    Ganado,
+    TipoCultivo,
+    Cultivo,
+    Enfermedades,
+    TablaVacunas,
+    Fertilizacion,
+    TipoParcela,
+)
 
 
 # Create your views here.
@@ -97,6 +112,9 @@ def RegisterUser(request):
 
 def registro_exitoso(request):
     return render(request, 'Logueo/creado.html')
+
+def registro_exitoso(request):
+    return render(request, 'Logueo/creado.html')
 #endregion 
 # region Login
 
@@ -130,7 +148,6 @@ def LoginUser(request):
 
         # Si no está logueado, mostrar login
         return redirect("PlantillaLogueo")
-
 def nocreada(request):
     return render(request, 'Logueo/nocreado.html')
 
@@ -145,15 +162,147 @@ def logout_view(request):
 # region ganado
 @login_requerido
 def TablaGanado(request):
-    ganado = Ganado.objects.all()
-    
-    return render(request, 'Ganado/Table.html',{'ganado':ganado})
+    ganado_list = Ganado.objects.all()
+    paginator = Paginator(ganado_list, 9)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    enfermedades = Enfermedades.objects.all()
+    vacunas = TablaVacunas.objects.all()
+    Razas = TablaRazas.objects.all()
+    parcelas = TipoParcela.objects.all()
+
+    return render(request, 'Ganado/Table.html', {
+        'page_obj': page_obj,
+        "enfermedades": enfermedades,
+        "vacunas": vacunas,
+        "Razas": Razas,
+        'parcelas': parcelas
+    })
+@login_requerido
+def buscar_codigo_ganado(request):
+    q = request.GET.get('q', '').strip()
+    resultados = []
+    if q:
+        resultados = list(Ganado.objects.filter(codigocria__icontains=q).values('id', 'codigocria'))
+    # Devuelve id y código
+    return JsonResponse([{'id': r['id'], 'codigo': r['codigocria']} for r in resultados], safe=False)
 
 @login_requerido
 def EliminarVacuno(id):
     vacuno = get_object_or_404(Ganado, id=id)
     vacuno.delete()
     return redirect('TablaGanado')
+@login_requerido
+def ListaRazas(request):
+    razas = TablaRazas.objects.all().values('id', 'nombre')
+    return JsonResponse(list(razas), safe=False)
+@csrf_exempt
+@login_requerido
+def AgregarRaza(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            razas = TablaRazas(
+                nombre=data.get('nombre'),
+            )
+            razas.save()
+            return JsonResponse({'success': True, 'id': razas.id})  # Cambiado a 'success'
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+#end region
+
+@csrf_exempt
+@login_requerido
+def registrar_ganado(request):
+    if request.method == "POST":
+        try:
+            codigocria = request.POST.get('CodigoCria')
+            foto = request.FILES.get('Foto')
+            foto_name = ''
+            if foto:
+                from django.core.files.storage import default_storage
+                foto_name = default_storage.save('ganado/' + foto.name, foto)
+            crias = request.POST.get('Crias', '0')
+            codigoscrias = request.POST.get('CodigosCrias', '[]')
+            codigopapa = request.POST.get('CodigoPapa', '')
+            codigomama = request.POST.get('CodigoMama', '')
+            edad = request.POST.get('Edad', '')
+            infovacunas = request.POST.get('Vacunas', '[]')
+            enfermedades = request.POST.get('Enfermedades', '[]')
+            estado = request.POST.get('Estado', '')
+            idparcela = request.POST.get('IdParcela', '')
+            razas = request.POST.get('Razas', '')
+
+            ganado = Ganado.objects.create(
+                codigocria=codigocria,
+                foto=foto_name,
+                crias=crias,
+                codigoscrias=codigoscrias,
+                codigopapa=codigopapa,
+                codigomama=codigomama,
+                edad=edad,
+                infovacunas=infovacunas,
+                enfermedades=enfermedades,
+                estado=estado,
+                idparcela_id=idparcela,
+                razas=razas
+            )
+            return JsonResponse({'success': True, 'id': ganado.id})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
+
+@csrf_exempt
+@login_requerido
+def actualizar_ganado(request, id):
+    if request.method == "POST":
+        try:
+            ganado = Ganado.objects.get(id=id)
+            ganado.codigocria = request.POST.get('CodigoCria')
+            ganado.foto = request.POST.get('Foto', '')
+            ganado.crias = request.POST.get('Crias', '0')
+            ganado.codigoscrias = request.POST.get('CodigosCrias', '[]')
+            ganado.codigopapa = request.POST.get('CodigoPapa', '')
+            ganado.codigomama = request.POST.get('CodigoMama', '')
+            ganado.edad = request.POST.get('Edad', '')
+            ganado.infovacunas = request.POST.get('Vacunas', '[]')
+            ganado.enfermedades = request.POST.get('Enfermedades', '[]')
+            ganado.codigoscrias = request.POST.get('CodigosCrias', '[]')
+            ganado.crias = request.POST.get('Crias', '0')
+            ganado.estado = request.POST.get('Estado', '')
+            ganado.idparcela_id = request.POST.get('IdParcela', '')
+            ganado.razas = request.POST.get('Razas', '')
+            ganado.save()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
+
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+@login_requerido
+def obtener_ganado(request, id):
+    try:
+        vacuno = Ganado.objects.get(id=id)
+        return JsonResponse({
+            'id': vacuno.id,
+            'codigocria': vacuno.codigocria,
+            'edad': vacuno.edad,
+            'estado': vacuno.estado,
+            'idparcela': vacuno.idparcela_id,
+            'codigomama': vacuno.codigomama,
+            'codigopapa': vacuno.codigopapa,
+            'razas': vacuno.razas,
+            'enfermedades': vacuno.enfermedades,
+            'infovacunas': vacuno.infovacunas,
+            'codigoscrias': vacuno.codigoscrias,
+            'foto': vacuno.foto.url if vacuno.foto else '',
+        })
+    except Ganado.DoesNotExist:
+        return JsonResponse({'error': 'Vacuno no encontrado'}, status=404)
 
 # endregion
 
@@ -173,11 +322,11 @@ def TablaCultivo(request):
 
         cultivo = Cultivo(
             nombre=nombre,
-            tipo_id=tipo_id,  
+            tipo_id=tipo_id,
             fecha_siembra=fecha_siembra,
             fecha_cosecha=fecha_cosecha,
             cantidad=cantidad,
-            foto=foto
+            foto=foto,
         )
         cultivo.save()
         return JsonResponse({'message': 'Cultivo agregado con éxito'})
@@ -197,16 +346,60 @@ def obtener_cultivo(request, id):
         return JsonResponse({
             'id': cultivo.id,
             'nombre': cultivo.nombre,
-            'tipo_id': cultivo.tipo_id,  
-            'tipo_nombre': cultivo.tipo.nombre_tipo if cultivo.tipo else '', 
+            'tipo_id': cultivo.tipo_id,
+            'tipo_nombre': cultivo.tipo.nombre_tipo if cultivo.tipo else '',
             'fecha_siembra': cultivo.fecha_siembra.strftime('%Y-%m-%d'),
-            'fecha_cosecha': cultivo.fecha_cosecha.strftime('%Y-%m-%d'), 
+            'fecha_cosecha': cultivo.fecha_cosecha.strftime('%Y-%m-%d'),
             'cantidad': cultivo.cantidad,
-            'foto': cultivo.foto.url if cultivo.foto else ''
+            'foto': cultivo.foto.url if cultivo.foto else '',
         })
     except Cultivo.DoesNotExist:
         return JsonResponse({'error': 'Cultivo no encontrado'}, status=404)
+  
+def obtener_fertilizaciones(request, cultivo_id):
+    cultivo = Cultivo.objects.get(id=cultivo_id)
+
+    fertilizaciones = Fertilizacion.objects.filter(cultivo_id=cultivo_id).values(
+        'fecha', 'fertilizante', 'observaciones'
+    )
+    return JsonResponse({
+        'fertilizaciones': list(fertilizaciones),
+        'fecha_siembra': cultivo.fecha_siembra.strftime('%Y-%m-%d'),
+        'fecha_cosecha': cultivo.fecha_cosecha.strftime('%Y-%m-%d'),
+    })
+
+@csrf_exempt
+def agregar_fertilizacion(request, cultivo_id):
+    if request.method == 'POST':
+        fecha = request.POST.get('fecha')
+        fertilizante = request.POST.get('fertilizante')
+        observaciones = request.POST.get('observaciones', '')
+
+        try:
+            cultivo = Cultivo.objects.get(id=cultivo_id)
+            fecha_fert = datetime.strptime(fecha, '%Y-%m-%d').date()
+
+            if fecha_fert < cultivo.fecha_siembra:
+                return HttpResponseBadRequest('La fecha de fertilización no puede ser anterior a la siembra.')
+            if fecha_fert > cultivo.fecha_cosecha:
+                return HttpResponseBadRequest('La fecha de fertilización no puede ser posterior a la cosecha.')
+
+            Fertilizacion.objects.create(
+                cultivo=cultivo,
+                fecha=fecha_fert,
+                fertilizante=fertilizante,
+                observaciones=observaciones
+            )
+            return JsonResponse({'message': 'Fertilización registrada con éxito'})
+
+        except Cultivo.DoesNotExist:
+            return HttpResponseBadRequest('Cultivo no encontrado')
+        except Exception as e:
+            return HttpResponseBadRequest(str(e))
+
+
 @login_requerido
+
 def editar_cultivo(request):
     if request.method == 'POST':
         cultivo_id = request.POST.get('id')
@@ -223,7 +416,8 @@ def editar_cultivo(request):
             
             if 'foto' in request.FILES:
                 cultivo.foto = request.FILES['foto']
-
+                
+            
             cultivo.save()
             return JsonResponse({'message': 'Cultivo editado con éxito'})
         except Cultivo.DoesNotExist:
@@ -239,6 +433,11 @@ def eliminar_cultivo(request):
         return JsonResponse({'message': 'Cultivo eliminado con éxito'})
     except Cultivo.DoesNotExist:
         return JsonResponse({'error': 'El cultivo no existe'}, status=404)
+
+
+
+
+
 
 @login_requerido
 def InfoBuscador(request,TipoBusqueda,valor):
@@ -283,7 +482,29 @@ def eliminar_tipoCultivo(request, id):
         return JsonResponse({"success": True})
     return JsonResponse({"success": False}, status=400)
 
+def obtener_notificaciones(request):
+    hoy = date.today()
+    notificaciones = []
 
+    cultivos = Cultivo.objects.all()
+
+    for cultivo in cultivos:
+        # Notificación por cosecha próxima
+        if 0 <= (cultivo.fecha_cosecha - hoy).days <= 3:
+            notificaciones.append({
+                "tipo": "cosecha",
+                "mensaje": f' El cultivo "{cultivo.nombre}" está cerca de su fecha de cosecha ({cultivo.fecha_cosecha})'
+            })
+
+        # Notificación por inactividad
+        tiene_fertilizaciones = Fertilizacion.objects.filter(cultivo=cultivo).exists()
+        if not tiene_fertilizaciones:
+            notificaciones.append({
+                "tipo": "inactividad",
+                "mensaje": f'El cultivo "{cultivo.nombre}" nunca ha sido fertilizado.'
+            })
+
+    return JsonResponse({"notificaciones": notificaciones})
 
 # endregion
 
@@ -309,6 +530,7 @@ def listar_parcelas(request):
 
 @csrf_exempt
 @require_POST
+@login_requerido
 def activar(request, registro_id):
     try:
         parcela = TipoParcela.objects.get(id=registro_id)  # Cambiado a TipoParcela
@@ -331,7 +553,7 @@ def activar(request, registro_id):
             'success': False,
             'message': str(e)
         }, status=500)
-    
+@login_requerido    
 def Desactivar(request, registro_id):
     try:
         parcela = TipoParcela.objects.get(id=registro_id)  # Cambiado a TipoParcela
@@ -355,6 +577,7 @@ def Desactivar(request, registro_id):
             'message': str(e)
         }, status=500)
 @login_requerido    
+@login_requerido  
 def ListaRazas(request):
     razas = TablaRazas.objects.all().values('id', 'nombre')
     return JsonResponse(list(razas), safe=False)

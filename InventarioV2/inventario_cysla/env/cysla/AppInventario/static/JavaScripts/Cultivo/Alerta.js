@@ -124,16 +124,40 @@ function mostrarFormularioCultivo() {
  
         },
         preConfirm: () => {
-            const form = document.getElementById('formCultivo');
-            const formData = new FormData(form);
+            const popup = Swal.getPopup(); 
+            const form = popup.querySelector('#formCultivo');
 
+            const fechaSiembra = form.querySelector('#fecha_siembra').value;
+            const fechaCosecha = form.querySelector('#fecha_cosecha').value;
+            const cantidad = form.querySelector('#cantidad').value;
             const imagen = form.querySelector('#cattleImage').files[0];
 
             if (!imagen) {
                 Swal.showValidationMessage('Debes subir una imagen del cultivo.');
                 return false;
+            } 
+
+            // Validar lógica de fechas
+                    const siembraDate = new Date(fechaSiembra);
+                    const cosechaDate = new Date(fechaCosecha);
+
+                    if (!fechaSiembra || !fechaCosecha) {
+                        Swal.showValidationMessage('Debes ingresar ambas fechas.');
+                        return false;
+                    }
+
+                    if (siembraDate > cosechaDate) {
+                        Swal.showValidationMessage('La fecha de siembra no puede ser posterior a la fecha de cosecha.');
+                        return false;
+                    }
+
+
+            if (!cantidad || parseInt(cantidad) < 1) {
+                Swal.showValidationMessage('La cantidad debe ser mínimo 1.');
+                return false;
             }
 
+            const formData = new FormData(form);
             return fetch('/Cultivo/Tabla/', {
 
                 method: 'POST',
@@ -161,6 +185,7 @@ function mostrarFormularioCultivo() {
 
 }
 
+
 //Botones Editar
 
 function editar_cultivo(id) {
@@ -177,6 +202,7 @@ function editar_cultivo(id) {
             formClonado.querySelector('#editar_tipo_id').value = data.tipo_id; 
             formClonado.querySelector('#editar_fecha_siembra').value = data.fecha_siembra;
             formClonado.querySelector('#editar_fecha_cosecha').value = data.fecha_cosecha;
+
             formClonado.querySelector('#editar_cantidad').value = data.cantidad;
 
             const preview = formClonado.querySelector('#editarImagePreview');
@@ -216,8 +242,35 @@ function editar_cultivo(id) {
                     });
                 },
                 preConfirm: () => {
-                    const form = document.getElementById('formCultivoEditar');
+                    const popup = Swal.getPopup(); // Contenedor del SweetAlert
+                    const form = popup.querySelector('#formCultivoEditar');
+                    const fechaSiembra = form.querySelector('#editar_fecha_siembra').value;
+                    const fechaCosecha = form.querySelector('#editar_fecha_cosecha').value;
+                    const cantidad = form.querySelector('#editar_cantidad').value;
+
+                    // Validar fechas vacías
+                    if (!fechaSiembra || !fechaCosecha) {
+                        Swal.showValidationMessage('Debes ingresar ambas fechas.');
+                        return false;
+                    }
+
+                    // Validar lógica de fechas
+                    const siembraDate = new Date(fechaSiembra);
+                    const cosechaDate = new Date(fechaCosecha);
+
+                    if (siembraDate > cosechaDate) {
+                        Swal.showValidationMessage('La fecha de siembra no puede ser posterior a la fecha de cosecha.');
+                        return false;
+                    }
+
+                    // Validar cantidad mínima
+                    if (!cantidad || parseInt(cantidad) < 1) {
+                        Swal.showValidationMessage('La cantidad debe ser mínimo 1.');
+                        return false;
+                    }
+
                     const formData = new FormData(form);
+
                     
                     // No necesitas append('id') porque ya está en el formulario oculto
                     return fetch('/Cultivo/editar/', {
@@ -330,5 +383,119 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+//Fertilizante
 
+function abrirFertilizacion(cultivoId) {
+  fetch(`/Cultivo/fertilizaciones/${cultivoId}/`)
+    .then(response => response.json())
+    .then(data => {
+      const historial = data.fertilizaciones;
+      const yaTieneFertilizaciones = historial.length > 0;
 
+      const fechaSiembra = new Date(data.fecha_siembra);
+      const fechaCosecha = new Date(data.fecha_cosecha);
+
+      // Historial HTML
+      let historialHtml = '';
+      if (yaTieneFertilizaciones) {
+        historialHtml = `
+          <hr><h5 class="mt-3">Historial de fertilización</h5>
+          ${historial.map(f => `
+            <div class="border rounded p-2 mb-2 bg-light">
+              <p class="mb-1"><strong>Fecha:</strong> ${f.fecha}</p>
+              <p class="mb-1"><strong>Fertilizante:</strong> ${f.fertilizante}</p>
+              <p class="mb-0"><strong>Observaciones:</strong> ${f.observaciones || 'Ninguna'}</p>
+            </div>
+          `).join('')}
+          <div class="text-center">
+            <button id="mostrarFormularioBtn" class="btn btn-success btn-sm mt-3">Agregar nueva fertilización</button>
+          </div>
+        `;
+      }
+
+      // Formulario oculto
+      const formHtml = `
+        <form id="fertilizacionForm" class="text-start" style="display: ${yaTieneFertilizaciones ? 'none' : 'block'};">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="fecha" class="form-label">Fecha:</label>
+              <input type="date" name="fecha" id="fecha" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="fertilizante" class="form-label">Fertilizante:</label>
+              <input type="text" name="fertilizante" id="fertilizante" class="form-control" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="observaciones" class="form-label">Observaciones: (opcional)</label>
+            <textarea name="observaciones" id="observaciones" class="form-control" rows="2"></textarea>
+          </div>
+        </form>
+      `;
+
+      Swal.fire({
+        title: 'Fertilización del cultivo',
+        html: formHtml + historialHtml,
+        width: '60%',
+        showCancelButton: true,
+        confirmButtonText: 'Guardar',
+        focusConfirm: false,
+        didOpen: () => {
+          // Mostrar formulario al hacer clic
+          const btn = document.getElementById('mostrarFormularioBtn');
+          if (btn) {
+            btn.addEventListener('click', () => {
+              document.getElementById('fertilizacionForm').style.display = 'block';
+              btn.style.display = 'none';
+            });
+          }
+        },
+        preConfirm: () => {
+          const form = document.getElementById('fertilizacionForm');
+          if (!form || form.style.display === 'none') {
+            Swal.showValidationMessage('Haz clic en "Agregar nueva fertilización" para continuar.');
+            return false;
+          }
+
+          const fechaFert = new Date(form.querySelector('input[name="fecha"]').value);
+          const fertilizante = form.querySelector('input[name="fertilizante"]').value;
+
+          if (!fertilizante.trim()) {
+            Swal.showValidationMessage('El fertilizante no puede estar vacío.');
+            return false;
+          }
+
+          if (fechaFert < fechaSiembra) {
+            Swal.showValidationMessage('La fecha de fertilización no puede ser anterior a la siembra.');
+            return false;
+          }
+
+          if (fechaFert > fechaCosecha) {
+            Swal.showValidationMessage('La fecha de fertilización no puede ser posterior a la cosecha.');
+            return false;
+          }
+
+          const formData = new FormData(form);
+          return fetch(`/Cultivo/fertilizar/${cultivoId}/`, {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: formData
+          })
+          .then(response => {
+            if (!response.ok) throw new Error('Error al guardar fertilización');
+            return response.json();
+          })
+          .catch(error => {
+            Swal.showValidationMessage(error.message);
+          });
+        }
+      }).then(result => {
+        if (result.isConfirmed) {
+          Swal.fire('¡Guardado!', 'Información de fertilización registrada ✅', 'success')
+            .then(() => window.location.reload());
+        }
+      });
+    });
+}

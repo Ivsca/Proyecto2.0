@@ -124,7 +124,6 @@ from django.db import models
 
 class Enfermedades(models.Model):
     nombre = models.CharField(db_column='nombre',max_length=150)
-    descripcion = models.CharField(db_column='Descripcion',max_length=150)
 
     class Meta:
         managed = False
@@ -136,14 +135,14 @@ class Enfermedades(models.Model):
 
 class Ganado(models.Model):
     codigocria = models.CharField(db_column='CodigoCria', max_length=12)  
-    foto = models.CharField(db_column='Foto', max_length=255)  
+    foto = models.ImageField(upload_to='Ganado/', db_column='Foto', null=True, blank=True)  # Cambiado a ImageField
     crias = models.CharField(db_column='Crias', max_length=2)  
-    codigoscrias = models.CharField(db_column='CodigosCrias', max_length=255)  
+    codigoscrias = models.TextField(db_column='CodigosCrias')  # JSON
     codigopapa = models.CharField(db_column='CodigoPapa', max_length=12)  
     codigomama = models.CharField(db_column='CodigoMama', max_length=12)  
     edad = models.CharField(db_column='Edad', max_length=2)  
-    infovacunas = models.TextField(db_column='InfoVacunas')  
-    enfermedades = models.CharField(db_column='Enfermedades', max_length=255)  
+    infovacunas = models.TextField(db_column='InfoVacunas')  # JSON
+    enfermedades = models.TextField(db_column='Enfermedades')  # JSON
     estado = models.CharField(db_column='Estado', max_length=7)  
     idparcela = models.ForeignKey('Tipoparcela', models.DO_NOTHING, db_column='IdParcela')  
     razas = models.CharField(db_column='Razas', max_length=255)  
@@ -154,6 +153,16 @@ class Ganado(models.Model):
 
     def __str__(self):
         return f"Ganado {self.codigocria}"
+    
+class TablaVacunas(models.Model):
+    nombre = models.CharField(max_length=255, db_column='nombre')
+
+    class Meta:
+        managed = False
+        db_table = 'tablavacunas'
+
+    def __str__(self):
+        return self.nombre
 
 
 class TablaRazas(models.Model):
@@ -215,7 +224,7 @@ class TipoCultivo(models.Model):
     class Meta:
         db_table = 'tipo_cultivo'
     
-    def __str__(self):
+    def _str_(self):
         return self.nombre_tipo
 
 class Cultivo(models.Model):
@@ -230,6 +239,17 @@ class Cultivo(models.Model):
         managed = True  
         db_table = 'cultivo'
 
-    def __str__(self):
+    def _str_(self):
         return self.nombre
-# endregion
+    
+class Fertilizacion(models.Model):
+    cultivo = models.ForeignKey(Cultivo, on_delete=models.CASCADE, related_name='fertilizaciones')
+    fecha = models.DateField()
+    fertilizante = models.CharField(max_length=100)
+    observaciones = models.TextField(blank=True)
+    class Meta:
+        db_table = 'fertilizacion'
+  
+
+
+# endregion
