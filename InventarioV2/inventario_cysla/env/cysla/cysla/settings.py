@@ -78,9 +78,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "flock",
-        "USER": "root",
-        "PASSWORD": "",
-        "HOST": "localhost",
+        "USER": "django_user",
+        "PASSWORD": "django_pass",
+        "HOST": 'db',
         "PORT": "3306",
     }
 }
