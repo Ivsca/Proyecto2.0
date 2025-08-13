@@ -1,0 +1,10 @@
+[phases.setup]
+nixPkgs = [
+  "python312",
+  "mariadb",         # Mantén solo este
+  "pkg-config",
+  "libffi",
+  "openssl",
+  "gcc",
+  "gnumake"
+]

@@ -1,0 +1,44 @@
+version: '3.9'
+
+services:
+  db:
+    image: mariadb:11
+    restart: always
+    environment:
+      MYSQL_DATABASE: flock
+      MYSQL_USER: sal_user
+      MYSQL_PASSWORD: sal_pass
+      MYSQL_ROOT_PASSWORD: rootpass
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DB_NAME=flock
+      - DB_USER=sal_user
+      - DB_PASSWORD=sal_pass
+      - DB_HOST=db
+      - DB_PORT=3306
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: rootpass
+    depends_on:
+      - db
+
+volumes:
+  mariadb_data:

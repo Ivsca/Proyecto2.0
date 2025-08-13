@@ -1,0 +1,76 @@
+{% load static %}
+{% include 'inc/Header.html' %}
+<!--Fuentes Google-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bevan:ital@0;1&family=Comfortaa:wght@300..700&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+<!--Iconos-->
+<link rel="stylesheet" href="https://www.flaticon.es/iconos-gratis/logotipo-de-instagram">
+<link rel="stylesheet" href="https://www.flaticon.es/iconos-gratis/whatsapp">
+<link rel="stylesheet" href="https://www.flaticon.es/iconos-gratis/facebook">
+
+<link rel="stylesheet" href="{% static 'Css/home.css' %}">
+
+<!-- Inicio  video -->
+  <div class="video-container">
+    <video autoplay muted loop playsinline preload="none" loading="lazy">
+      <source src="{% static 'Image/img/presentacion.mp4' %}" type="video/mp4">
+    </video>
+    <div id="Menu" class="video-overlay">
+      <h1>Inventarios C&SLA</h1>
+      <h1>Impulsamos el campo, construimos país</h1>
+    </div>
+  </div>
+          
+  <!-- Sección Sobre Nosotros -->
+
+  <div class="about-container">
+    <!-- Imagen del Logo -->
+    <div class="logo_grande">
+        <img src="{% static 'Image/img/logoact.png' %}" alt="logo"> 
+    </div>
+    
+    <!-- Texto de información -->
+    <div id="sobre-nosotros" class="sobreNosotros">
+        <h2>Sobre Nosotros</h2>
+        <h1>Sembramos desarrollo, cosechamos progreso</h1>
+        <p>Nuestra línea agropecuaria se dedica al desarrollo del campo, impulsando la comercialización de productos agropecuarios. Nos enfocamos en crear nuevos proyectos que fortalezcan el sector, promoviendo tanto el crecimiento del campo como la generación de empleo.</p>
+        <p><strong>#TodosConstruimosPaís</strong></p>
+      </div>
+  </div>
+
+  <!--Sección Buenas prácticas-->
+
+ 
+    <div id="Gestiona"class="container">
+      <img src="{% static 'Image/img/farmm2.jpg' %}" alt="fondo">
+      <!-- Panel izquierdo -->
+      <div class="panel panel-left">
+          <h2>Gestiona Ganados</h2>
+          <br>
+          <p>¡Registra y mantén organizada toda la información relevante sobre tus vacas! Te ofrecemos una plataforma completa para que gestiones detalles como la raza, edad, genealogía, historial de medicamentos, y mucho más. Nos comprometemos a implementar buenas prácticas en cada etapa de nuestro trabajo, garantizando un manejo responsable y eficiente de tu ganado.</p>
+          <a href="https://www.ica.gov.co/getattachment/35f0d70e-b2dd-4bfc-ac1f-ba169b5ccdca/Publicacion-5.aspx" target="_blank" class="button">Lee Más</a>
+      </div>
+      
+      <!-- Panel derecho -->
+      <div class="panel panel-right">
+          <h2>Gestiona Cultivos</h2>
+          <br>
+          <p>¡Lleva un control preciso de toda la información sobre tus cultivos! Te brindamos una plataforma integral para que registres detalles como el tipo de cultivo, fecha de siembra, tratamientos aplicados, historial de fertilización, y mucho más. Nos enfocamos en aplicar las mejores prácticas agrícolas para optimizar la gestión de tus cultivos, asegurando un manejo eficiente y sustentable.</p>
+          <a href="https://www.agrocalidad.gob.ec/wp-content/uploads/2020/05/material1.pdf" target="_blank" class="button">Lee Más</a>
+      </div>
+    </div>
+
+  
+   
+   <div id="Contactanos"class="info">
+      <div class="content">
+          <h1>Gestiona tu Ganado y/o cultivos con nosotros</h1>
+          <p>¿Eres de Maceo y necesitas ayuda con tu información? <br>
+            Ponte en contacto con nosotros para brindarte toda la información necesaria</p>
+          <a href="https://instabio.cc/4103121tNtrR6?fbclid=PAZXh0bgNhZW0CMTEAAaas9PRgZcwV9pMANLxB_WVpYUPOSGkSytFezlwNcW_eU2Je_LcexVzOegg_aem_1Q1lazZqq44NV4aoqjzKFA" class="btn">Contáctanos</a>
+      </div>
+    </div>
+
+{% include 'inc/Footer.html' %}

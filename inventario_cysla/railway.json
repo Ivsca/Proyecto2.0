@@ -1,0 +1,25 @@
+{
+  "build": {
+    "nixpacks": {
+      "phases": {
+        "setup": {
+          "nixPkgs": [
+
+  "python312",
+  "mariadb",
+  "pkg-config",
+  "libffi",
+  "openssl",
+  "mariadb-connector-c",
+  "gcc",
+  "gnumake"
+]
+
+        },
+        "start": {
+          "cmd": "gunicorn inventario_cysla.wsgi --bind 0.0.0.0:$PORT"
+        }
+      }
+    }
+  }
+}

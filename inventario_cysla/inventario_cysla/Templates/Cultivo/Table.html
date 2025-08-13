@@ -1,0 +1,228 @@
+{% load static %}
+<title>Gestor de Cultivo</title>
+<!-- Inclusión de archivos CSS -->
+<link rel="stylesheet" href="{% static 'Css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'Css/Cultivo/Cultivo.css' %}">
+<meta name="csrf-token" content="{{ csrf_token }}">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+<!-- Formulario oculto -->
+<form id="formularioCultivoOriginal" style="display: none; padding: 5px 20px 20px 20px" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="d-flex gap-4 align-items-start">
+        <!-- Columna Izquierda: Imagen -->
+        <div class="text-center flex-shrink-0" style="width: 50%;">
+            <div id="imagePreview" class="mt-3 border rounded p-2 bg-light">
+                <!-- Vista previa -->
+            </div>
+            <label for="cattleImage" class="form-label fw-bold">Foto del cultivo</label>
+            <input type="file" class="form-control" id="cattleImage" name="foto" accept="image/*" required>
+        </div>
+
+        <!-- Columna Derecha: Inputs -->
+        <div class="flex-grow-1">
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre del cultivo</label>
+                <input type="text" name="nombre" id="nombre" class="form-control" placeholder="Ej. Maíz" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="tipo_id" class="form-label">Tipo de cultivo</label>
+                <select name="tipo_id" id="tipo_id" class="form-select" required>
+                    <option value="">Selecciona tipo de cultivo</option>
+                    {% for tipo in tipos_cultivo %}
+                        <option value="{{ tipo.id }}">{{ tipo.nombre_tipo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="fecha_siembra" class="form-label">Fecha de siembra</label>
+                    <input type="date" name="fecha_siembra" id="fecha_siembra" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="fecha_cosecha" class="form-label">Fecha de cosecha</label>
+                    <input type="date" name="fecha_cosecha" id="fecha_cosecha" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="cantidad" class="form-label">Cantidad</label>
+                <input type="number" name="cantidad" id="cantidad" class="form-control" placeholder="Ej. 100" required>
+            </div>
+
+
+        </div>
+    </div>
+</form>
+
+<!-- Fertilizante -->
+
+<form id="formularioFertilizacion" style="display: none;">
+  <div class="mb-3">
+    <label for="fecha_fertilizacion">Fecha de fertilización:</label>
+    <input type="date" id="fecha_fertilizacion" name="fecha_fertilizacion" class="form-control">
+  </div>
+  <div class="mb-3">
+    <label for="fertilizante">Fertilizante usado:</label>
+    <input type="text" id="fertilizante" name="fertilizante" class="form-control">
+  </div>
+  <div class="mb-3">
+    <label for="observaciones">Observaciones (opcional):</label>
+    <textarea id="observaciones" name="observaciones" class="form-control"></textarea>
+  </div>
+</form>
+
+
+{% include 'inc/Header.html' %}
+<div class="container mt-5">
+    <div class="text-end mb-3">
+        <button class="btn btn-success" onclick="mostrarFormularioCultivo()">
+            <i class="fas fa-plus"></i> Agregar Cultivo
+        </button>
+    </div>
+
+    <!-- Título principal -->
+    <h2 class="text-center mb-4">Gestión de Cultivo</h2>
+    
+    <!-- BUSCADOR MEJORADO -->
+    <div class="search-container mb-4">
+        <div class="search-form">
+            <select class="search-select" id="TipoBusqueda">
+                <option value="">Buscar en todo</option>
+                {% for tipo in tipos_cultivo %}
+                    <option value="{{ tipo.nombre_tipo|lower }}">{{ tipo.nombre_tipo }}</option>
+                {% endfor %}
+            </select>
+            
+            <input type="text" class="search-input" id="searchInput" 
+                placeholder="¿Qué cultivo buscas hoy?">
+            
+            <button type="button" class="search-btn" onclick="filtrarCultivos()">
+                <i class="fas fa-search"></i> Buscar
+            </button>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        {% for cultivo in page_obj %}
+            <div class="col-lg-4 col-md-6 mb-4 cultivo-item"
+            data-nombre="{{ cultivo.nombre|lower }}"
+            data-tipo="{{ cultivo.tipo.nombre_tipo|lower }}">
+                <div class="card cultivo-card h-100">
+                    {% if cultivo.foto %}
+                        <img src="{{ cultivo.foto.url }}" class="card-img-top" alt="{{ cultivo.nombre }}">
+                    {% else %}
+                        <img src="{% static 'Image/img/hn.jpg' %}" class="card-img-top" alt="Sin imagen">
+                    {% endif %}
+                    
+                    <div class="cultivo-overlay">
+                        <div class="cultivo-info">
+                            <h5 class="card-title">{{ cultivo.nombre }}</h5>
+                            <p><strong>Tipo:</strong> {{ cultivo.tipo.nombre_tipo }}</p>
+                            <p><strong>Fecha Siembra:</strong> {{ cultivo.fecha_siembra }}</p>
+                            <p><strong>Fecha Cosecha:</strong> {{ cultivo.fecha_cosecha }}</p>
+                            <p><strong>Cantidad:</strong> {{ cultivo.cantidad }}</p>
+
+                        </div>
+                        <div class="cultivo-buttons">
+                            <button class="btn btn-success" onclick="abrirFertilizacion({{ cultivo.id }})">
+                                <i class="fas fa-edit"></i> Fertilizante
+                            </button>
+                            <button class="btn btn-warning" onclick="editar_cultivo('{{ cultivo.id }}')">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="eliminarCultivo({{ cultivo.id }})">
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% empty %}
+            <div class="col-12 text-center">
+                <div class="alert alert-info">
+                    No se encontraron cultivos registrados.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- paginación centrada debajo de las cards -->
+    <div class="d-flex justify-content-center mt-4">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">« Anterior</a>
+                </li>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente »</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+<!-- Formulario Editar -->
+<form id="formularioEditarOriginal" style="display: none; padding: 5px 20px 20px 20px" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="hidden" name="id" id="editar_id">
+    <div class="d-flex gap-4 align-items-start">
+        <!-- Columna Izquierda -->
+        <div class="text-center flex-shrink-0" style="width: 50%;">
+            <div id="editarImagePreview" class="mt-3 border rounded p-2 bg-light"></div>
+            <label for="editarCattleImage" class="form-label fw-bold">Foto del cultivo</label>
+            <input type="file" class="form-control" id="editarCattleImage" name="foto" accept="image/*">
+        </div>
+        <!-- Columna Derecha -->
+        <div class="flex-grow-1">
+            <div class="mb-3">
+                <label for="editar_nombre" class="form-label">Nombre del cultivo</label>
+                <input type="text" name="nombre" id="editar_nombre" class="form-control" placeholder="Ej. Maíz" required>
+            </div>
+            <div class="mb-3">
+                <label for="editar_tipo_id" class="form-label">Tipo de cultivo</label>
+                <select name="tipo_id" id="editar_tipo_id" class="form-select" required>
+                    <option value="">Selecciona tipo de cultivo</option>
+                    {% for tipo in tipos_cultivo %}
+                        <option value="{{ tipo.id }}">{{ tipo.nombre_tipo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="editar_fecha_siembra" class="form-label">Fecha de siembra</label>
+                    <input type="date" name="fecha_siembra" id="editar_fecha_siembra" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="editar_fecha_cosecha" class="form-label">Fecha de cosecha</label>
+                    <input type="date" name="fecha_cosecha" id="editar_fecha_cosecha" class="form-control" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="editar_cantidad" class="form-label">Cantidad</label>
+                <input type="number" name="cantidad" id="editar_cantidad" class="form-control" placeholder="Ej. 100" required>
+            </div>
+
+        </div>
+    </div>
+</form>
+
+<!-- Inclusión de scripts -->
+<script src="{% static 'JavaScripts/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'JavaScripts/Ganado/Alertas.js' %}"></script>
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% include 'inc/Footer.html' %}

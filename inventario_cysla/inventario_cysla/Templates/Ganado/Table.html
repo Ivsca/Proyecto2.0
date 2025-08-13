@@ -1,0 +1,305 @@
+{% load static %}
+<title>Gestor de Ganado</title>
+<!-- Inclusión de archivos CSS -->
+<link rel="stylesheet" href="{% static 'Css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'Css/Ganado/Ganado.css' %}">
+<link rel="stylesheet" href="{% static 'Css/Ganado/FormGanado.css' %}">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+
+
+{% include 'inc/Header.html' %}
+<div class="container mt-5">
+    <!-- Título principal -->
+    <h2 class="text-center mb-4">Gestión de Ganado</h2>
+    <!-- Botón para abrir el formulario multipaso -->
+    <button id="btnOpenForm" class="btn btn-success mb-4">
+        <i class="fas fa-plus"></i> Registrar Nuevo Vacuno
+    </button>
+
+    <!-- Formulario multipaso oculto (solo estructura, sin <style> ni <script>) -->
+    <div id="formModal" style="display:none;">
+        <div class="form-container">
+            <!-- Barra de progreso -->
+            <div class="progress-container">
+                <div class="step active" data-step="1">1</div>
+                <div class="step" data-step="2">2</div>
+                <div class="step" data-step="3">3</div>
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <form id="cattleForm" enctype="multipart/form-data" method="post" action="{% url 'registrar_ganado' %}">
+                {% csrf_token %}
+                <!-- Paso 1 -->
+                <div class="form-step active" id="step1">
+                    <h2 style="margin-bottom: 32px; color: #2d3436;">Información Básica</h2>
+                    <div class="form-group">
+                        <div class="image-preview" id="imagePreview">
+                            <div class="placeholder">
+                                <i class="fas fa-camera"></i>
+                                <p>Seleccione una imagen</p>
+                            </div>
+                        </div>
+                        <input type="file" id="cattleImage" name="Foto" accept="image/*" class="d-none">
+                        <button type="button" id="btnSelectImage" class="btn btn-outline-success w-100 mt-2">
+                            <i class="fas fa-upload"></i> Seleccionar Imagen
+                        </button>
+                        
+                    </div>
+                    <div class="form-group">
+                        <label for="cattleCode">Código del Vacuno</label>
+                        <input type="text" id="cattleCode" name="CodigoCria" class="form-control" placeholder="Ej: VAC-001">
+                    </div>
+                    <div class="form-group">
+                        <label for="cattleAge">Edad (meses)</label>
+                        <input type="number" maxlength="2" id="cattleAge" name="Edad" class="form-control" placeholder="Ej: 24" max="99" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cattleState">Estado del Vacuno</label>
+                        <select id="cattleState" name="Estado" class="form-control">
+                            <option value="Activa">Activa</option>
+                            <option value="Muerta">Muerta</option>
+                            <option value="Vendida">Vendida</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="parcelId">Parcela</label>
+                        <select id="parcelId" name="IdParcela" class="form-control" required>
+                            <option value="" disabled selected>Seleccione una parcela</option>
+                            {% for parcela in parcelas %}
+                                <option value="{{ parcela.id }}">{{ parcela.nombre }} ({{ parcela.estado }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" onclick="nextStep()" class="btn btn-success">Siguiente <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+                <!-- Paso 2 -->
+                <div class="form-step" id="step2">
+                    <h2 style="margin-bottom: 32px; color: #2d3436;">Información Adicional</h2>
+                    <div class="form-group">
+                        <label for="motherCode">Código de la Madre</label>
+                        <input type="text" id="motherCode" name="CodigoMama" class="form-control" autocomplete="off" placeholder="Buscar madre...">
+                        <select id="select-madre" size="5" style="display: none; width:100%;"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fatherCode">Código del Padre</label>
+                        <input type="text" id="fatherCode" name="CodigoPapa" class="form-control" autocomplete="off" placeholder="Buscar padre...">
+                        <select id="select-padre" size="5" style="display: none; width:100%;"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Composición Racial</label>
+                        <div class="race-selector d-flex gap-2 align-items-center">
+                            <select id="breed1" class="form-control">
+                                {% if Razas %}
+                                        {% for raza in Razas %}
+                                            <option value="{{ raza }}">{{ raza }}</option>
+                                        {% endfor %}
+                                    {% else %}
+                                        <option disabled selected>No hay razas registradas</option>
+                                {% endif %}
+                            </select>
+                            <span style="color: #6c757d;">con</span>
+                            <select id="breed2" class="form-control">
+                                {% if Razas %}
+                                        {% for raza in Razas %}
+                                            <option value="{{ raza }}">{{ raza }}</option>
+                                        {% endfor %}
+                                    {% else %}
+                                        <option disabled selected>No hay razas registradas</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        <input type="hidden" name="Razas" id="breedComposition">
+                    </div>
+                    <div class="form-group">
+                        <label>Enfermedades</label>
+                        <div class="toggle-buttons d-flex gap-2 mb-2">
+                            <button type="button" id="btnNoDiseases" class="btn btn-outline-secondary">No aplica</button>
+                            <button type="button" id="btnHasDiseases" class="btn btn-outline-danger">Aplica</button>
+                        </div>
+                        <div id="diseaseSection" class="hidden-section">
+                            <div class="input-group gap-2 mb-2">
+                                <select id="disease" class="form-control">
+                                    {% if enfermedades %}
+                                        {% for enfermedad in enfermedades %}
+                                            <option value="{{ enfermedad }}">{{ enfermedad }}</option>
+                                        {% endfor %}
+                                    {% else %}
+                                        <option disabled selected>No hay enfermedades registradas</option>
+                                    {% endif %}
+                                </select>
+                                <input type="date" id="diseaseDate" class="form-control">
+                            </div>
+                            <button type="button" id="btnAddDisease" class="btn btn-outline-success w-100 mb-2">
+                                <i class="fas fa-plus"></i> Agregar Enfermedad
+                            </button>
+                            <input type="hidden" name="Enfermedades" id="diseasesInput">
+                            <div id="diseasesList" class="dynamic-list"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Vacunas</label>
+                        <div class="toggle-buttons d-flex gap-2 mb-2">
+                            <button type="button" id="btnNoVaccines" class="btn btn-outline-secondary">No aplica</button>
+                            <button type="button" id="btnHasVaccines" class="btn btn-outline-danger">Aplica</button>
+                        </div>
+                        <div id="vaccineSection" class="hidden-section">
+                            <div class="input-group gap-2 mb-2">
+                                <select id="vaccine" class="form-control">
+                                    {% if vacunas %}
+                                            {% for vacuna in vacunas %}
+                                                <option value="{{ vacuna }}">{{ vacuna }}</option>
+                                            {% endfor %}
+                                        {% else %}
+                                            <option disabled selected>No hay vacunas registradas</option>
+                                    {% endif %}
+                                </select>
+                                <input type="number" id="vaccineAmount" class="form-control" placeholder="Cantidad">
+                            </div>
+                            <div class="input-group gap-2 mb-2">
+                                <input type="date" id="vaccineDate" class="form-control">
+                                <select id="vaccineType" class="form-control">
+                                    <option value="via oral">Vía Oral</option>
+                                    <option value="inyeccion">Inyección</option>
+                                    <option value="aplicacion">Aplicación</option>
+                                </select>
+                            </div>
+                            <button type="button" id="btnAddVaccine" class="btn btn-outline-success w-100 mb-2">
+                                <i class="fas fa-plus"></i> Agregar Vacuna
+                            </button>
+                            <input type="hidden" name="Vacunas" id="vaccinesInput">
+                            <div id="vaccinesList" class="dynamic-list"></div>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" onclick="prevStep()" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Anterior</button>
+                        <button type="button" onclick="nextStep()" class="btn btn-success">Siguiente <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+                <!-- Paso 3 -->
+                <div class="form-step" id="step3">
+                    <h2 style="margin-bottom: 32px; color: #2d3436;">Confirmación Final</h2>
+                    <div class="form-group">
+                        <label for="offspringSearch">Buscar cría</label>
+                        <input type="text" id="offspringSearch" class="form-control" autocomplete="off" placeholder="Buscar cría...">
+                        <select id="select-offspring" size="5" style="display: none; width:100%;"></select>
+                        <button type="button" id="btnAddOffspring" class="btn btn-outline-success w-100 mt-2 mb-2">
+                            <i class="fas fa-plus"></i> Agregar Cría
+                        </button>
+                        <input type="hidden" name="CodigosCrias" id="offspringCodes">
+                        <input type="hidden" name="Crias" id="offspringCount">
+                        <div id="offspringList" class="dynamic-list"></div>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size: 18px; color: #4CAF50;">¡Verifique los datos ingresados!</label>
+                        <div id="summary" style="padding: 20px; background-color: #f8f9fa; border-radius: 8px;"></div>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button" onclick="prevStep()" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Anterior</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check"></i> Finalizar Registro
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- BUSCADOR MEJORADO -->
+    <div class="search-container">
+        <div class="search-form">
+            <select class="search-select" id="TipoBusqueda">
+                <option value="">Buscar en todo</option>
+                <option value="codigo">Código</option>
+                <option value="raza">Raza</option>
+                <option value="estado">Estado</option>
+                <option value="edad">Edad</option>
+            </select>
+            <input type="text" class="search-input" id="searchInput" placeholder="¿Qué animal buscas hoy?">
+            <button type="button" class="search-btn" onclick="filtrarGanado()">
+                <i class="fas fa-search"></i> Buscar
+            </button>
+        </div>
+    </div>
+
+    <!-- Contenedor de las tarjetas de ganado -->
+    <div class="row justify-content-center">
+        {% for vacuno in page_obj %}
+        <!-- Tarjeta individual para cada animal -->
+        <div class="col-lg-4 col-md-6 mb-4 ganado-item"
+            data-codigo="{{ vacuno.codigocria|lower }}"
+            data-raza="{{ vacuno.razas|lower }}"
+            data-estado="{{ vacuno.estado|lower }}"
+            data-edad="{{ vacuno.edad }}">
+            <div class="card ganado-card h-100 position-relative">
+                {% if vacuno.foto %}
+                    <img src="{{ vacuno.foto.url }}" class="card-img-top" alt="{{ vacuno.nombre }}">
+                {% else %}
+                    <img src="{% static 'Image/img/fondo_vaca.jpg' %}" class="card-img-top" alt="{{ vacuno.nombre }}">
+                {% endif %}
+                <span class="ganado-code">{{ vacuno.codigocria|default:"G-001" }}</span>
+                <div class="ganado-overlay">
+                    <div class="ganado-info">
+                        <h5 class="card-title">{{ vacuno.codigocria|default:"G-001" }}</h5>
+                        <p><strong>Raza:</strong> {{ vacuno.razas|default:"Angus" }}</p>
+                        <p><strong>Edad:</strong> {{ vacuno.edad|default:"3" }} años</p>
+                        <p><strong>Estado:</strong> {{ vacuno.estado|default:"Saludable" }}</p>
+                        <p><strong>Padre:</strong> {{ vacuno.codigopapa|default:"N/A" }}</p>
+                        <p><strong>Madre:</strong> {{ vacuno.codigomama|default:"N/A" }}</p>
+                        <p><strong>Crias:</strong> {{ vacuno.crias|default:"0" }}</p>
+                    </div>
+                    <div class="ganado-buttons">
+                        <button class="btn btn-primary" onclick="abrirFormularioVer('{{ vacuno.codigocria }}')">
+                            <i class="fas fa-eye"></i> Ver
+                        </button>
+                        <button class="btn btn-warning" onclick="mostrarFormularioEditar('{{ vacuno.codigocria }}')">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="btn btn-danger" onclick="EliminarVacuno('{{ vacuno.id }}')">
+                            <i class="fas fa-trash-alt"></i> Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <div class="alert alert-info">
+                No se encontraron animales registrados.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- paginación centrada debajo de las cards -->
+    <div class="d-flex justify-content-center mt-4">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">« Anterior</a>
+                </li>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente »</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+<!-- Inclusión de scripts -->
+<script src="{% static 'JavaScripts/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'JavaScripts/Ganado/Alertas.js' %}"></script>
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{% include 'inc/Footer.html' %}
