@@ -126,6 +126,18 @@ function mostrarFormularioCultivo() {
         preConfirm: () => {
             const popup = Swal.getPopup(); 
             const form = popup.querySelector('#formCultivo');
+            // 1. Validación de parcela
+            const parcelaSelect = form.querySelector('#parcela_id');
+            if (!parcelaSelect.value) {
+                Swal.showValidationMessage('Debes seleccionar una parcela');
+                return false;
+            } else {
+                const selectedOption = parcelaSelect.options[parcelaSelect.selectedIndex];
+                if (selectedOption.disabled) {
+                    Swal.showValidationMessage('No puedes seleccionar una parcela inactiva');
+                    return false;
+                }
+            }
 
             const fechaSiembra = form.querySelector('#fecha_siembra').value;
             const fechaCosecha = form.querySelector('#fecha_cosecha').value;
@@ -189,6 +201,10 @@ function mostrarFormularioCultivo() {
 //Botones Editar
 
 function editar_cultivo(id) {
+    if (userRole !== "Admin") {
+    Swal.fire('Error', 'No tienes permisos para esta acción', 'error');
+    return;
+  }
     fetch(`/Cultivo/obtener/${id}/`)
         .then(response => response.json())
         .then(data => {
@@ -206,6 +222,10 @@ function editar_cultivo(id) {
             formClonado.querySelector('#editar_cantidad').value = data.cantidad;
 
             const preview = formClonado.querySelector('#editarImagePreview');
+            const parcelaSelect = formClonado.querySelector('#editar_parcela_id');
+            if (parcelaSelect) {
+                parcelaSelect.value = data.parcela_id || '';
+            }
             preview.innerHTML = data.foto ? `<img src="${data.foto}" class="img-fluid rounded" style="max-height: 200px;">` : '';
 
             Swal.fire({
@@ -269,6 +289,15 @@ function editar_cultivo(id) {
                         return false;
                     }
 
+                    const parcelaSelect = Swal.getPopup().querySelector('#editar_parcela_id');
+                    if (parcelaSelect && parcelaSelect.value) {
+                        const selectedOption = parcelaSelect.options[parcelaSelect.selectedIndex];
+                        if (selectedOption.disabled) {
+                            Swal.showValidationMessage('No puedes asignar una parcela inactiva');
+                            return false;
+                        }
+                    }
+
                     const formData = new FormData(form);
 
                     
@@ -305,6 +334,10 @@ function editar_cultivo(id) {
 //Eliminar CUltivo
 
 function eliminarCultivo(id) {
+     if (userRole !== "Admin") {
+    Swal.fire('Error', 'No tienes permisos para esta acción', 'error');
+    return;
+  }
     Swal.fire({
         title: '¿Estás seguro?',
         text: "Esta acción no se puede deshacer.",
@@ -383,119 +416,307 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-//Fertilizante
-
-function abrirFertilizacion(cultivoId) {
+// =============================================
+// FUNCIÓN PRINCIPAL - REGISTRO NUTRICIONAL
+// =============================================
+function abrirRegistroNutricional(cultivoId) {
   fetch(`/Cultivo/fertilizaciones/${cultivoId}/`)
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) throw new Error('Error al cargar datos');
+      return response.json();
+    })
     .then(data => {
-      const historial = data.fertilizaciones;
-      const yaTieneFertilizaciones = historial.length > 0;
-
+      const historial = data.fertilizaciones || [];
+      const tieneRegistros = historial.length > 0;
       const fechaSiembra = new Date(data.fecha_siembra);
       const fechaCosecha = new Date(data.fecha_cosecha);
 
-      // Historial HTML
+      // ======================
+      // 1. CONSTRUIR HISTORIAL
+      // ======================
       let historialHtml = '';
-      if (yaTieneFertilizaciones) {
+      if (tieneRegistros) {
         historialHtml = `
-          <hr><h5 class="mt-3">Historial de fertilización</h5>
-          ${historial.map(f => `
-            <div class="border rounded p-2 mb-2 bg-light">
-              <p class="mb-1"><strong>Fecha:</strong> ${f.fecha}</p>
-              <p class="mb-1"><strong>Fertilizante:</strong> ${f.fertilizante}</p>
-              <p class="mb-0"><strong>Observaciones:</strong> ${f.observaciones || 'Ninguna'}</p>
-            </div>
-          `).join('')}
-          <div class="text-center">
-            <button id="mostrarFormularioBtn" class="btn btn-success btn-sm mt-3">Agregar nueva fertilización</button>
+          <hr>
+          <h5 class="mt-3 mb-3 text-center">
+            <i class="fas fa-history me-2"></i>Historial de aplicaciones
+          </h5>
+          <div class="historial-container" style="max-height: 300px; overflow-y: auto;">
+            ${historial.map(registro => `
+              <div class="border rounded p-3 mb-3 
+                  ${registro.tipo === 'ORGANICO' ? 'bg-light-success' : 'bg-light'}">
+                <div class="d-flex justify-content-between">
+                  <span class="badge ${getBadgeClass(registro.tipo)}">
+                    ${getTipoDisplay(registro.tipo)}
+                  </span>
+                  <small class="text-muted">${registro.fecha}</small>
+                </div>
+                <p class="my-2"><strong>${registro.fertilizante}</strong></p>
+                ${registro.dosis ? `<p class="mb-1"><i class="fas fa-weight me-1"></i> ${registro.dosis}</p>` : ''}
+                ${registro.observaciones ? `
+                  <p class="mt-2 mb-0"><i class="fas fa-comment me-1"></i> 
+                    <em>${registro.observaciones}</em>
+                  </p>
+                ` : ''}
+              </div>
+            `).join('')}
           </div>
         `;
       }
 
-      // Formulario oculto
+      // =====================
+      // 2. CONSTRUIR FORMULARIO
+      // =====================
       const formHtml = `
-        <form id="fertilizacionForm" class="text-start" style="display: ${yaTieneFertilizaciones ? 'none' : 'block'};">
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label for="fecha" class="form-label">Fecha:</label>
-              <input type="date" name="fecha" id="fecha" class="form-control" required>
+        <form id="nutricionForm" class="text-start" 
+              style="display: ${tieneRegistros ? 'none' : 'block'};">
+              
+          <!-- Fila 1: Datos básicos -->
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label for="fecha" class="form-label">
+                <i class="fas fa-calendar me-1"></i>Fecha*
+              </label>
+              <input type="date" name="fecha" class="form-control" required
+                     min="${data.fecha_siembra}" max="${data.fecha_cosecha}">
             </div>
-            <div class="col-md-6 mb-3">
-              <label for="fertilizante" class="form-label">Fertilizante:</label>
-              <input type="text" name="fertilizante" id="fertilizante" class="form-control" required>
+            
+            <div class="col-md-4">
+              <label for="tipo" class="form-label">
+                <i class="fas fa-tag me-1"></i>Tipo*
+              </label>
+              <select name="tipo" class="form-select" required>
+                <option value="QUIMICO">Fertilizante químico</option>
+                <option value="ORGANICO">Abono orgánico</option>
+                <option value="OTRO">Otro insumo</option>
+              </select>
+            </div>
+            
+            <div class="col-md-4">
+              <label for="dosis" class="form-label">
+                <i class="fas fa-weight-hanging me-1"></i>Dosis
+              </label>
+              <input type="text" name="dosis" class="form-control" 
+                     placeholder="Ej: 100 kg/ha, 5 L/m²">
             </div>
           </div>
+          
+          <!-- Fila 2: Producto -->
           <div class="mb-3">
-            <label for="observaciones" class="form-label">Observaciones: (opcional)</label>
-            <textarea name="observaciones" id="observaciones" class="form-control" rows="2"></textarea>
+            <label for="fertilizante" class="form-label">
+              <i class="fas fa-pump-soap me-1"></i>Producto*
+            </label>
+            <input type="text" name="fertilizante" class="form-control" required
+                   placeholder="Nombre del fertilizante o abono">
+          </div>
+          
+          <!-- Fila 3: Observaciones -->
+          <div class="mb-3">
+            <label for="observaciones" class="form-label">
+              <i class="fas fa-notes-medical me-1"></i>Observaciones
+            </label>
+            <textarea name="observaciones" class="form-control" rows="2"
+                      placeholder="Método de aplicación, condiciones climáticas..."></textarea>
           </div>
         </form>
       `;
 
+      // =====================
+      // 3. MOSTRAR MODAL
+      // =====================
       Swal.fire({
-        title: 'Fertilización del cultivo',
+        title: `<i class="fas fa-seedling me-2"></i>Gestión Nutricional`,
         html: formHtml + historialHtml,
-        width: '60%',
+        width: '800px',
+        backdrop: 'rgba(0,0,0,0.4)',
         showCancelButton: true,
-        confirmButtonText: 'Guardar',
+        confirmButtonText: '<i class="fas fa-save me-1"></i> Guardar',
+        cancelButtonText: '<i class="fas fa-times me-1"></i> Cancelar',
         focusConfirm: false,
         didOpen: () => {
-          // Mostrar formulario al hacer clic
+          // Mostrar formulario al hacer clic en "Nuevo registro"
           const btn = document.getElementById('mostrarFormularioBtn');
           if (btn) {
             btn.addEventListener('click', () => {
-              document.getElementById('fertilizacionForm').style.display = 'block';
+              document.getElementById('nutricionForm').style.display = 'block';
               btn.style.display = 'none';
+              // Desplazar al formulario
+              document.querySelector('.swal2-html-container').scrollTop = 0;
             });
           }
         },
         preConfirm: () => {
-          const form = document.getElementById('fertilizacionForm');
+          const form = document.getElementById('nutricionForm');
           if (!form || form.style.display === 'none') {
-            Swal.showValidationMessage('Haz clic en "Agregar nueva fertilización" para continuar.');
-            return false;
-          }
-
-          const fechaFert = new Date(form.querySelector('input[name="fecha"]').value);
-          const fertilizante = form.querySelector('input[name="fertilizante"]').value;
-
-          if (!fertilizante.trim()) {
-            Swal.showValidationMessage('El fertilizante no puede estar vacío.');
-            return false;
-          }
-
-          if (fechaFert < fechaSiembra) {
-            Swal.showValidationMessage('La fecha de fertilización no puede ser anterior a la siembra.');
-            return false;
-          }
-
-          if (fechaFert > fechaCosecha) {
-            Swal.showValidationMessage('La fecha de fertilización no puede ser posterior a la cosecha.');
+            Swal.showValidationMessage('Completa el formulario para continuar');
             return false;
           }
 
           const formData = new FormData(form);
-          return fetch(`/Cultivo/fertilizar/${cultivoId}/`, {
-            method: 'POST',
-            headers: {
-              'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: formData
-          })
-          .then(response => {
-            if (!response.ok) throw new Error('Error al guardar fertilización');
-            return response.json();
-          })
-          .catch(error => {
-            Swal.showValidationMessage(error.message);
-          });
+          const errors = validateFormData(formData, fechaSiembra, fechaCosecha);
+          if (errors) {
+            Swal.showValidationMessage(errors);
+            return false;
+          }
+
+          return submitFormData(cultivoId, formData);
         }
       }).then(result => {
         if (result.isConfirmed) {
-          Swal.fire('¡Guardado!', 'Información de fertilización registrada ✅', 'success')
-            .then(() => window.location.reload());
+          showSuccessAlert();
         }
       });
+    })
+    .catch(error => {
+      Swal.fire('Error', `No se pudo cargar la información: ${error.message}`, 'error');
     });
 }
+
+// =============================================
+// FUNCIONES AUXILIARES
+// =============================================
+
+function getBadgeClass(tipo) {
+  const classes = {
+    'QUIMICO': 'bg-secondary',
+    'ORGANICO': 'bg-success',
+    'OTRO': 'bg-warning text-dark'
+  };
+  return classes[tipo] || 'bg-primary';
+}
+
+function getTipoDisplay(tipo) {
+  const tipos = {
+    'QUIMICO': 'Fertilizante',
+    'ORGANICO': 'Abono Orgánico',
+    'OTRO': 'Otro Insumo'
+  };
+  return tipos[tipo] || tipo;
+}
+
+function validateFormData(formData, fechaSiembra, fechaCosecha) {
+  const fecha = new Date(formData.get('fecha'));
+  const producto = formData.get('fertilizante').trim();
+
+  if (!producto) return 'El nombre del producto es obligatorio';
+  if (fecha < fechaSiembra) return 'La fecha no puede ser anterior a la siembra';
+  if (fecha > fechaCosecha) return 'La fecha no puede ser posterior a la cosecha';
+  return null;
+}
+
+function submitFormData(cultivoId, formData) {
+  return fetch(`/Cultivo/fertilizar/${cultivoId}/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+    },
+    body: formData
+  }).then(response => {
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+  });
+}
+
+function showSuccessAlert() {
+  return Swal.fire({
+    title: '<i class="fas fa-check-circle text-success me-2"></i>¡Registro exitoso!',
+    html: 'Los datos nutricionales se guardaron correctamente',
+    timer: 2000,
+    timerProgressBar: true,
+    showConfirmButton: false
+  }).then(() => window.location.reload());
+}
+
+// =============================================
+// RENDERIZADO DE TARJETAS (OPCIONAL)
+// =============================================
+function renderCultivoCard(cultivo) {
+  const card = document.createElement('div');
+  card.className = 'col-lg-4 col-md-6 mb-4 cultivo-item';
+  card.setAttribute('data-nombre', cultivo.nombre.toLowerCase());
+  card.setAttribute('data-tipo', cultivo.tipo?.nombre_tipo.toLowerCase() || '');
+
+  card.innerHTML = `
+    <div class="card h-100">
+      <img src="${cultivo.foto || '/static/img/default-crop.jpg'}" 
+           class="card-img-top crop-image" alt="${cultivo.nombre}">
+      <div class="card-body">
+        <h5 class="card-title">${cultivo.nombre}</h5>
+        <p class="card-text">
+          <i class="fas fa-tag"></i> ${cultivo.tipo?.nombre_tipo || 'Sin tipo'}<br>
+          <i class="fas fa-calendar-day"></i> Siembra: ${formatDate(cultivo.fecha_siembra)}<br>
+          <i class="fas fa-calendar-check"></i> Cosecha: ${formatDate(cultivo.fecha_cosecha)}
+        </p>
+      </div>
+      <div class="card-footer bg-transparent">
+        <button onclick="abrirRegistroNutricional(${cultivo.id})" 
+                class="btn btn-sm btn-success w-100">
+          <i class="fas fa-seedling me-1"></i>Gestión Nutricional
+        </button>
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+function formatDate(dateString) {
+  if (!dateString) return 'No definida';
+  const options = { year: 'numeric', month: 'short', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString('es-ES', options);
+}
+
+// ===============================
+// Sistema de Notificaciones - CULTIVO
+// ===============================
+
+// Evento para abrir/cerrar el panel de notificaciones
+document.getElementById('campanaNotificacionesCultivo').addEventListener('click', function (event) {
+    event.stopPropagation(); // Evita que el click se propague y cierre el panel inmediatamente
+
+    const panel = document.getElementById('panelNotificacionesCultivo');
+    panel.style.display = (panel.style.display === 'none' || panel.style.display === '') ? 'block' : 'none';
+
+    // Llamada a la API específica de Cultivo
+    fetch('/cultivos/notificaciones/')
+        .then(res => res.json())
+        .then(data => {
+            const lista = document.getElementById('listaNotificacionesCultivo');
+            lista.innerHTML = '';
+
+            if (data.notificaciones.length === 0) {
+                lista.innerHTML = '<li>No hay notificaciones.</li>';
+                return;
+            }
+
+            data.notificaciones.forEach(n => {
+                const li = document.createElement('li');
+                li.innerHTML = `<b>[${n.tipo}]</b> ${n.mensaje} <br><small>${n.fecha}</small>`;
+                lista.appendChild(li);
+            });
+        })
+        .catch(err => {
+            console.error('Error al cargar notificaciones de cultivos:', err);
+        });
+});
+
+// Mostrar/Ocultar historial de notificaciones
+function toggleHistorialNotificacionesCultivo() {
+    const dropdown = document.getElementById('historial-notificaciones-cultivo');
+    dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
+}
+
+// Cerrar paneles si se hace clic fuera
+document.addEventListener('click', function (event) {
+    const panel = document.getElementById('panelNotificacionesCultivo');
+    const bell = document.getElementById('campanaNotificacionesCultivo');
+
+    if (!panel.contains(event.target) && !bell.contains(event.target)) {
+        panel.style.display = 'none';
+    }
+
+    const historial = document.getElementById('historial-notificaciones-cultivo');
+    if (!historial.contains(event.target) && event.target.id !== 'toggleHistorialCultivo') {
+        historial.style.display = 'none';
+    }
+});
+

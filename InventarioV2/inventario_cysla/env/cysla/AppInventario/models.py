@@ -6,6 +6,8 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
+from django.utils import timezone
+from django.contrib.auth.models import User
 
 
 # class AuthGroup(models.Model):
@@ -230,7 +232,14 @@ class TipoCultivo(models.Model):
 class Cultivo(models.Model):
     nombre = models.CharField(max_length=100)
     foto = models.ImageField(upload_to='cultivos/', null=True, blank=True)
-    tipo = models.ForeignKey(TipoCultivo, on_delete=models.CASCADE, db_column='tipo_id')  
+    tipo = models.ForeignKey(TipoCultivo, on_delete=models.CASCADE, db_column='tipo_id')
+    idparcela = models.ForeignKey(
+        'Tipoparcela',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        db_column='IdParcela'
+    )
     fecha_siembra = models.DateField()
     fecha_cosecha = models.DateField()
     cantidad = models.IntegerField()
@@ -243,13 +252,39 @@ class Cultivo(models.Model):
         return self.nombre
     
 class Fertilizacion(models.Model):
+    TIPO_CHOICES = [
+        ('QUIMICO', 'Fertilizante químico'),
+        ('ORGANICO', 'Abono orgánico'),
+        ('OTRO', 'Otro tipo'),
+    ]
+    
     cultivo = models.ForeignKey(Cultivo, on_delete=models.CASCADE, related_name='fertilizaciones')
     fecha = models.DateField()
+    tipo = models.CharField(max_length=10, choices=TIPO_CHOICES, default='QUIMICO')  # Nuevo campo
     fertilizante = models.CharField(max_length=100)
+    dosis = models.CharField(max_length=50, blank=True, null=True)  # Nuevo campo
     observaciones = models.TextField(blank=True)
+
     class Meta:
         db_table = 'fertilizacion'
-  
 
+    def __str__(self):
+        return f"{self.get_tipo_display()}: {self.fertilizante} ({self.fecha})"
+    
+class NotificacionCultivo(models.Model):
+    TIPO_CHOICES = [
+        ('cosecha', 'Cosecha próxima'),
+        ('sin_fertilizar', 'Sin fertilizar'),
+        ('re_fertilizar', 'Volver a fertilizar')
+    ]
+    cultivo = models.ForeignKey(Cultivo, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(Usuarios, on_delete=models.CASCADE)  # Mantener para historial por usuario
+    mensaje = models.TextField()
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES)
+    fecha = models.DateTimeField(default=timezone.now)
+    leido = models.BooleanField(default=False)
+    
+    class Meta:
+        db_table = 'notificacion_cultivo'
 
 # endregion

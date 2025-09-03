@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-wbtt-n%1bal47qlv@_7)yjh%o8=lc@#^8x$j#=i-rd5hag6fb+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -77,11 +77,11 @@ WSGI_APPLICATION = "cysla.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "flock",
-        "USER": "django_user",
-        "PASSWORD": "django_pass",
-        "HOST": 'db',
-        "PORT": "3306",
+        "NAME": "flock",  
+        "USER": "root",   
+        "PASSWORD": "",   
+        "HOST": "localhost",  
+        "PORT": "3307",
     }
 }
 
@@ -106,12 +106,24 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# Configuración de Email (Modo Seguro para Desarrollo)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Servidor SMTP de Google (puedes cambiarlo)
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'notificaciones.cysla@gmail.com'  # Crea este email
+EMAIL_HOST_PASSWORD = 'N7v$8zQp!Xt@4LfR'  # Usa una contraseña de aplicación
+
+# Configuración Adicional Segura
+EMAIL_VALIDATION_MODE = 'soft'  # 'soft' para no bloquear envíos, 'strict' para validación fuerte
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = 'America/Bogota'
 
 USE_I18N = True
 
