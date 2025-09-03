@@ -33,7 +33,7 @@ urlpatterns = [
     path('Ganado/api/obtener/<int:id>/', views.obtener_ganado, name='obtener_ganado'),
     # endregion
 
-    #region cultivo
+    # region Cultivo
     path('Cultivo/Tabla/', views.TablaCultivo, name="TablaCultivo"),
     path('Cultivo/obtener/<int:id>/', views.obtener_cultivo, name='obtener_cultivo'),
     path('Cultivo/editar/', views.editar_cultivo, name='editar_cultivo'),
@@ -43,23 +43,6 @@ urlpatterns = [
     path('Cultivo/api/tipos/eliminar/<int:id>/', views.eliminar_tipoCultivo, name='eliminar_tipo'),
     path('Cultivo/fertilizaciones/<int:cultivo_id>/', views.obtener_fertilizaciones),
     path('Cultivo/fertilizar/<int:cultivo_id>/', views.agregar_fertilizacion),
-    path('notificaciones/', views.obtener_notificaciones, name='obtener_notificaciones'),
-
-    # endregion
-
-    # API tipos cultivo
-    path('Cultivo/api/tipos/', views.obtener_tipoCultivos, name='obtener_tipos'),
-    path('Cultivo/api/tipos/agregar/', views.agregar_tipoCultivo, name='agregar_tipo'),
-    path('Cultivo/api/tipos/eliminar/<int:id>/', views.eliminar_tipoCultivo, name='eliminar_tipo'),
-    #endregion
-    
-    #Region Parcela
-
-    # Fertilizaciones
-    path('Cultivo/fertilizaciones/<int:cultivo_id>/', views.obtener_fertilizaciones),
-    path('Cultivo/fertilizar/<int:cultivo_id>/', views.agregar_fertilizacion),
-
-    # Notificaciones
     path('notificaciones/', views.obtener_notificaciones, name='obtener_notificaciones'),
     # endregion
 

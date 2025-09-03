@@ -1,5 +1,3 @@
-
-
 //Trabajo Ivanna
 // Función para el menú hamburguesa
 document.getElementById('hamburgerBtn').addEventListener('click', function() {
@@ -138,19 +136,18 @@ function mostrarFormularioCultivo() {
             } 
 
             // Validar lógica de fechas
-                    const siembraDate = new Date(fechaSiembra);
-                    const cosechaDate = new Date(fechaCosecha);
+            const siembraDate = new Date(fechaSiembra);
+            const cosechaDate = new Date(fechaCosecha);
 
-                    if (!fechaSiembra || !fechaCosecha) {
-                        Swal.showValidationMessage('Debes ingresar ambas fechas.');
-                        return false;
-                    }
+            if (!fechaSiembra || !fechaCosecha) {
+                Swal.showValidationMessage('Debes ingresar ambas fechas.');
+                return false;
+            }
 
-                    if (siembraDate > cosechaDate) {
-                        Swal.showValidationMessage('La fecha de siembra no puede ser posterior a la fecha de cosecha.');
-                        return false;
-                    }
-
+            if (siembraDate > cosechaDate) {
+                Swal.showValidationMessage('La fecha de siembra no puede ser posterior a la fecha de cosecha.');
+                return false;
+            }
 
             if (!cantidad || parseInt(cantidad) < 1) {
                 Swal.showValidationMessage('La cantidad debe ser mínimo 1.');
@@ -159,7 +156,6 @@ function mostrarFormularioCultivo() {
 
             const formData = new FormData(form);
             return fetch('/Cultivo/Tabla/', {
-
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': '{{ csrf_token }}'
@@ -271,7 +267,6 @@ function editar_cultivo(id) {
 
                     const formData = new FormData(form);
 
-                    
                     // No necesitas append('id') porque ya está en el formulario oculto
                     return fetch('/Cultivo/editar/', {
                         method: 'POST',

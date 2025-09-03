@@ -33,8 +33,8 @@
                    <a href="#" id="btn-tipos-cultivo">Tipos de cultivos</a>
                     <a href="{% url 'TablaGanado' %}">Ganado</a>
                     <a onclick="ShowRazas()">Razas de ganado</a>
-                      <a href="{% url 'TablaCultivo' %}">Cultivos</a>
-                   <a onclick="ShowRazas()">Razas de ganado</a>
+                    <a href="{% url 'TablaCultivo' %}">Cultivos</a>
+                    <a onclick="ShowRazas()">Razas de ganado</a>
                     <a onclick="showParcelsTable()" >Parceras de la finca</a>
                 </div>
             </div>
@@ -59,19 +59,18 @@
         </nav>
         
         <!-- Botón de inicio de sesión - visible en desktop -->
-         
         <div class="desktop-login">
-    {% if request.session.usuario_id %}
-        <form action="{% url 'LogoutUser' %}" method="post" style="display:inline;">
-            {% csrf_token %}
-            <button class="custom-button bg-red-600 hover:bg-red-700">Cerrar Sesión</button>
-        </form>
-    {% else %}
-        <a href="{% url 'PlantillaLogueo' %}">
-            <button class="custom-button">Iniciar Sesión</button>
-        </a>
-    {% endif %}
-</div>
+            {% if request.session.usuario_id %}
+                <form action="{% url 'LogoutUser' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button class="custom-button bg-red-600 hover:bg-red-700">Cerrar Sesión</button>
+                </form>
+            {% else %}
+                <a href="{% url 'PlantillaLogueo' %}">
+                    <button class="custom-button">Iniciar Sesión</button>
+                </a>
+            {% endif %}
+        </div>
     </header>
 
     <div id="box_race"></div>

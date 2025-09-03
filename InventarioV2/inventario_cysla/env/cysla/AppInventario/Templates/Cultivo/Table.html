@@ -54,14 +54,11 @@
                 <label for="cantidad" class="form-label">Cantidad</label>
                 <input type="number" name="cantidad" id="cantidad" class="form-control" placeholder="Ej. 100" required>
             </div>
-
-
         </div>
     </div>
 </form>
 
 <!-- Fertilizante -->
-
 <form id="formularioFertilizacion" style="display: none;">
   <div class="mb-3">
     <label for="fecha_fertilizacion">Fecha de fertilización:</label>
@@ -76,7 +73,6 @@
     <textarea id="observaciones" name="observaciones" class="form-control"></textarea>
   </div>
 </form>
-
 
 {% include 'inc/Header.html' %}
 <div class="container mt-5">
@@ -127,7 +123,6 @@
                             <p><strong>Fecha Siembra:</strong> {{ cultivo.fecha_siembra }}</p>
                             <p><strong>Fecha Cosecha:</strong> {{ cultivo.fecha_cosecha }}</p>
                             <p><strong>Cantidad:</strong> {{ cultivo.cantidad }}</p>
-
                         </div>
                         <div class="cultivo-buttons">
                             <button class="btn btn-success" onclick="abrirFertilizacion({{ cultivo.id }})">
@@ -143,7 +138,6 @@
                     </div>
                 </div>
             </div>
-
         {% empty %}
             <div class="col-12 text-center">
                 <div class="alert alert-info">
@@ -215,7 +209,6 @@
                 <label for="editar_cantidad" class="form-label">Cantidad</label>
                 <input type="number" name="cantidad" id="editar_cantidad" class="form-control" placeholder="Ej. 100" required>
             </div>
-
         </div>
     </div>
 </form>

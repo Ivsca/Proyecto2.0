@@ -144,15 +144,12 @@ class Ganado(models.Model):
     infovacunas = models.TextField(db_column='InfoVacunas')  # JSON
     enfermedades = models.TextField(db_column='Enfermedades')  # JSON
     estado = models.CharField(db_column='Estado', max_length=7)
-
-    # ForeignKey con valor por defecto
     idparcela = models.ForeignKey(
         'TipoParcela',
         models.DO_NOTHING,
         db_column='IdParcela',
         default=1  # Debe existir un registro con ID=1
     )
-
     razas = models.CharField(db_column='Razas', max_length=255)
 
     class Meta:
@@ -161,7 +158,6 @@ class Ganado(models.Model):
 
     def __str__(self):
         return f"Ganado {self.codigocria}"
-
     
 class TablaVacunas(models.Model):
     nombre = models.CharField(max_length=255, db_column='nombre')

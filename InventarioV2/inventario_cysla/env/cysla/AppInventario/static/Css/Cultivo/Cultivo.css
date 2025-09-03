@@ -1,15 +1,12 @@
 /* ESTILOS PARA TARJETAS DE CULTIVO - VERSIÓN MEJORADA */
 .cultivo-card {
     width: 100%;
-
     display: flex;
     flex-direction: column;
     overflow: hidden;
     max-height: 350px;
     min-height: 300px;
-    
 }
-
 
 .cultivo-card:hover {
     transform: translateY(-5px);
@@ -292,4 +289,3 @@
 .pagination .page-item.active .page-link {
     font-weight: bold;
 }
-

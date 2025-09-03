@@ -14,8 +14,6 @@ from datetime import datetime, date, timedelta
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
 
-
-
 from .models import (
     TablaRazas,
     TipoDocumentos,
@@ -28,7 +26,6 @@ from .models import (
     Fertilizacion,
     TipoParcela,
 )
-
 
 # Create your views here.
 
@@ -51,13 +48,6 @@ def TablaSolicitudesUsuarios(request):
     return render(request, 'Logueo/Table.html',{
         'usuarios':usuarios
     })
-
-# def TablaSolicitudesUsuarios(request):
-#     solicitudes = Usuarios.objects.filter(estado="Solicitud").order_by("id")
-#     paginator = Paginator(solicitudes, 5)  # Muestra 5 solicitudes por página
-#     page_number = request.GET.get("page")
-#     page_obj = paginator.get_page(page_number)
-#     return render(request, 'Logueo/Table.html', {'page_obj': page_obj})
 
 @login_requerido
 def SolicitudAceptada(request, id_solicitud):
@@ -112,9 +102,6 @@ def RegisterUser(request):
 
 def registro_exitoso(request):
     return render(request, 'Logueo/creado.html')
-
-def registro_exitoso(request):
-    return render(request, 'Logueo/creado.html')
 #endregion 
 # region Login
 
@@ -151,13 +138,10 @@ def LoginUser(request):
 def nocreada(request):
     return render(request, 'Logueo/nocreado.html')
 
-
 def logout_view(request):
     request.session.flush()  # Elimina todos los datos de sesión
     return redirect("LoginUser") 
 #endregion 
-
-
 
 # region ganado
 @login_requerido
@@ -210,7 +194,7 @@ def AgregarRaza(request):
             return JsonResponse({'success': True, 'id': razas.id})  # Cambiado a 'success'
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
-    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
 #end region
 
 @csrf_exempt
@@ -279,8 +263,6 @@ def actualizar_ganado(request, id):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
-
-from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
 @login_requerido
@@ -397,9 +379,7 @@ def agregar_fertilizacion(request, cultivo_id):
         except Exception as e:
             return HttpResponseBadRequest(str(e))
 
-
 @login_requerido
-
 def editar_cultivo(request):
     if request.method == 'POST':
         cultivo_id = request.POST.get('id')
@@ -433,11 +413,6 @@ def eliminar_cultivo(request):
         return JsonResponse({'message': 'Cultivo eliminado con éxito'})
     except Cultivo.DoesNotExist:
         return JsonResponse({'error': 'El cultivo no existe'}, status=404)
-
-
-
-
-
 
 @login_requerido
 def InfoBuscador(request,TipoBusqueda,valor):
@@ -576,23 +551,4 @@ def Desactivar(request, registro_id):
             'success': False,
             'message': str(e)
         }, status=500)
-@login_requerido    
-@login_requerido  
-def ListaRazas(request):
-    razas = TablaRazas.objects.all().values('id', 'nombre')
-    return JsonResponse(list(razas), safe=False)
-@csrf_exempt
-@login_requerido
-def AgregarRaza(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            razas = TablaRazas(
-                nombre=data.get('nombre'),
-            )
-            razas.save()
-            return JsonResponse({'success': True, 'id': razas.id})  # Cambiado a 'success'
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
-    return JsonResponse({'success': False, 'error': 'Método no permitido'})
 #end region
