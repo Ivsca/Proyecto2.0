@@ -1,0 +1,63 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: ./env/cysla
+      dockerfile: Dockerfile
+    container_name: django_web
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./env/cysla:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db  # Esto debe coincidir con el nombre del servicio MySQL
+    networks:
+      - app_network
+
+  db:
+    image: mysql:8.0
+    container_name: mysql_db  # Cambiado a mysql_db para coincidir con tu settings.py
+    restart: always
+    environment:
+      MYSQL_DATABASE: flock
+      MYSQL_USER: django_user
+      MYSQL_PASSWORD: django_pass
+      MYSQL_ROOT_PASSWORD: cysla
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: cysla
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app_network
+
+volumes:
+  mysql_data:
+
+networks:
+  app_network:
+    driver: bridge

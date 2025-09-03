@@ -2,15 +2,9 @@ import json
 from django.core.paginator import Paginator
 from .decoradores import login_requerido
 from multiprocessing import connection
-from django.conf import settings 
-from_email=settings.EMAIL_HOST_USER,
-from django.contrib.auth.models import User
-from django.utils.timezone import now
-from django.core.mail import send_mail
-from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.shortcuts import render,redirect,get_object_or_404
-from .models import TablaRazas,TipoDocumentos,Usuarios,Ganado, TipoCultivo, Cultivo, NotificacionCultivo
+from .models import TablaRazas,TipoDocumentos,Usuarios,Ganado, TipoCultivo, Cultivo
 from django.core.serializers import serialize
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -160,7 +154,7 @@ def nocreada(request):
 
 def logout_view(request):
     request.session.flush()  # Elimina todos los datos de sesión
-    return redirect("Home") 
+    return redirect("LoginUser") 
 #endregion 
 
 
@@ -317,20 +311,18 @@ def obtener_ganado(request, id):
 def TablaCultivo(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
-        tipo_id = request.POST.get('tipo_id', '').strip()
-        parcela_id = request.POST.get('parcela_id', '').strip()
+        tipo_id = request.POST.get('tipo_id', '').strip()  # Cambiado de tipo_cultivo a tipo_id
         fecha_siembra = request.POST.get('fecha_siembra', '').strip()
         fecha_cosecha = request.POST.get('fecha_cosecha', '').strip()
         cantidad = request.POST.get('cantidad', '').strip()
         foto = request.FILES.get('foto')
 
-        if not nombre or not tipo_id or not parcela_id or not fecha_siembra or not fecha_cosecha or not cantidad or not foto:
+        if not nombre or not tipo_id or not fecha_siembra or not fecha_cosecha or not cantidad or not foto:
             return JsonResponse({'error': 'Todos los campos son obligatorios, incluyendo la imagen.'}, status=400)
 
         cultivo = Cultivo(
             nombre=nombre,
             tipo_id=tipo_id,
-            idparcela_id=parcela_id if parcela_id else None,
             fecha_siembra=fecha_siembra,
             fecha_cosecha=fecha_cosecha,
             cantidad=cantidad,
@@ -339,28 +331,23 @@ def TablaCultivo(request):
         cultivo.save()
         return JsonResponse({'message': 'Cultivo agregado con éxito'})
 
-    cultivos_list = Cultivo.objects.select_related('tipo', 'idparcela').all()
+    cultivos_list = Cultivo.objects.select_related('tipo').all()
     paginator = Paginator(cultivos_list, 6)  # 6 cultivos por página (puedes ajustar)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(request, 'Cultivo/Table.html', {
         'page_obj': page_obj,
-        'tipos_cultivo': TipoCultivo.objects.all(),
-        'parcelas': TipoParcela.objects.all(),
-        'user_rol': request.session.get("rol", "Usuario")
+        'tipos_cultivo': TipoCultivo.objects.all()  # Pasar los tipos disponibles al template
     })
 @login_requerido
 def obtener_cultivo(request, id):
     try:
-        cultivo = Cultivo.objects.select_related('tipo', 'idparcela').get(pk=id)
+        cultivo = Cultivo.objects.select_related('tipo').get(pk=id)
         return JsonResponse({
             'id': cultivo.id,
             'nombre': cultivo.nombre,
             'tipo_id': cultivo.tipo_id,
-            'parcela_id': cultivo.idparcela.id if cultivo.idparcela else None,
-            'parcela_nombre': cultivo.idparcela.nombre if cultivo.idparcela else '',
-            'parcela_estado': cultivo.idparcela.estado if cultivo.idparcela else None,
-                        'tipo_nombre': cultivo.tipo.nombre_tipo if cultivo.tipo else '',
+            'tipo_nombre': cultivo.tipo.nombre_tipo if cultivo.tipo else '',
             'fecha_siembra': cultivo.fecha_siembra.strftime('%Y-%m-%d'),
             'fecha_cosecha': cultivo.fecha_cosecha.strftime('%Y-%m-%d'),
             'cantidad': cultivo.cantidad,
@@ -373,7 +360,7 @@ def obtener_fertilizaciones(request, cultivo_id):
     cultivo = Cultivo.objects.get(id=cultivo_id)
 
     fertilizaciones = Fertilizacion.objects.filter(cultivo_id=cultivo_id).values(
-        'fecha', 'fertilizante', 'tipo', 'dosis', 'observaciones'  
+        'fecha', 'fertilizante', 'observaciones'
     )
     return JsonResponse({
         'fertilizaciones': list(fertilizaciones),
@@ -386,30 +373,24 @@ def agregar_fertilizacion(request, cultivo_id):
     if request.method == 'POST':
         fecha = request.POST.get('fecha')
         fertilizante = request.POST.get('fertilizante')
-        tipo = request.POST.get('tipo', 'QUIMICO')  # Valor por defecto 'QUIMICO'
-        dosis = request.POST.get('dosis', '')  # Campo opcional
         observaciones = request.POST.get('observaciones', '')
 
         try:
             cultivo = Cultivo.objects.get(id=cultivo_id)
             fecha_fert = datetime.strptime(fecha, '%Y-%m-%d').date()
 
-            # Validaciones de fecha
             if fecha_fert < cultivo.fecha_siembra:
-                return HttpResponseBadRequest('La fecha no puede ser anterior a la siembra.')
+                return HttpResponseBadRequest('La fecha de fertilización no puede ser anterior a la siembra.')
             if fecha_fert > cultivo.fecha_cosecha:
-                return HttpResponseBadRequest('La fecha no puede ser posterior a la cosecha.')
+                return HttpResponseBadRequest('La fecha de fertilización no puede ser posterior a la cosecha.')
 
-            # Crear registro con los nuevos campos
             Fertilizacion.objects.create(
                 cultivo=cultivo,
                 fecha=fecha_fert,
                 fertilizante=fertilizante,
-                tipo=tipo,          
-                dosis=dosis,        
                 observaciones=observaciones
             )
-            return JsonResponse({'message': 'Registro nutricional guardado con éxito'})
+            return JsonResponse({'message': 'Fertilización registrada con éxito'})
 
         except Cultivo.DoesNotExist:
             return HttpResponseBadRequest('Cultivo no encontrado')
@@ -428,8 +409,7 @@ def editar_cultivo(request):
         try:
             cultivo = Cultivo.objects.get(pk=cultivo_id)
             cultivo.nombre = request.POST.get('nombre')
-            cultivo.tipo_id = request.POST.get('tipo_id')
-            cultivo.parcela_id = request.POST.get('parcela_id', None)
+            cultivo.tipo_id = request.POST.get('tipo_id')  # Cambiado de tipo_cultivo a tipo_id
             cultivo.fecha_siembra = request.POST.get('fecha_siembra')
             cultivo.fecha_cosecha = request.POST.get('fecha_cosecha')
             cultivo.cantidad = request.POST.get('cantidad')
@@ -456,6 +436,9 @@ def eliminar_cultivo(request):
 
 
 
+
+
+
 @login_requerido
 def InfoBuscador(request,TipoBusqueda,valor):
     if TipoBusqueda == 'documento':
@@ -475,7 +458,6 @@ def InfoBuscador(request,TipoBusqueda,valor):
     
     ganadojson = serialize('json', ganado)
     return HttpResponse(ganadojson, content_type='application/json')
-
 @login_requerido
 def obtener_tipoCultivos(request):
     tipos = list(TipoCultivo.objects.values("id", "nombre_tipo"))
@@ -500,93 +482,29 @@ def eliminar_tipoCultivo(request, id):
         return JsonResponse({"success": True})
     return JsonResponse({"success": False}, status=400)
 
+def obtener_notificaciones(request):
+    hoy = date.today()
+    notificaciones = []
 
-
-def generar_notificaciones_cultivo():
-    hoy = timezone.now().date()
-    usuarios = Usuarios.objects.filter(estado='activo')  # Solo usuarios activos
     cultivos = Cultivo.objects.all()
 
     for cultivo in cultivos:
-        # Notificación de cosecha (3 días antes)
-        if cultivo.fecha_cosecha:
-            dias_restantes = (cultivo.fecha_cosecha - hoy).days
-            if dias_restantes == 3:
-                mensaje = f"⚠️ Cosecha próxima: '{cultivo.nombre}' se cosechará en {dias_restantes} días ({cultivo.fecha_cosecha})."
-                _crear_notificaciones(cultivo, usuarios, mensaje, "cosecha")
+        # Notificación por cosecha próxima
+        if 0 <= (cultivo.fecha_cosecha - hoy).days <= 3:
+            notificaciones.append({
+                "tipo": "cosecha",
+                "mensaje": f' El cultivo "{cultivo.nombre}" está cerca de su fecha de cosecha ({cultivo.fecha_cosecha})'
+            })
 
-        # Lógica de fertilización (optimizada)
-        ultima_fertilizacion = Fertilizacion.objects.filter(cultivo=cultivo).order_by('-fecha').first()
-        
-        if not ultima_fertilizacion:
-            mensaje = f"🔴 Alerta: '{cultivo.nombre}' no ha sido fertilizado."
-            _crear_notificaciones(cultivo, usuarios, mensaje, "sin_fertilizar")
-        elif (hoy - ultima_fertilizacion.fecha).days >= 30:
-            mensaje = f"🟡 Recordatorio: '{cultivo.nombre}' necesita nueva fertilización (última: {ultima_fertilizacion.fecha})."
-            _crear_notificaciones(cultivo, usuarios, mensaje, "re_fertilizar")
+        # Notificación por inactividad
+        tiene_fertilizaciones = Fertilizacion.objects.filter(cultivo=cultivo).exists()
+        if not tiene_fertilizaciones:
+            notificaciones.append({
+                "tipo": "inactividad",
+                "mensaje": f'El cultivo "{cultivo.nombre}" nunca ha sido fertilizado.'
+            })
 
-def _crear_notificaciones(cultivo, usuarios, mensaje, tipo):
-    for usuario in usuarios:
-        # Evitar duplicados en el mismo día
-        if NotificacionCultivo.objects.filter(
-            cultivo=cultivo,
-            usuario=usuario,
-            tipo=tipo,
-            fecha__date=timezone.now().date()
-        ).exists():
-            continue
-
-        # Crear notificación
-        notificacion = NotificacionCultivo.objects.create(
-            cultivo=cultivo,
-            usuario=usuario,
-            mensaje=mensaje,
-            tipo=tipo
-        )
-
-        # Enviar email solo si el usuario tiene correo
-        if usuario.correo:
-            try:
-                send_mail(
-                    subject=f"Notificación de {cultivo.nombre}",
-                    message=mensaje,
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[usuario.correo],
-                    fail_silently=False
-                )
-                notificacion.leido = True  # Marcar como leído si email se envió
-                notificacion.save()
-            except Exception as e:
-                print(f"Error enviando email a {usuario.correo}: {e}")
-
-
-@login_requerido
-def generar_notificaciones(request):
-    """Vista para ejecutar manualmente la generación de notificaciones."""
-    generar_notificaciones_cultivo()
-    return JsonResponse({'estado': 'ok'})
-
-
-@login_requerido
-def obtener_notificaciones_cultivo(request):
-    """Devuelve las notificaciones del usuario autenticado."""
-    notis = NotificacionCultivo.objects.filter(usuario=request.user).order_by('-fecha')
-
-    data = [{
-        'mensaje': n.mensaje,
-        'tipo': n.tipo,
-        'leido': n.leido,
-        'fecha': n.fecha.strftime('%Y-%m-%d %H:%M')
-    } for n in notis]
-
-    return JsonResponse({'notificaciones': data})
-
-
-@login_requerido
-def historial_notificaciones_cultivo(request):
-    usuario = request.user
-    notificaciones = NotificacionCultivo.objects.filter(usuario=usuario).order_by('-fecha')
-    return render(request, 'notificacion_cultivo/historial.html', {'notificaciones': notificaciones})
+    return JsonResponse({"notificaciones": notificaciones})
 
 # endregion
 
@@ -658,11 +576,7 @@ def Desactivar(request, registro_id):
             'success': False,
             'message': str(e)
         }, status=500)
-# endregion
-
-# region Raza
-@login_requerido  
-
+@login_requerido    
 @login_requerido  
 def ListaRazas(request):
     razas = TablaRazas.objects.all().values('id', 'nombre')
