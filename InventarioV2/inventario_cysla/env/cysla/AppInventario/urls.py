@@ -43,6 +43,7 @@ urlpatterns = [
     path('Cultivo/api/tipos/eliminar/<int:id>/', views.eliminar_tipoCultivo, name='eliminar_tipo'),
     path('Cultivo/fertilizaciones/<int:cultivo_id>/', views.obtener_fertilizaciones),
     path('Cultivo/fertilizar/<int:cultivo_id>/', views.agregar_fertilizacion),
+    path('notificaciones/', views.obtener_notificaciones, name='obtener_notificaciones'),
 
     # endregion
 
@@ -52,16 +53,15 @@ urlpatterns = [
     path('Cultivo/api/tipos/eliminar/<int:id>/', views.eliminar_tipoCultivo, name='eliminar_tipo'),
     #endregion
     
-    # region Notificaciones Cultivos
-    path('cultivos/notificaciones/', views.obtener_notificaciones_cultivo, name='notificaciones_cultivo'),
-path('cultivos/notificaciones/generar/', views.generar_notificaciones, name='generar_notificaciones_cultivo'),
-path('cultivos/notificaciones/historial/', views.historial_notificaciones_cultivo, name='historial_notificaciones_cultivo'),
-    # endregion
+    #Region Parcela
 
     # Fertilizaciones
     path('Cultivo/fertilizaciones/<int:cultivo_id>/', views.obtener_fertilizaciones),
     path('Cultivo/fertilizar/<int:cultivo_id>/', views.agregar_fertilizacion),
 
+    # Notificaciones
+    path('notificaciones/', views.obtener_notificaciones, name='obtener_notificaciones'),
+    # endregion
 
     # region Parcela
     path('agregar-parcela/', views.agregar_parcela, name='agregar_parcela'),

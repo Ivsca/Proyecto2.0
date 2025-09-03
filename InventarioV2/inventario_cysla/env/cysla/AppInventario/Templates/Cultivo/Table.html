@@ -8,7 +8,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <!-- SweetAlert2 CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-<link rel="icon" type="image/x-icon" href="{% static 'Image/img/logo_c&sla.png' %}">
 
 <!-- Formulario oculto -->
 <form id="formularioCultivoOriginal" style="display: none; padding: 5px 20px 20px 20px" enctype="multipart/form-data">
@@ -39,20 +38,6 @@
                     {% endfor %}
                 </select>
             </div>
-
-           <div class="mb-3">
-                <label for="parcela_id" class="form-label">Parcela <span class="text-danger">*</span></label>
-                <select name="parcela_id" id="parcela_id" class="form-select" required>
-                    <option value="">Seleccione una parcela</option>
-                    {% for parcela in parcelas %}
-                        <option value="{{ parcela.id }}" 
-                                {% if cultivo.parcela.id == parcela.id %}selected{% endif %}>
-                            {{ parcela.nombre }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-
 
             <div class="row">
                 <div class="col-md-6 mb-3">
@@ -101,33 +86,6 @@
         </button>
     </div>
 
-    <!-- Notificaciones -->
-    <div class="notificacion-campana">
-        <a href="javascript:void(0);" onclick="toggleNotificaciones()">
-            <i class="fas fa-bell fa-lg"></i>
-            {% if notificaciones_no_leidas > 0 %}
-            <span class="badge">{{ notificaciones_no_leidas }}</span>
-            {% endif %}
-        </a>
-
-        <div id="historial-notificaciones" class="dropdown-notificaciones" style="display: none;">
-            <h6>Notificaciones</h6>
-            <ul>
-            {% for notificacion in notificaciones %}
-                <li>
-                <strong>{{ notificacion.fecha|date:"Y-m-d H:i" }}</strong>: {{ notificacion.mensaje }}
-                </li>
-            {% empty %}
-                <li>No tienes notificaciones por ahora.</li>
-            {% endfor %}
-            </ul>
-        </div>
-    </div>
-
-
-
-
-
     <!-- Título principal -->
     <h2 class="text-center mb-4">Gestión de Cultivo</h2>
     
@@ -166,38 +124,21 @@
                         <div class="cultivo-info">
                             <h5 class="card-title">{{ cultivo.nombre }}</h5>
                             <p><strong>Tipo:</strong> {{ cultivo.tipo.nombre_tipo }}</p>
-                          <p><strong>Parcela:</strong> 
-                                {% if cultivo.idparcela %}
-                                    {{ cultivo.idparcela.nombre }} 
-                                    {% if cultivo.idparcela.estado == "Desactivo" %}
-                                        <span class="text-danger">(Inactiva)</span>
-                                    {% endif %}
-                                {% else %}
-                                    <span class="text-white">No asignada</span>
-                                {% endif %}
-                            </p>
-
-
                             <p><strong>Fecha Siembra:</strong> {{ cultivo.fecha_siembra }}</p>
                             <p><strong>Fecha Cosecha:</strong> {{ cultivo.fecha_cosecha }}</p>
                             <p><strong>Cantidad:</strong> {{ cultivo.cantidad }}</p>
 
                         </div>
                         <div class="cultivo-buttons">
-                            <!-- Cambia el texto del botón y añade un tooltip -->
-                            <button class="btn btn-success" onclick="abrirRegistroNutricional({{ cultivo.id }})" 
-                                    title="Registrar abonos o fertilizantes">
-                                <i class="fas fa-seedling"></i> Nutrición
+                            <button class="btn btn-success" onclick="abrirFertilizacion({{ cultivo.id }})">
+                                <i class="fas fa-edit"></i> Fertilizante
                             </button>
-
-                            {% if request.session.rol == "Admin" %}  <!-- Solo para Admin -->
-                                <button class="btn btn-warning" onclick="editar_cultivo('{{ cultivo.id }}')">
-                                    <i class="fas fa-edit"></i> Editar
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="eliminarCultivo({{ cultivo.id }})">
-                                    Eliminar
-                                </button>
-                            {% endif %}
+                            <button class="btn btn-warning" onclick="editar_cultivo('{{ cultivo.id }}')">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
+                            <button class="btn btn-danger btn-sm" onclick="eliminarCultivo({{ cultivo.id }})">
+                                Eliminar
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -260,20 +201,6 @@
                     {% endfor %}
                 </select>
             </div>
-
-            <div class="mb-3">
-                <label for="parcela_id" class="form-label">Parcela <span class="text-danger">*</span></label>
-                <select name="parcela_id" id="parcela_id" class="form-select" required>
-                    <option value="">Seleccione una parcela</option>
-                    {% for parcela in parcelas %}
-                        <option value="{{ parcela.id }}" 
-                                {% if cultivo.parcela.id == parcela.id %}selected{% endif %}>
-                            {{ parcela.nombre }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="editar_fecha_siembra" class="form-label">Fecha de siembra</label>
@@ -294,13 +221,8 @@
 </form>
 
 <!-- Inclusión de scripts -->
- <script>
-  // Pasar el rol del usuario desde Django al JS
-  const userRole = "{{ request.session.rol }}"; // Esto será "Admin" o "Usuario"
-</script>
 <script src="{% static 'JavaScripts/bootstrap.bundle.min.js' %}"></script>
 <script src="{% static 'JavaScripts/Ganado/Alertas.js' %}"></script>
-
 <!-- SweetAlert2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 {% include 'inc/Footer.html' %}

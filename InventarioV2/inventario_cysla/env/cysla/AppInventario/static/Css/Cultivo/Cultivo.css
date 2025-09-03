@@ -1,46 +1,4 @@
 /* ESTILOS PARA TARJETAS DE CULTIVO - VERSIÓN MEJORADA */
-
-/* Noficiación */
-
-.notificacion-campana {
-  position: relative;
-  display: inline-block;
-  margin-left: 100%;
-}
-
-.notificacion-campana i {
-  color: #333;
-  cursor: pointer;
-}
-
-.badge {
-  background-color: red;
-  color: white;
-  border-radius: 50%;
-  font-size: 10px;
-  padding: 2px 5px;
-  position: absolute;
-  top: -5px;
-  right: -10px;
-}
-
-.dropdown-notificaciones {
-  position: absolute;
-  top: 30px;
-  right: 0;
-  background: white;
-  border: 1px solid #ddd;
-  width: 300px;
-  max-height: 300px;
-  overflow-y: auto;
-  z-index: 999;
-  padding: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  border-radius: 5px;
-}
-
-
-
 .cultivo-card {
     width: 100%;
 
