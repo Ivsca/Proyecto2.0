@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>C&sla</title>
+    <title>C&SLA</title>
     <link rel="icon" type="image/x-icon" href="{% static 'Image/img/logo_c&sla.png' %}">
     <!-- Agregar Font Awesome para los íconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -30,7 +30,9 @@
             <div class="dropdown">
                 <button class="dropbtn" style="border:none;">Inventario </button>
                 <div class="dropdown-content">
-                   <a href="#" id="btn-tipos-cultivo">Tipos de cultivos</a>
+                 {% if request.session.rol == "Admin" %}
+                <a href="#" id="btn-tipos-cultivo">Tipos de cultivos</a>
+                {% endif %}
                     <a href="{% url 'TablaGanado' %}">Ganado</a>
                     <a onclick="ShowRazas()">Razas de ganado</a>
                       <a href="{% url 'TablaCultivo' %}">Cultivos</a>
