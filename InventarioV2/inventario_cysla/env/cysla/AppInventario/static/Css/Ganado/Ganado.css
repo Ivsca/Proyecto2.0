@@ -568,3 +568,20 @@ input[type="file"] {
     font-weight: bold;
 }
 
+
+/* Mejor estética para botones principales */
+.action-btn {
+    border-radius: 12px;
+    transition: all 0.2s ease-in-out;
+    font-weight: 500;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn i {
+    font-size: 1.1rem;
+}
+

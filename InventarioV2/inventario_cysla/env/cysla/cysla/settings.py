@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
+import os
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -68,20 +70,20 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "cysla.wsgi.application"
+WSGI_APPLICATION = "cysla.wsgi.application" 
 
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "flock",
-        "USER": "django_user",
-        "PASSWORD": "django_pass",
-        "HOST": 'db',
-        "PORT": "3306",
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('MYSQL_DATABASE', 'flock'),
+        'USER': os.getenv('MYSQL_USER', 'django_user'),
+        'PASSWORD': os.getenv('MYSQL_PASSWORD', 'django_pass'),
+        'HOST': os.getenv('DB_HOST', 'db'),
+        'PORT': '3306',
     }
 }
 
@@ -128,7 +130,6 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-import os
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

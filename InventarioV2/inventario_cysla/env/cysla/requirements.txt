@@ -4,3 +4,6 @@ mysqlclient==2.2.7
 pillow==11.2.1
 sqlparse==0.5.3
 tzdata==2025.1
+celery==5.3.6
+redis==4.6.0
+django-celery-results==2.5.1  # Opcional: para almacenar resultados en DB

@@ -126,7 +126,7 @@ class Enfermedades(models.Model):
     nombre = models.CharField(db_column='nombre',max_length=150)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'enfermedades'
 
     def __str__(self):
@@ -134,31 +134,40 @@ class Enfermedades(models.Model):
 
 
 class Ganado(models.Model):
-    codigocria = models.CharField(db_column='CodigoCria', max_length=12)  
-    foto = models.ImageField(upload_to='Ganado/', db_column='Foto', null=True, blank=True)  # Cambiado a ImageField
-    crias = models.CharField(db_column='Crias', max_length=2)  
+    codigocria = models.CharField(db_column='CodigoCria', max_length=12)
+    foto = models.ImageField(upload_to='Ganado/', db_column='Foto', null=True, blank=True)
+    crias = models.CharField(db_column='Crias', max_length=2)
     codigoscrias = models.TextField(db_column='CodigosCrias')  # JSON
-    codigopapa = models.CharField(db_column='CodigoPapa', max_length=12)  
-    codigomama = models.CharField(db_column='CodigoMama', max_length=12)  
-    edad = models.CharField(db_column='Edad', max_length=2)  
+    codigopapa = models.CharField(db_column='CodigoPapa', max_length=12)
+    codigomama = models.CharField(db_column='CodigoMama', max_length=12)
+    edad = models.CharField(db_column='Edad', max_length=2)
     infovacunas = models.TextField(db_column='InfoVacunas')  # JSON
     enfermedades = models.TextField(db_column='Enfermedades')  # JSON
-    estado = models.CharField(db_column='Estado', max_length=7)  
-    idparcela = models.ForeignKey('Tipoparcela', models.DO_NOTHING, db_column='IdParcela')  
-    razas = models.CharField(db_column='Razas', max_length=255)  
+    estado = models.CharField(db_column='Estado', max_length=7)
+
+    # ForeignKey con valor por defecto
+    idparcela = models.ForeignKey(
+        'TipoParcela',
+        models.DO_NOTHING,
+        db_column='IdParcela',
+        default=1  # Debe existir un registro con ID=1
+    )
+
+    razas = models.CharField(db_column='Razas', max_length=255)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'ganado'
 
     def __str__(self):
         return f"Ganado {self.codigocria}"
+
     
 class TablaVacunas(models.Model):
     nombre = models.CharField(max_length=255, db_column='nombre')
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'tablavacunas'
 
     def __str__(self):
@@ -169,7 +178,7 @@ class TablaRazas(models.Model):
     nombre = models.CharField(max_length=100)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'tablarazas'
 
     def __str__(self):
@@ -180,7 +189,7 @@ class TipoDocumentos(models.Model):
     nombre = models.CharField(max_length=100)
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'tipo_documentos'
 
     def __str__(self):
@@ -188,11 +197,11 @@ class TipoDocumentos(models.Model):
 
 
 class TipoParcela(models.Model):
-    nombre = models.CharField(db_column='Nombre', max_length=100)  
-    estado = models.CharField(db_column='Estado', max_length=9)  
+    nombre = models.CharField(db_column='Nombre', max_length=100, default="Parcela Genérica")
+    estado = models.CharField(db_column='Estado', max_length=9, default="Activo")
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'tipoparcela'
 
     def __str__(self):
@@ -211,7 +220,7 @@ class Usuarios(models.Model):
     estado = models.CharField(db_column='Estado', max_length=9)  
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'usuarios'
 
     def __str__(self):

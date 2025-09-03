@@ -1,28 +1,27 @@
-FROM python:3.12-alpine
-
+FROM python:3.12-slim
 
 WORKDIR /app
 
-
-RUN apk add --no-cache \
+# Instalar dependencias del sistema necesarias
+RUN apt-get update && apt-get install -y \
     gcc \
-    musl-dev \
-    python3-dev \
-    libffi-dev \
-    mariadb-dev \
-    build-base \
-    pkgconfig
+    pkg-config \
+    default-libmysqlclient-dev \
+    build-essential \
+    netcat-openbsd \
+    && rm -rf /var/lib/apt/lists/*
 
-
+# Copiar requirements primero para aprovechar caché de Docker
 COPY requirements.txt .
 
-
+# Instalar dependencias de Python
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copiar el resto de los archivos
 COPY . .
 
+# Hacer ejecutable wait-for.sh
+RUN chmod +x wait-for.sh
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
-
-
-
+# Comando por defecto
+CMD ["tail", "-f", "/dev/null"]

@@ -1,0 +1,157 @@
+{% load static %}
+<!-- Sustituye tu header por este bloque -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+<link rel="stylesheet" href="{% static 'Css/Ganado/style_plantilla.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+<div class="ui container main-content">
+    <div class="ui segment">
+        <div class="ui stackable grid">
+            <div class="eight wide column">
+                <a href="http://localhost:8000" class="ui large green button action-btn">
+                    <i class="file excel outline icon"></i> Servicio Ganadería
+                </a>
+            </div>
+            <div class="eight wide column right aligned">
+                <button class="ui primary button">
+                    <i class="play icon"></i> Generar Todo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="ui header">Seleccionar orden de las gráficas</h3>
+
+    <div class="ui stackable grid column-config-container">
+        <div class="eight wide column">
+            <div class="ui segment config-box">
+                <h5 class="ui dividing header box-title">Columnas Disponibles</h5>
+                <div class="columns-flex-row">
+                    <div class="available-columns-list">
+                        <!-- Todos los campos del modelo Ganado como checkbox -->
+                        <div class="column-option">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="toggle-codigocria" class="toggle-input" value="CodigoCria">
+                                <label for="toggle-codigocria" class="toggle-label"></label>
+                            </div>
+                            <span class="column-name">Código Cría</span>
+                        </div>
+                        <div class="column-option">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="toggle-foto" class="toggle-input" value="Foto">
+                                <label for="toggle-foto" class="toggle-label"></label>
+                            </div>
+                            <span class="column-name">Foto</span>
+                        </div>
+                        <div class="column-option">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="toggle-crias" class="toggle-input" value="Crias">
+                                <label for="toggle-crias" class="toggle-label"></label>
+                            </div>
+                            <span class="column-name">Crias</span>
+                        </div>
+                        <div class="column-option">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="toggle-litroleche" class="toggle-input" value="LitrosLeche">
+                                <label for="toggle-litroleche" class="toggle-label"></label>
+                            </div>
+                            <span class="column-name">Litros de Leche</span>
+                        </div>
+                        <div class="column-option">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="toggle-codigoscrias" class="toggle-input" value="CodigosCrias">
+                                <label for="toggle-codigoscrias" class="toggle-label"></label>
+                            </div>
+                            <span class="column-name">Códigos de Crías</span>
+                        </div>
+                        <div class="column-option">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="toggle-codigopapa" class="toggle-input" value="CodigoPapa">
+                                <label for="toggle-codigopapa" class="toggle-label"></label>
+                            </div>
+                            <span class="column-name">Código Papa</span>
+                        </div>
+                        <div class="column-option">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="toggle-codigomama" class="toggle-input" value="CodigoMama">
+                                <label for="toggle-codigomama" class="toggle-label"></label>
+                            </div>
+                            <span class="column-name">Código Mama</span>
+                        </div>
+                        <div class="column-option">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="toggle-edad" class="toggle-input" value="Edad">
+                                <label for="toggle-edad" class="toggle-label"></label>
+                            </div>
+                            <span class="column-name">Edad</span>
+                        </div>
+                        <div class="column-option">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="toggle-infovacunas" class="toggle-input" value="InfoVacunas">
+                                <label for="toggle-infovacunas" class="toggle-label"></label>
+                            </div>
+                            <span class="column-name">Info Vacunas</span>
+                        </div>
+                        <div class="column-option">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="toggle-enfermedades" class="toggle-input" value="Enfermedades">
+                                <label for="toggle-enfermedades" class="toggle-label"></label>
+                            </div>
+                            <span class="column-name">Enfermedades</span>
+                        </div>
+                        <div class="column-option">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="toggle-estado" class="toggle-input" value="Estado">
+                                <label for="toggle-estado" class="toggle-label"></label>
+                            </div>
+                            <span class="column-name">Estado</span>
+                        </div>
+                        <div class="column-option">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="toggle-idparcela" class="toggle-input" value="IdParcela">
+                                <label for="toggle-idparcela" class="toggle-label"></label>
+                            </div>
+                            <span class="column-name">ID Parcela</span>
+                        </div>
+                        <div class="column-option">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="toggle-razas" class="toggle-input" value="Razas">
+                                <label for="toggle-razas" class="toggle-label"></label>
+                            </div>
+                            <span class="column-name">Razas</span>
+                        </div>
+                    </div>
+                    <div id="selected-columns" class="columns-order-list side-list"></div>
+                </div>
+            </div>
+        </div>
+        <!-- El área de preview y tabla sigue igual -->
+        <div class="eight wide column">
+            <div class="ui segment config-box">
+                <h5 class="ui dividing header box-title">Vista Previa</h5>
+                <div class="table-container">
+                    <table class="ui celled table data-table">
+                        <thead>
+                            <tr id="preview-head"></tr>
+                        </thead>
+                        <tbody>
+                            <tr id="preview-data"></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui center aligned basic segment">
+        <button type="button" class="ui green button">
+            <i class="plus icon"></i>
+            Agregar Item
+        </button>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+<script src="{% static 'JavaScript/Ganado/style_plantilla.js' %}"></script>
+{% include 'footer.html' %}
