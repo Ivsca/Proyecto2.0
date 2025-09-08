@@ -1,103 +1,133 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from .models import Ganado, TablaRazas
-from django.db.models import Q
+import traceback
+import openpyxl
+from openpyxl.utils import get_column_letter
+import re
 
 def PlantillaTablas(request):
     razas = TablaRazas.objects.all()
-    vacunos = Ganado.objects.all().order_by('id')[:10]
-    
-    # Obtener todos los campos disponibles del modelo para las columnas
-    campos_ganado = [field.name for field in Ganado._meta.get_fields() 
-                    if not field.is_relation or field.many_to_one]
-    
-    # Agregar campos calculados
-    campos_ganado.extend(['litros_leche', 'fecha_parto'])
-    
+    campos_ganado = [field.name for field in Ganado._meta.fields if field.name not in ['id', 'foto']]
     return render(request, 'Ganado/tablas.html', {
-        'vacunos': vacunos,
         'razas': razas,
         'campos_disponibles': campos_ganado
     })
 
 def ConsultarVacunos(request):
     try:
-        # Parámetros de ordenamiento
-        sort_params = {}
+        # Validar y obtener parámetros
+        limit = int(request.GET.get('limit', 10))
+        offset = int(request.GET.get('offset', 0))
+        fields = request.GET.get('fields', '')
+        selected_fields = [f for f in fields.split(',') if f]
+        all_fields = [f.name for f in Ganado._meta.fields]
+        
+        # Validar campos
+        valid_fields = [f for f in selected_fields if f in all_fields]
+        if not valid_fields:
+            return JsonResponse({'success': True, 'vacunos': [], 'total': 0})
+
+        queryset = Ganado.objects.all()
+
+        # Filtro por raza
+        filter_raza = request.GET.get('filter_raza')
+        if filter_raza:
+            queryset = queryset.filter(razas=filter_raza)
+
+        # Orden dinámico
+        order_fields = []
         for key, value in request.GET.items():
             if key.startswith('sort_') and value in ['asc', 'desc']:
-                sort_params[key[5:]] = value
-        
-        # Parámetros de filtrado
-        filter_params = {}
-        for key, value in request.GET.items():
-            if key.startswith('filter_') and value:
-                filter_params[key[7:]] = value
-        
-        # Cantidad de registros
-        try:
-            limit = int(request.GET.get('limit', 10))
-            limit = max(1, min(limit, 1000))  # Asegurar entre 1 y 1000
-        except:
-            limit = 10
-        
-        queryset = Ganado.objects.all()
-        
-        # Aplicar filtros
-        if 'razas' in filter_params:
-            queryset = queryset.filter(razas__icontains=filter_params['razas'])
-        
-        # Aplicar ordenamiento
-        order_fields = []
-        for column, order in sort_params.items():
-            if column == 'id':
-                order_fields.append('id' if order == 'asc' else '-id')
-            elif column == 'codigocria':
-                order_fields.append('codigocria' if order == 'asc' else '-codigocria')
-            elif column == 'crias':
-                order_fields.append('crias' if order == 'asc' else '-crias')
-            elif column == 'litros_leche':
-                # Ordenamiento en memoria para campos calculados
-                pass
-            elif column == 'fecha_parto':
-                order_fields.append('fecha_parto' if order == 'asc' else '-fecha_parto')
-        
+                field = key[5:]
+                if field in valid_fields:
+                    order_fields.append(f'-{field}' if value == 'desc' else field)
         if order_fields:
             queryset = queryset.order_by(*order_fields)
-        
-        vacunos = list(queryset[:limit])
-        
-        # Preparar datos para la respuesta
+
+        total = queryset.count()
+        vacunos = queryset.only(*valid_fields)[offset:offset+limit]
+
         data = []
         for vacuno in vacunos:
-            item = {
-                'id': vacuno.id,
-                'codigocria': vacuno.codigocria,
-                'razas': vacuno.razas,
-                'litros_leche': getattr(vacuno, 'litros_leche', 15 + vacuno.id % 10),
-                'crias': vacuno.crias,
-                'fecha_parto': getattr(vacuno, 'fecha_parto', '-'),
-                'edad': vacuno.edad,
-                'estado': vacuno.estado,
-                'enfermedades': vacuno.enfermedades,
-                'codigopapa': vacuno.codigopapa,
-                'codigomama': vacuno.codigomama,
-                'idparcela': vacuno.idparcela.nombre if vacuno.idparcela else ''
-            }
+            item = {}
+            for field in valid_fields:
+                value = getattr(vacuno, field, '')
+                # ForeignKey: mostrar id
+                if hasattr(value, 'id'):
+                    value = value.id
+                item[field] = value
             data.append(item)
-        
-        return JsonResponse({
-            'success': True,
-            'vacunos': data,
-            'total': queryset.count()
-        })
-    
+
+        return JsonResponse({'success': True, 'vacunos': data, 'total': total})
     except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': str(e),
-            'traceback': traceback.format_exc()
-        }, status=500)
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+def ExportarExcel(request):
+    try:
+        # Validar nombre de archivo
+        filename = request.GET.get('filename', 'ganado')
+        if not filename:
+            return HttpResponse("El nombre del archivo es requerido", status=400)
+        
+        # Validar caracteres en el nombre del archivo
+        if re.search(r'[<>:"/\\|?*]', filename):
+            return HttpResponse("El nombre del archivo contiene caracteres no válidos", status=400)
+        
+        fields = request.GET.get('fields', '')
+        selected_fields = [f for f in fields.split(',') if f]
+        all_fields = [f.name for f in Ganado._meta.fields]
+        valid_fields = [f for f in selected_fields if f in all_fields]
+        if not valid_fields:
+            return HttpResponse("No hay columnas válidas", status=400)
+        
+        queryset = Ganado.objects.all()
+        filter_raza = request.GET.get('filter_raza')
+        if filter_raza:
+            queryset = queryset.filter(razas=filter_raza)
+        
+        # Aplicar ordenamiento si existe
+        order_fields = []
+        for key, value in request.GET.items():
+            if key.startswith('sort_') and value in ['asc', 'desc']:
+                field = key[5:]
+                if field in valid_fields:
+                    order_fields.append(f'-{field}' if value == 'desc' else field)
+        if order_fields:
+            queryset = queryset.order_by(*order_fields)
+            
+        vacunos = queryset.only(*valid_fields)
+
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Ganado"
+        
+        # Encabezados
+        for idx, field in enumerate(valid_fields, 1):
+            ws.cell(row=1, column=idx, value=field)
+        
+        # Datos
+        for row_idx, vacuno in enumerate(vacunos, 2):
+            for col_idx, field in enumerate(valid_fields, 1):
+                value = getattr(vacuno, field, '')
+                if hasattr(value, 'id'):
+                    value = value.id
+                ws.cell(row=row_idx, column=col_idx, value=value)
+        
+        # Ajustar ancho
+        for col in ws.columns:
+            max_length = max(len(str(cell.value)) if cell.value else 0 for cell in col)
+            ws.column_dimensions[get_column_letter(col[0].column)].width = max_length + 2
+
+        from io import BytesIO
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+        response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename={filename}.xlsx'
+        return response
+    except Exception as e:
+        return HttpResponse(f"Error: {str(e)}", status=500)
 
 def PlantillaGraficas(request):
     return render(request, 'Ganado/graficas.html')
