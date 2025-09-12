@@ -13,7 +13,7 @@ import os
 from datetime import datetime, date, timedelta
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
-
+from django.contrib import messages
 from .models import (
     TablaRazas,
     TipoDocumentos,
@@ -26,6 +26,8 @@ from .models import (
     Fertilizacion,
     TipoParcela,
 )
+import re
+
 
 # Create your views here.
 
@@ -69,37 +71,85 @@ def TablaUsuarios(request):
         'usuarios':usuarios
     })
 
+def Cambiarrol(request, id_usuario):
+    usuario = get_object_or_404(Usuarios, id=id_usuario)
+
+    # alternar rol
+    if usuario.rol.lower() == "usuario":
+        usuario.rol = "Admin"
+    else:
+        usuario.rol = "usuario"
+
+    usuario.save()
+    messages.success(request, f"Rol de {usuario.username} cambiado a {usuario.rol}")
+    return redirect("TablaUsuarios")  # Usa el name de tu listado de usuarios
+
 # region Register
 def RegisterUser(request):
     if request.method == "POST":
-        nombre_usuario = request.POST['UserName']
-        nombres = request.POST['Nombres']
-        apellidos = request.POST['Apellidos']
-        correo = request.POST['Correo']
+        nombre_usuario = request.POST['UserName'].strip()
+        nombres = request.POST['Nombres'].strip()
+        apellidos = request.POST['Apellidos'].strip()
+        correo = request.POST['Correo'].strip().lower()
         tipo_documento_id = request.POST['TipoDocumento']
-        numero_documento = request.POST['NumeroDocumento']
-        clave = request.POST['Clave1']
+        numero_documento = request.POST['NumeroDocumento'].strip()
+        clave1 = request.POST['Clave1']
+        clave2 = request.POST['Clave2']
         rol = "Usuario"
-        estado = "Solicitud"  # ✅ Ahora se requiere aprobación del admin
+        estado = "Solicitud"  # ✅ usuario queda pendiente de aprobación admin
 
+        # 🔹 1. Validar campos vacíos
+        if not all([nombre_usuario, nombres, apellidos, correo, tipo_documento_id, numero_documento, clave1, clave2]):
+            return HttpResponse("Todos los campos son obligatorios", status=400)
+
+        # 🔹 2. Validar username
+        if not re.match(r'^[a-zA-Z0-9_]{4,20}$', nombre_usuario):
+            return HttpResponse("El nombre de usuario debe tener 4-20 caracteres y solo usar letras, números o _", status=400)
+        if Usuarios.objects.filter(username=nombre_usuario).exists():
+            return HttpResponse("El nombre de usuario ya está en uso", status=400)
+
+        # 🔹 3. Validar correo
+        if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', correo):
+            return HttpResponse("Correo inválido", status=400)
+        if Usuarios.objects.filter(correo=correo).exists():
+            return HttpResponse("El correo ya está registrado", status=400)
+
+        # 🔹 4. Validar documento
+        if not numero_documento.isdigit():
+            return HttpResponse("El número de documento debe ser numérico", status=400)
+        if len(numero_documento) < 6 or len(numero_documento) > 12:
+            return HttpResponse("El número de documento debe tener entre 6 y 12 dígitos", status=400)
+        if Usuarios.objects.filter(numerodocumento=numero_documento).exists():
+            return HttpResponse("El número de documento ya está registrado", status=400)
+
+        # 🔹 5. Validar contraseñas
+        if clave1 != clave2:
+            return HttpResponse("Las contraseñas no coinciden", status=400)
+        if len(clave1) < 8 or not re.search(r'[A-Z]', clave1) or not re.search(r'[0-9]', clave1):
+            return HttpResponse("La contraseña debe tener mínimo 8 caracteres, incluir una mayúscula y un número", status=400)
+
+        # 🔹 6. Validar tipo de documento
         try:
             tipo_documento_obj = TipoDocumentos.objects.get(id=tipo_documento_id)
-            Usuarios.objects.create(
-                username=nombre_usuario,
-                nombres=nombres,
-                apellidos=apellidos,
-                correo=correo,
-                idtipodocumento=tipo_documento_obj,
-                numerodocumento=numero_documento,
-                rol=rol,
-                clave=clave,
-                estado=estado
-            )
-            return redirect('registro_exitoso')   
         except TipoDocumentos.DoesNotExist:
-            return HttpResponse('Tipo de documento inválido', status=400)
-    return HttpResponse('Método no permitido', status=405)
+            return HttpResponse("Tipo de documento inválido", status=400)
 
+        # ✅ Crear usuario si todo está correcto
+        Usuarios.objects.create(
+            username=nombre_usuario,
+            nombres=nombres,
+            apellidos=apellidos,
+            correo=correo,
+            idtipodocumento=tipo_documento_obj,
+            numerodocumento=numero_documento,
+            rol=rol,
+            clave=clave1,  # ⚠️ lo ideal sería encriptar con make_password
+            estado=estado
+        )
+
+        return redirect('registro_exitoso')
+
+    return HttpResponse("Método no permitido", status=405)
 def registro_exitoso(request):
     return render(request, 'Logueo/creado.html')
 #endregion 

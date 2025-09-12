@@ -45,149 +45,213 @@
             max-height: 180px;
         }
     }
-</style>
+.card {
+  width: 280px;
+  background: #f5f5f5;
+  border-radius: 10px;
+  padding: 50px 30px;
+  position: relative;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px #4445;
+  cursor: pointer;
+  transition: all 0.4s ease-in-out;
+  z-index: 0;
+}
 
+.icon,
+.heading,
+.content {
+  position: relative;
+  z-index: 5;
+  transition: all 0.5s;
+  
+}
+
+.icon {
+  width: 40px;
+  fill: #e9f7ef;
+  margin-bottom: 20px;
+}
+
+.heading {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+.number {
+  position: absolute;
+  top: -90px;
+  right: -85px;
+  padding: 80px 100px 30px 30px;
+  background: #e9f7ef;
+  border-radius: 100%;
+  z-index: 100;
+}
+
+.number .text {
+  font-size: 28px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.text {
+  margin-top: 20px;
+  
+}
+
+.number::after {
+  content: "";
+  width: 50px;
+  height: 50px;
+  background: #28a745;
+  position: absolute;
+  border-radius: 100%;
+  top: 50%;
+  right: 50%;
+  transition: all 0.5s;
+  transform: translateX(50%) translateY(-50%);
+  z-index: 100;
+}
+
+.card:hover {
+  scale: 1.02;
+  box-shadow: 0 5px 20px #444e;
+  
+}
+
+.card:hover .number::after {
+  width: 900px;
+  height: 900px;
+  
+}
+
+.card:hover .icon,
+.card:hover .heading,
+.card:hover .content {
+  color: #f5f5f5;
+  fill: #f5f5f5;
+  
+}
+
+    
+</style>
 <div class="container my-5">
     {% if usuarios.0.estado == "Solicitud" %}
         <h2 class="text-center text-success mb-5">Listado de Hojas de Vida</h2>
-        {% for usuario in usuarios  %}
-            <div class="profile-container solicitud-style p-4 rounded mb-5">
-                <h4 class="text-center text-dark mb-4">Solicitud de acceso de {{ usuario.nombres }} {{ usuario.apellidos }}</h4>
-                <div class="row justify-content-center">
-                    <div class="col-md-4 text-center mb-4 mb-md-0">
-                        <img src="{% static 'Image/img/person.png' %}" alt="Foto de {{ usuario.nombres }}" class="img-fluid img-usuario border-success">
-                    </div>
-                    <div class="col-md-8">
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th colspan="2" class="text-center">Información Personal</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <th scope="row">Nombre de usuario</th>
-                                        <td>{{ usuario.username }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Nombres</th>
-                                        <td>{{ usuario.nombres }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Apellidos</th>
-                                        <td>{{ usuario.apellidos }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Tipo de documento</th>
-                                        <td>{{ usuario.idtipodocumento.nombre }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Documento</th>
-                                        <td>{{ usuario.numerodocumento }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Correo</th>
-                                        <td>{{ usuario.correo }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Acciones</th>
-                                        <td>
-                                            <div class="d-flex gap-2">
-                                                <a href="{% url 'SolicitudAceptada' usuario.id %}" class="btn btn-success btn-sm">Aceptar</a>
-                                                <button class="btn btn-danger btn-sm" onclick="EliminarSolicitud('{{ usuario.id }}')">Eliminar</button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+        
+        <div class="d-flex flex-wrap justify-content-center gap-4">
+            {% for usuario in usuarios %}
+           <a onclick="showAction('{{ usuario.id }}', '{% url 'SolicitudAceptada' usuario.id %}', '{% url 'EliminarSolicitud' usuario.id %}')">
+
+            <div class="card">
+                <div class="number">
+                    <p class="text"></p>
                 </div>
+
+                <p class="heading">
+                    Solicitud de acceso de {{ usuario.nombres }} {{ usuario.apellidos }}
+                </p>
+
+                <div class="content">
+                    <p><strong>👤 Usuario:</strong> {{ usuario.username }}</p>
+                    <p><strong>🪪 Documento:</strong> {{ usuario.idtipodocumento.nombre }} - {{ usuario.numerodocumento }}</p>
+                    <p><strong>📧 Correo:</strong> {{ usuario.correo }}</p>
+                </div>
+
             </div>
-        {% empty %}
-            <p class="text-center text-muted">No hay solicitudes recibidas.</p>
-        {% endfor %}
+            {% empty %}
+                <p class="text-center text-muted">No hay solicitudes recibidas.</p>
+            {% endfor %}
+        </div>
+    </a>
     {% else %}
+    
         <h2 class="text-center text-success mb-5">Listado de Usuarios</h2>
-        {% for usuario in usuarios %}
-            <div class="profile-container 
-                        {% if usuario.rol == "Admin" %}admin-style
-                        {% else %}user-style
-                        {% endif %}
-                        p-4 rounded mb-5">
-                <h4 class="text-center text-dark mb-4">
+        <div class="d-flex flex-wrap justify-content-center gap-4">
+            {% for usuario in usuarios %}
+            <a onclick="showAction2('{{ usuario.id }}', '{% url 'Cambiarrol' usuario.id %}', '{% url 'EliminarSolicitud' usuario.id %}')">
+            <div class="card">
+                <div class="number">
+                    <p class="text"></p>
+                </div>
+
+                <p class="heading">
                     {% if usuario.rol == "Admin" %}
                         Administrador: {{ usuario.nombres }} {{ usuario.apellidos }}
                     {% else %}
                         Usuario: {{ usuario.nombres }} {{ usuario.apellidos }}
                     {% endif %}
-                </h4>
-                <div class="row justify-content-center">
-                    <div class="col-md-4 text-center mb-4 mb-md-0">
-                        <img src="{% static 'Image/img/person.png' %}" alt="Foto de {{ usuario.nombres }}" class="img-fluid img-usuario border-success">
-                    </div>
-                    <div class="col-md-8">
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th colspan="2" class="text-center">Información Personal</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <th scope="row">Nombre de usuario</th>
-                                        <td>{{ usuario.username }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Nombres</th>
-                                        <td>{{ usuario.nombres }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Apellidos</th>
-                                        <td>{{ usuario.apellidos }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Tipo de documento</th>
-                                        <td>{{ usuario.idtipodocumento.nombre }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Documento</th>
-                                        <td>{{ usuario.numerodocumento }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Correo</th>
-                                        <td>{{ usuario.correo }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Rol</th>
-                                        <td>{{ usuario.rol }} <button class="btn btn-outline-secondary btn-sm">Actualizar</button></td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">Acciones</th>
-                                        <td>
-                                            <div class="d-flex gap-2">
-                                                <button class="btn btn-success btn-sm">Actualizar</button>
-                                                <button class="btn btn-danger btn-sm">Eliminar</button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                </p>
+
+                <div class="content">
+                    <p><strong>👤 Usuario:</strong> {{ usuario.username }}</p>
+                    <p><strong>🪪 Documento:</strong> {{ usuario.idtipodocumento.nombre }} - {{ usuario.numerodocumento }}</p>
+                    <p><strong>📧 Correo:</strong> {{ usuario.correo }}</p>
+                    <p><strong>⚡ Rol:</strong> {{ usuario.rol }}</p>
                 </div>
+
+                
             </div>
-        {% empty %}
-            <p class="text-center text-muted">No hay usuarios registrados.</p>
-        {% endfor %}
-        
-        {% endif %}
+            {% empty %}
+                <p class="text-center text-muted">No hay usuarios registrados.</p>
+            {% endfor %}
+        </div>
+    {% endif %}
 </div>
+
 
 <script src="{% static 'JavaScripts/bootstrap.bundle.min.js' %}"></script>
 <script src="{% static 'JavaScripts/Logueo/EliminarSolicitud.js' %}" ></script>
+<script>
+function showAction(userId, urlAceptar, urlEliminar) {
+    Swal.fire({
+        title: "Acciones disponibles",
+        text: "¿Qué deseas hacer con esta solicitud?",
+        icon: "question",
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: "✅ Aceptar",
+        denyButtonText: "🗑️ Eliminar",
+        cancelButtonText: "❌ Cancelar",
+        confirmButtonColor: "#28a745",
+        denyButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Redirige a la URL de aceptación
+             window.location.href = urlAceptar;
+        } else if (result.isDenied) {
+            // Llama a la función de eliminar
+             window.location.href = urlEliminar;
+        }
+    });
+}
 
+function showAction2(userId, urlCambiarrol, urlEliminar) {
+    Swal.fire({
+        title: "Acciones disponibles",
+        text: "¿Qué deseas hacer con este usuario?",
+        icon: "question",
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: "🔄 Cambiar Rol",
+        denyButtonText: "🗑️ Eliminar",
+        cancelButtonText: "❌ Cancelar",
+        confirmButtonColor: "#28a745",
+        denyButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = urlCambiarrol;
+        } else if (result.isDenied) {
+            window.location.href = urlEliminar;
+        }
+    });
+}
+
+</script>
 
 {% include 'inc/Footer.html' %}

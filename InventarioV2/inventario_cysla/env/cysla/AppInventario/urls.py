@@ -15,6 +15,7 @@ urlpatterns = [
     path('Logueo/creado/', views.registro_exitoso, name='registro_exitoso'),
     path('Logueo/nocreado/', views.nocreada, name='nocreada'),
     path('Logueo/Logout/', views.logout_view, name='LogoutUser'),
+    path('Cambiarrol/<int:id_usuario>/', views.Cambiarrol, name='Cambiarrol'),
     # endregion
 
     # region Solicitudes de acceso

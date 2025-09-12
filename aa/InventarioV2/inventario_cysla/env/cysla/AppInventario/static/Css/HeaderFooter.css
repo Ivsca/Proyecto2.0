@@ -1,0 +1,299 @@
+/* Estilos generales del header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background-color: #efefef;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: relative;
+    flex-wrap: wrap;
+}
+
+.logo {
+    width: 65px;
+    height: 65px;
+    z-index: 101; /* Para que esté sobre el menú móvil */
+}
+
+/* Botón hamburguesa - Oculto en desktop */
+.hamburger-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 100;
+    padding: 10px;
+}
+
+/* Menú principal */
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.main-nav a, .dropbtn {
+    color: #212121;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+    position: relative;
+    padding: 5px 0;
+    transition: color 0.3s;
+}
+
+.main-nav a::after, .dropbtn::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #91c986;
+    transition: width 0.3s;
+}
+
+.main-nav a:hover, .dropbtn:hover {
+    color: rgb(21, 126, 21);
+}
+
+.main-nav a:hover::after, .dropbtn:hover::after {
+    width: 100%;
+}
+
+/* Dropdown styles */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 180px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    border-radius: 5px;
+    padding: 10px 0;
+}
+
+.dropdown-content a {
+    color: #212121;
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.dropdown-content a:hover {
+    background-color: rgb(21, 126, 21);
+    color: white;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Botón de login */
+.custom-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    color: white;
+    background-color: #73aa69;
+    font-weight: bold;
+    font-size: 14px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.custom-button:hover {
+    background-color: rgb(17, 96, 17);
+    transform: scale(1.05);
+}
+
+.desktop-login {
+    display: block;
+}
+
+.mobile-login-btn {
+    display: none;
+}
+
+/* Estilos para móviles (764px o menos) */
+@media (max-width: 857px) {
+    .hamburger-btn {
+        display: block;
+    }
+    
+    .main-nav {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 70%;
+        height: 100vh;
+        background-color: #efefef;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 80px 30px 30px;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+        transition: right 0.3s ease;
+        z-index: 100;
+    }
+    
+    .main-nav.active {
+        right: 0;
+    }
+    
+    .main-nav a, .dropbtn {
+        width: 100%;
+        padding: 12px 0;
+        margin: 5px 0;
+      
+    }
+    
+    .dropdown {
+        width: 100%;
+    }
+    
+    .dropbtn {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: none;
+        font: inherit;
+        cursor: pointer;
+        padding: 12px 0 !important;
+    }
+    
+    .dropdown-content {
+        position: static;
+        display: none;
+        width: 100%;
+        box-shadow: none;
+        padding: 0;
+        margin: 5px 0 5px 15px;
+    }
+    
+    .dropdown-content.show {
+        display: block;
+    }
+    
+    .dropdown-content a {
+        padding: 10px 0;
+    }
+    
+    .desktop-login {
+        display: none;
+    }
+    
+    .mobile-login-btn {
+        display: block;
+        width: 100%;
+        margin-top: 20px;
+    }
+    
+    .mobile-login-btn .custom-button {
+        width: 100%;
+    }
+}
+
+
+/* Footer*/
+.footer-distributed {
+  background-color: #efefef;
+  color: #000000;
+  padding: 60px 60px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.footer-nav {
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+.footer-nav a {
+  color: #000000;
+  margin: 0 10px;
+  text-decoration: none;
+}
+
+.footer-nav a:hover {
+  color: #ffcb42;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.footer-left {
+  max-width: 30%;
+  text-align: left;
+}
+
+.footer-left p {
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.social-icons {
+  margin-top: 15px;
+}
+
+.social-icons img{
+  width: 8%;
+}
+
+
+
+/* Estilos para el logo en el centro */
+.footer-center {
+  max-width: 30%;
+  display: flex;
+  ;
+}
+
+.footer-logo {
+  width: 80px;
+  height: auto;
+}
+
+/* Estilos para centrar el contenido en la derecha */
+.footer-right {
+  max-width: 30%;
+  text-align: right;
+}
+
+.footer-right h3 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.btn-footer {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #91c986;
+  color: white;
+  border-radius: 15px;
+  text-decoration: none;
+  font-weight: bold;
+  margin-top: 15px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-footer:hover {
+  background-color: rgb(17, 96, 17);
+  transform: scale(1.05);
+  color: white;
+}

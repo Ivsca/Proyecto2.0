@@ -114,3 +114,99 @@ document.getElementById("registerForm").addEventListener("submit", function (e) 
         e.preventDefault();
     }
 });
+
+// Validar Username
+function validarUsername() {
+    let username = document.getElementById("username").value.trim();
+    let error = document.getElementById("errorusername");
+
+    if (username.length < 4 || username.length > 20) {
+        error.innerText = "Debe tener entre 4 y 20 caracteres.";
+        return false;
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+        error.innerText = "Solo se permiten letras, números y guión bajo.";
+        return false;
+    }
+    error.innerText = "";
+    return true;
+}
+
+// Validar Correo
+function validarCorreoRegistro() {
+    let correo = document.getElementById("correo").value.trim();
+    let error = document.getElementById("errorcorreo");
+
+    let regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!regex.test(correo)) {
+        error.innerText = "Ingrese un correo válido.";
+        return false;
+    }
+    error.innerText = "";
+    return true;
+}
+
+// Validar Documento
+function validarNumeroDocumento() {
+    let doc = document.getElementById("numeroDocumento").value.trim();
+    let error = document.getElementById("errornumeroDocumento");
+
+    if (!/^\d+$/.test(doc)) {
+        error.innerText = "Solo números permitidos.";
+        return false;
+    }
+    if (doc.length < 6 || doc.length > 12) {
+        error.innerText = "Debe tener entre 6 y 12 dígitos.";
+        return false;
+    }
+    error.innerText = "";
+    return true;
+}
+
+// Validar Contraseña
+function validarClaveRegistro() {
+    let clave = document.getElementById("clave1").value;
+    let error = document.getElementById("errorclave1");
+
+    if (clave.length < 8) {
+        error.innerText = "Debe tener mínimo 8 caracteres.";
+        return false;
+    }
+    if (!/[A-Z]/.test(clave)) {
+        error.innerText = "Debe contener al menos una mayúscula.";
+        return false;
+    }
+    if (!/[0-9]/.test(clave)) {
+        error.innerText = "Debe contener al menos un número.";
+        return false;
+    }
+    error.innerText = "";
+    return true;
+}
+
+// Validar Confirmación
+function validarConfirmacionClave() {
+    let clave1 = document.getElementById("clave1").value;
+    let clave2 = document.getElementById("clave2").value;
+    let error = document.getElementById("errorclave2");
+
+    if (clave1 !== clave2) {
+        error.innerText = "Las contraseñas no coinciden.";
+        return false;
+    }
+    error.innerText = "";
+    return true;
+}
+
+// Validar Tipo de Documento
+function validarTipoDocumento() {
+    let tipo = document.getElementById("tipoDocumento").value;
+    let error = document.getElementById("errortipoDocumento");
+
+    if (tipo === "") {
+        error.innerText = "Seleccione un tipo de documento.";
+        return false;
+    }
+    error.innerText = "";
+    return true;
+}

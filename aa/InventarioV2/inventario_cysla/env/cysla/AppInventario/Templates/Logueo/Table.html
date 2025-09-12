@@ -1,0 +1,193 @@
+{% load static %}
+{% include 'inc/Header.html' %}
+<link rel="stylesheet" href="{% static 'Css/bootstrap.min.css' %}">
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    .profile-container {
+        border: 2px solid;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .admin-style {
+        background-color: #fce4ec; /* rosado claro */
+        border-color: #c2185b;     /* rosado oscuro */
+    }
+
+    .user-style {
+        background-color: #e3f2fd; /* azul claro */
+        border-color: #1976d2;     /* azul oscuro */
+    }
+
+    .solicitud-style {
+        background-color: #e9f7ef; /* verde claro */
+        border-color: #28a745;
+    }
+
+    .img-usuario {
+        width: 250px;
+        height: 250px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .table thead th {
+        background-color: #28a745;
+        color: white;
+    }
+
+    @media (max-width: 576px) {
+        .img-usuario {
+            max-width: 180px;
+            max-height: 180px;
+        }
+    }
+</style>
+
+<div class="container my-5">
+    {% if usuarios.0.estado == "Solicitud" %}
+        <h2 class="text-center text-success mb-5">Listado de Hojas de Vida</h2>
+        {% for usuario in usuarios  %}
+            <div class="profile-container solicitud-style p-4 rounded mb-5">
+                <h4 class="text-center text-dark mb-4">Solicitud de acceso de {{ usuario.nombres }} {{ usuario.apellidos }}</h4>
+                <div class="row justify-content-center">
+                    <div class="col-md-4 text-center mb-4 mb-md-0">
+                        <img src="{% static 'Image/img/person.png' %}" alt="Foto de {{ usuario.nombres }}" class="img-fluid img-usuario border-success">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2" class="text-center">Información Personal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Nombre de usuario</th>
+                                        <td>{{ usuario.username }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Nombres</th>
+                                        <td>{{ usuario.nombres }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Apellidos</th>
+                                        <td>{{ usuario.apellidos }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Tipo de documento</th>
+                                        <td>{{ usuario.idtipodocumento.nombre }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Documento</th>
+                                        <td>{{ usuario.numerodocumento }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Correo</th>
+                                        <td>{{ usuario.correo }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Acciones</th>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <a href="{% url 'SolicitudAceptada' usuario.id %}" class="btn btn-success btn-sm">Aceptar</a>
+                                                <button class="btn btn-danger btn-sm" onclick="EliminarSolicitud('{{ usuario.id }}')">Eliminar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-center text-muted">No hay solicitudes recibidas.</p>
+        {% endfor %}
+    {% else %}
+        <h2 class="text-center text-success mb-5">Listado de Usuarios</h2>
+        {% for usuario in usuarios %}
+            <div class="profile-container 
+                        {% if usuario.rol == "Admin" %}admin-style
+                        {% else %}user-style
+                        {% endif %}
+                        p-4 rounded mb-5">
+                <h4 class="text-center text-dark mb-4">
+                    {% if usuario.rol == "Admin" %}
+                        Administrador: {{ usuario.nombres }} {{ usuario.apellidos }}
+                    {% else %}
+                        Usuario: {{ usuario.nombres }} {{ usuario.apellidos }}
+                    {% endif %}
+                </h4>
+                <div class="row justify-content-center">
+                    <div class="col-md-4 text-center mb-4 mb-md-0">
+                        <img src="{% static 'Image/img/person.png' %}" alt="Foto de {{ usuario.nombres }}" class="img-fluid img-usuario border-success">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2" class="text-center">Información Personal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">Nombre de usuario</th>
+                                        <td>{{ usuario.username }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Nombres</th>
+                                        <td>{{ usuario.nombres }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Apellidos</th>
+                                        <td>{{ usuario.apellidos }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Tipo de documento</th>
+                                        <td>{{ usuario.idtipodocumento.nombre }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Documento</th>
+                                        <td>{{ usuario.numerodocumento }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Correo</th>
+                                        <td>{{ usuario.correo }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Rol</th>
+                                        <td>{{ usuario.rol }} <button class="btn btn-outline-secondary btn-sm">Actualizar</button></td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Acciones</th>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <button class="btn btn-success btn-sm">Actualizar</button>
+                                                <button class="btn btn-danger btn-sm">Eliminar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-center text-muted">No hay usuarios registrados.</p>
+        {% endfor %}
+        
+        {% endif %}
+</div>
+
+<script src="{% static 'JavaScripts/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'JavaScripts/Logueo/EliminarSolicitud.js' %}" ></script>
+
+
+{% include 'inc/Footer.html' %}
