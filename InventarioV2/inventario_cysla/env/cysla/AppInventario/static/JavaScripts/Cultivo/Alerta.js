@@ -378,7 +378,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-//Fertilizante
+//Fertilizacion
 
 function abrirFertilizacion(cultivoId) {
   fetch(`/Cultivo/fertilizaciones/${cultivoId}/`)
@@ -392,23 +392,70 @@ function abrirFertilizacion(cultivoId) {
 
       // Historial HTML
       let historialHtml = '';
-      if (yaTieneFertilizaciones) {
+        if (yaTieneFertilizaciones) {
         historialHtml = `
-          <hr><h5 class="mt-3">Historial de fertilización</h5>
-          ${historial.map(f => `
-            <div class="border rounded p-2 mb-2 bg-light">
-              <p class="mb-1"><strong>Fecha:</strong> ${f.fecha}</p>
-              <p class="mb-1"><strong>Fertilizante:</strong> ${f.fertilizante}</p>
-              <p class="mb-0"><strong>Observaciones:</strong> ${f.observaciones || 'Ninguna'}</p>
-            </div>
-          `).join('')}
-          <div class="text-center">
-            <button id="mostrarFormularioBtn" class="btn btn-success btn-sm mt-3">Agregar nueva fertilización</button>
-          </div>
-        `;
-      }
+            <style>
+            .contenedor-fertilizaciones {
+                background-color: #e6f4ea; /* Verde pastel */
+                border: 1px solid #c3e6cb;
+                border-radius: 12px;
+                padding: 20px;
+                margin-top: 15px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            }
 
-      // Formulario oculto
+            .tabla-fertilizaciones thead {
+                background-color: #d4edda; /* Verde más fuerte para encabezado */
+                color: #155724;
+            }
+
+            .tabla-fertilizaciones tbody tr:hover {
+                background-color: #f1fdf6;
+            }
+
+            .tabla-fertilizaciones th, .tabla-fertilizaciones td {
+                vertical-align: middle !important;
+                text-align: center;
+            }
+            </style>
+
+            <div class="contenedor-fertilizaciones">
+            <h5 class="mb-3 text-start"> Historial de fertilización</h5>
+            <div class="table-responsive">
+                <table class="table tabla-fertilizaciones table-bordered mb-0">
+                <thead>
+                    <tr>
+                    <th> Fecha</th>
+                    <th> Fertilizante</th>
+                    <th> Dosis</th>
+                    <th> Tipo</th>
+                    <th> Observaciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${historial.map(f => `
+                    <tr>
+                        <td>${f.fecha}</td>
+                        <td>${f.fertilizante}</td>
+                        <td>${f.dosis || '—'}</td>
+                        <td>${f.tipo || '—'}</td>
+                        <td>${f.observaciones || '<span class="text-muted fst-italic">Ninguna</span>'}</td>
+                    </tr>
+                    `).join('')}
+                </tbody>
+                </table>
+            </div>
+            <div class="text-center mt-3">
+                <button id="mostrarFormularioBtn" class="btn btn-outline-success btn-sm">
+                🌱 Agregar nueva fertilización
+                </button>
+            </div>
+            </div>
+        `;
+        }
+
+
+      // Formulario oculto (incluye tipo y dosis)
       const formHtml = `
         <form id="fertilizacionForm" class="text-start" style="display: ${yaTieneFertilizaciones ? 'none' : 'block'};">
           <div class="row">
@@ -421,8 +468,24 @@ function abrirFertilizacion(cultivoId) {
               <input type="text" name="fertilizante" id="fertilizante" class="form-control" required>
             </div>
           </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="tipo" class="form-label">Tipo de fertilizante:</label>
+              <select name="tipo" id="tipo" class="form-control" required>
+                <option value="QUIMICO">Químico</option>
+                <option value="ORGANICO">Orgánico</option>
+                <option value="OTRO">Otro</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="dosis" class="form-label">Dosis aplicada:</label>
+              <input type="text" name="dosis" id="dosis" class="form-control" required>
+            </div>
+          </div>
+
           <div class="mb-3">
-            <label for="observaciones" class="form-label">Observaciones: (opcional)</label>
+            <label for="observaciones" class="form-label">Observaciones (opcional):</label>
             <textarea name="observaciones" id="observaciones" class="form-control" rows="2"></textarea>
           </div>
         </form>
@@ -436,14 +499,13 @@ function abrirFertilizacion(cultivoId) {
         confirmButtonText: 'Guardar',
         focusConfirm: false,
         didOpen: () => {
-          // Mostrar formulario al hacer clic
-          const btn = document.getElementById('mostrarFormularioBtn');
-          if (btn) {
-            btn.addEventListener('click', () => {
-              document.getElementById('fertilizacionForm').style.display = 'block';
-              btn.style.display = 'none';
-            });
-          }
+            const btn = document.getElementById('mostrarFormularioBtn');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                document.getElementById('fertilizacionForm').style.display = 'block';
+                btn.style.display = 'none';
+                });
+            }
         },
         preConfirm: () => {
           const form = document.getElementById('fertilizacionForm');
@@ -454,9 +516,11 @@ function abrirFertilizacion(cultivoId) {
 
           const fechaFert = new Date(form.querySelector('input[name="fecha"]').value);
           const fertilizante = form.querySelector('input[name="fertilizante"]').value;
+          const tipo = form.querySelector('select[name="tipo"]').value;
+          const dosis = form.querySelector('input[name="dosis"]').value;
 
-          if (!fertilizante.trim()) {
-            Swal.showValidationMessage('El fertilizante no puede estar vacío.');
+          if (!fertilizante.trim() || !dosis.trim()) {
+            Swal.showValidationMessage('Todos los campos obligatorios deben estar llenos.');
             return false;
           }
 
@@ -494,3 +558,4 @@ function abrirFertilizacion(cultivoId) {
       });
     });
 }
+

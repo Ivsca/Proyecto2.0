@@ -190,7 +190,7 @@ def nocreada(request):
 
 def logout_view(request):
     request.session.flush()  # Elimina todos los datos de sesión
-    return redirect("LoginUser") 
+    return redirect("Home") 
 #endregion 
 
 # region ganado
@@ -392,20 +392,28 @@ def obtener_fertilizaciones(request, cultivo_id):
     cultivo = Cultivo.objects.get(id=cultivo_id)
 
     fertilizaciones = Fertilizacion.objects.filter(cultivo_id=cultivo_id).values(
-        'fecha', 'fertilizante', 'observaciones'
+        'fecha', 'fertilizante', 'observaciones', 'tipo', 'dosis'  # ← se agregan
     )
+
     return JsonResponse({
         'fertilizaciones': list(fertilizaciones),
         'fecha_siembra': cultivo.fecha_siembra.strftime('%Y-%m-%d'),
         'fecha_cosecha': cultivo.fecha_cosecha.strftime('%Y-%m-%d'),
     })
 
+
 @csrf_exempt
 def agregar_fertilizacion(request, cultivo_id):
     if request.method == 'POST':
         fecha = request.POST.get('fecha')
         fertilizante = request.POST.get('fertilizante')
+        tipo = request.POST.get('tipo')
+        dosis = request.POST.get('dosis')
         observaciones = request.POST.get('observaciones', '')
+
+        # Validaciones básicas
+        if not (fecha and fertilizante and tipo and dosis):
+            return HttpResponseBadRequest('Faltan campos obligatorios.')
 
         try:
             cultivo = Cultivo.objects.get(id=cultivo_id)
@@ -420,8 +428,11 @@ def agregar_fertilizacion(request, cultivo_id):
                 cultivo=cultivo,
                 fecha=fecha_fert,
                 fertilizante=fertilizante,
+                tipo=tipo,
+                dosis=dosis,
                 observaciones=observaciones
             )
+
             return JsonResponse({'message': 'Fertilización registrada con éxito'})
 
         except Cultivo.DoesNotExist:

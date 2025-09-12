@@ -59,19 +59,48 @@
 </form>
 
 <!-- Fertilizante -->
-<form id="formularioFertilizacion" style="display: none;">
+<form id="formularioFertilizacion" method="post" style="display: none;">
+  {% csrf_token %}
+  
+  <!-- Fecha -->
   <div class="mb-3">
     <label for="fecha_fertilizacion">Fecha de fertilización:</label>
-    <input type="date" id="fecha_fertilizacion" name="fecha_fertilizacion" class="form-control">
+    <input type="date" id="fecha_fertilizacion" name="fecha" class="form-control" required>
   </div>
+
+  <!-- Nombre del fertilizante -->
   <div class="mb-3">
     <label for="fertilizante">Fertilizante usado:</label>
-    <input type="text" id="fertilizante" name="fertilizante" class="form-control">
+    <input type="text" id="fertilizante" name="fertilizante" class="form-control" required>
   </div>
+
+  <!-- Observaciones -->
   <div class="mb-3">
     <label for="observaciones">Observaciones (opcional):</label>
     <textarea id="observaciones" name="observaciones" class="form-control"></textarea>
   </div>
+
+  <!-- Tipo de fertilizante -->
+  <div class="mb-3">
+    <label for="tipo">Tipo de fertilizante:</label>
+    <select id="tipo" name="tipo" class="form-control" required>
+      <option value="QUIMICO">Químico</option>
+      <option value="ORGANICO">Orgánico</option>
+      <option value="OTRO">Otro</option>
+    </select>
+  </div>
+
+  <!-- Dosis aplicada -->
+  <div class="mb-3">
+    <label for="dosis">Dosis aplicada (por unidad de área):</label>
+    <input type="text" id="dosis" name="dosis" class="form-control" required>
+  </div>
+
+  <!-- Cultivo relacionado (si aplica oculto o dinámico) -->
+  <input type="hidden" name="cultivo_id" value="{{ cultivo.id }}">
+
+  <!-- Botón -->
+  <button type="submit" class="btn btn-success">Guardar fertilización</button>
 </form>
 
 {% include 'inc/Header.html' %}
@@ -128,12 +157,16 @@
                             <button class="btn btn-success" onclick="abrirFertilizacion({{ cultivo.id }})">
                                 <i class="fas fa-edit"></i> Fertilizante
                             </button>
+
+                            <!-- Estos solo los ve el Administrador -->
+                        {% if request.session.rol == 'Admin' %}
                             <button class="btn btn-warning" onclick="editar_cultivo('{{ cultivo.id }}')">
                                 <i class="fas fa-edit"></i> Editar
                             </button>
                             <button class="btn btn-danger btn-sm" onclick="eliminarCultivo({{ cultivo.id }})">
                                 Eliminar
                             </button>
+                        {% endif %}
                         </div>
                     </div>
                 </div>

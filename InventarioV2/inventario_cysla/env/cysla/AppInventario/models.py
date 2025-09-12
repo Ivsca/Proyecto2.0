@@ -248,12 +248,23 @@ class Cultivo(models.Model):
         return self.nombre
     
 class Fertilizacion(models.Model):
+    TIPO_CHOICES = [
+        ('QUIMICO', 'Químico'),
+        ('ORGANICO', 'Orgánico'),
+        ('OTRO', 'Otro'),
+    ]
+
     cultivo = models.ForeignKey(Cultivo, on_delete=models.CASCADE, related_name='fertilizaciones')
     fecha = models.DateField()
     fertilizante = models.CharField(max_length=100)
+    tipo = models.CharField(max_length=10, choices=TIPO_CHOICES, default='QUIMICO')  
+    dosis = models.CharField(max_length=50, default='N/A')  
     observaciones = models.TextField(blank=True)
+
     class Meta:
         db_table = 'fertilizacion'
+
+
   
 
 
