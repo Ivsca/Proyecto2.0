@@ -93,3 +93,44 @@ class TipoParcela(models.Model):
 
     def __str__(self):
         return f"{self.nombre} - {self.estado}"
+
+
+class TipoCultivo(models.Model):
+    nombre_tipo = models.CharField(max_length=50)  
+    class Meta:
+        db_table = 'tipo_cultivo'
+    
+    def _str_(self):
+        return self.nombre_tipo
+
+class Cultivo(models.Model):
+    nombre = models.CharField(max_length=100)
+    foto = models.ImageField(upload_to='cultivos/', null=True, blank=True)
+    tipo = models.ForeignKey(TipoCultivo, on_delete=models.CASCADE, db_column='tipo_id')  
+    fecha_siembra = models.DateField()
+    fecha_cosecha = models.DateField()
+    cantidad = models.IntegerField()
+    
+    class Meta:
+        managed = True  
+        db_table = 'cultivo'
+        
+class Fertilizacion(models.Model):
+    TIPO_CHOICES = [
+        ('QUIMICO', 'Químico'),
+        ('ORGANICO', 'Orgánico'),
+        ('OTRO', 'Otro'),
+    ]
+
+    cultivo = models.ForeignKey(Cultivo, on_delete=models.CASCADE, related_name='fertilizaciones')
+    fecha = models.DateField()
+    fertilizante = models.CharField(max_length=100)
+    tipo = models.CharField(max_length=10, choices=TIPO_CHOICES, default='QUIMICO')  
+    dosis = models.CharField(max_length=50, default='N/A')  
+    observaciones = models.TextField(blank=True)
+
+    class Meta:
+        db_table = 'fertilizacion'
+
+
+  
