@@ -58,4 +58,8 @@ urlpatterns = [
     path('ListaRazas/', views.ListaRazas, name='ListaRazas'),
     path('AgregarRaza/', views.AgregarRaza, name='AgregarRaza'),
     # endregion
+
+    # region notificaciones
+    path('SistemaNotficacionesGmail/', views.SistemaNotficacionesGmail, name='SistemaNotficacionesGmail'),
+    # endregion
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

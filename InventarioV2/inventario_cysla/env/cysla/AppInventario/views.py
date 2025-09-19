@@ -28,6 +28,8 @@ from .models import (
 )
 import re
 
+from AppInventario.Notificaciones import NotificacionesCultivos
+
 
 # Create your views here.
 
@@ -613,3 +615,11 @@ def Desactivar(request, registro_id):
             'message': str(e)
         }, status=500)
 #end region
+
+# region notificaciones
+
+def SistemaNotficacionesGmail(request):
+    pass
+
+
+# endregion

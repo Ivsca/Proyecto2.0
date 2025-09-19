@@ -20,12 +20,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-wbtt-n%1bal47qlv@_7)yjh%o8=lc@#^8x$j#=i-rd5hag6fb+"
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-wbtt-n%1bal47qlv@_7)yjh%o8=lc@#^8x$j#=i-rd5hag6fb+")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]  # O el dominio de Render
 
 # Application definition
 
@@ -75,11 +75,11 @@ WSGI_APPLICATION = "cysla.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('MYSQL_DATABASE', 'flock'),
-        'USER': os.getenv('MYSQL_USER', 'django_user'),
-        'PASSWORD': os.getenv('MYSQL_PASSWORD', 'django_pass'),
-        'HOST': os.getenv('DB_HOST', 'db'),
-        'PORT': '3306',
+        'NAME': os.environ.get('MYSQLDATABASE', 'flock'),
+        'USER': os.environ.get('MYSQLUSER', 'root'),
+        'PASSWORD': os.environ.get('MYSQLPASSWORD', ''),
+        'HOST': os.environ.get('MYSQLHOST', 'localhost'),
+        'PORT': os.environ.get('MYSQLPORT', '3306'),
     }
 }
 
