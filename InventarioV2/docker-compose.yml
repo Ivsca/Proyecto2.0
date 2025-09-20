@@ -38,18 +38,20 @@ services:
 
   web:
     build:
-      context: ./inventario_cysla/env/cysla
+      context: ./cysla
       dockerfile: Dockerfile
     container_name: django_web
-    command: python manage.py runserver 0.0.0.0:8000 
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
-      - ./inventario_cysla/env/cysla:/app
+      - ./cysla:/app
     ports:
       - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
     environment:
+      DEBUG: "True"
+      DJANGO_ALLOWED_HOSTS: "*"
       DB_HOST: db
       DB_PORT: 3306
       MYSQL_USER: django_user
@@ -63,7 +65,7 @@ services:
       context: ./MicroServicios/servicio_excel
       dockerfile: Dockerfile
     container_name: servicio_excel_web
-    command: python manage.py runserver 0.0.0.0:8001 
+    command: python manage.py runserver 0.0.0.0:8001
     volumes:
       - ./MicroServicios/servicio_excel:/app
     ports:
