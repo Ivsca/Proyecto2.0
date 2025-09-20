@@ -24,4 +24,8 @@ COPY . .
 # Hacer ejecutable wait-for.sh si existe
 RUN chmod +x wait-for.sh || true
 
+# Ejecutar collectstatic sin pedir confirmación
+RUN python manage.py collectstatic --noinput
+
+# Mantener contenedor activo (ajusta este CMD según tu proyecto)
 CMD ["tail", "-f", "/dev/null"]
