@@ -1,0 +1,132 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: flock
+      MYSQL_USER: django_user
+      MYSQL_PASSWORD: django_pass
+      MYSQL_ROOT_PASSWORD: cysla
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./Scripts/flock.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "django_user", "-pdjango_pass"]
+      interval: 5s
+      timeout: 10s
+      retries: 20
+    networks:
+      - app_network
+
+  redis:
+    image: redis:6.2-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+      - app_network
+
+  web:
+    build:
+      context: ./cysla
+      dockerfile: Dockerfile
+    container_name: django_web
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./cysla:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DEBUG: "True"
+      DJANGO_ALLOWED_HOSTS: "*"
+      DB_HOST: db
+      DB_PORT: 3306
+      MYSQL_USER: django_user
+      MYSQL_PASSWORD: django_pass
+      MYSQL_DATABASE: flock
+    networks:
+      - app_network
+
+  servicio_excel:
+    build:
+      context: ./MicroServicios/servicio_excel
+      dockerfile: Dockerfile
+    container_name: servicio_excel_web
+    command: python manage.py runserver 0.0.0.0:8001
+    volumes:
+      - ./MicroServicios/servicio_excel:/app
+    ports:
+      - "8001:8001"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      MYSQL_USER: django_user
+      MYSQL_PASSWORD: django_pass
+      MYSQL_DATABASE: flock
+      CELERY_BROKER_URL: redis://redis:6379/0
+    networks:
+      - app_network
+
+  celery_worker:
+    build:
+      context: ./MicroServicios/servicio_excel
+      dockerfile: Dockerfile
+    container_name: servicio_excel_celery
+    command: celery -A servicio_excel worker --loglevel=info
+    volumes:
+      - ./MicroServicios/servicio_excel:/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      MYSQL_USER: django_user
+      MYSQL_PASSWORD: django_pass
+      MYSQL_DATABASE: flock
+      CELERY_BROKER_URL: redis://redis:6379/0
+    networks:
+      - app_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: cysla
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app_network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  app_network:
+    driver: bridge

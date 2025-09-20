@@ -1,0 +1,257 @@
+{% load static %}
+{% include 'inc/Header.html' %}
+<link rel="stylesheet" href="{% static 'Css/bootstrap.min.css' %}">
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    .profile-container {
+        border: 2px solid;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .admin-style {
+        background-color: #fce4ec; /* rosado claro */
+        border-color: #c2185b;     /* rosado oscuro */
+    }
+
+    .user-style {
+        background-color: #e3f2fd; /* azul claro */
+        border-color: #1976d2;     /* azul oscuro */
+    }
+
+    .solicitud-style {
+        background-color: #e9f7ef; /* verde claro */
+        border-color: #28a745;
+    }
+
+    .img-usuario {
+        width: 250px;
+        height: 250px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .table thead th {
+        background-color: #28a745;
+        color: white;
+    }
+
+    @media (max-width: 576px) {
+        .img-usuario {
+            max-width: 180px;
+            max-height: 180px;
+        }
+    }
+.card {
+  width: 280px;
+  background: #f5f5f5;
+  border-radius: 10px;
+  padding: 50px 30px;
+  position: relative;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px #4445;
+  cursor: pointer;
+  transition: all 0.4s ease-in-out;
+  z-index: 0;
+}
+
+.icon,
+.heading,
+.content {
+  position: relative;
+  z-index: 5;
+  transition: all 0.5s;
+  
+}
+
+.icon {
+  width: 40px;
+  fill: #e9f7ef;
+  margin-bottom: 20px;
+}
+
+.heading {
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+.number {
+  position: absolute;
+  top: -90px;
+  right: -85px;
+  padding: 80px 100px 30px 30px;
+  background: #e9f7ef;
+  border-radius: 100%;
+  z-index: 100;
+}
+
+.number .text {
+  font-size: 28px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.text {
+  margin-top: 20px;
+  
+}
+
+.number::after {
+  content: "";
+  width: 50px;
+  height: 50px;
+  background: #28a745;
+  position: absolute;
+  border-radius: 100%;
+  top: 50%;
+  right: 50%;
+  transition: all 0.5s;
+  transform: translateX(50%) translateY(-50%);
+  z-index: 100;
+}
+
+.card:hover {
+  scale: 1.02;
+  box-shadow: 0 5px 20px #444e;
+  
+}
+
+.card:hover .number::after {
+  width: 900px;
+  height: 900px;
+  
+}
+
+.card:hover .icon,
+.card:hover .heading,
+.card:hover .content {
+  color: #f5f5f5;
+  fill: #f5f5f5;
+  
+}
+
+    
+</style>
+<div class="container my-5">
+    {% if usuarios.0.estado == "Solicitud" %}
+        <h2 class="text-center text-success mb-5">Listado de Hojas de Vida</h2>
+        
+        <div class="d-flex flex-wrap justify-content-center gap-4">
+            {% for usuario in usuarios %}
+           <a onclick="showAction('{{ usuario.id }}', '{% url 'SolicitudAceptada' usuario.id %}', '{% url 'EliminarSolicitud' usuario.id %}')">
+
+            <div class="card">
+                <div class="number">
+                    <p class="text"></p>
+                </div>
+
+                <p class="heading">
+                    Solicitud de acceso de {{ usuario.nombres }} {{ usuario.apellidos }}
+                </p>
+
+                <div class="content">
+                    <p><strong>👤 Usuario:</strong> {{ usuario.username }}</p>
+                    <p><strong>🪪 Documento:</strong> {{ usuario.idtipodocumento.nombre }} - {{ usuario.numerodocumento }}</p>
+                    <p><strong>📧 Correo:</strong> {{ usuario.correo }}</p>
+                </div>
+
+            </div>
+            {% empty %}
+                <p class="text-center text-muted">No hay solicitudes recibidas.</p>
+            {% endfor %}
+        </div>
+    </a>
+    {% else %}
+    
+        <h2 class="text-center text-success mb-5">Listado de Usuarios</h2>
+        <div class="d-flex flex-wrap justify-content-center gap-4">
+            {% for usuario in usuarios %}
+            <a onclick="showAction2('{{ usuario.id }}', '{% url 'Cambiarrol' usuario.id %}', '{% url 'EliminarSolicitud' usuario.id %}')">
+            <div class="card">
+                <div class="number">
+                    <p class="text"></p>
+                </div>
+
+                <p class="heading">
+                    {% if usuario.rol == "Admin" %}
+                        Administrador: {{ usuario.nombres }} {{ usuario.apellidos }}
+                    {% else %}
+                        Usuario: {{ usuario.nombres }} {{ usuario.apellidos }}
+                    {% endif %}
+                </p>
+
+                <div class="content">
+                    <p><strong>👤 Usuario:</strong> {{ usuario.username }}</p>
+                    <p><strong>🪪 Documento:</strong> {{ usuario.idtipodocumento.nombre }} - {{ usuario.numerodocumento }}</p>
+                    <p><strong>📧 Correo:</strong> {{ usuario.correo }}</p>
+                    <p><strong>⚡ Rol:</strong> {{ usuario.rol }}</p>
+                </div>
+
+                
+            </div>
+            {% empty %}
+                <p class="text-center text-muted">No hay usuarios registrados.</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+
+<script src="{% static 'JavaScripts/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'JavaScripts/Logueo/EliminarSolicitud.js' %}" ></script>
+<script>
+function showAction(userId, urlAceptar, urlEliminar) {
+    Swal.fire({
+        title: "Acciones disponibles",
+        text: "¿Qué deseas hacer con esta solicitud?",
+        icon: "question",
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: "✅ Aceptar",
+        denyButtonText: "🗑️ Eliminar",
+        cancelButtonText: "❌ Cancelar",
+        confirmButtonColor: "#28a745",
+        denyButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Redirige a la URL de aceptación
+             window.location.href = urlAceptar;
+        } else if (result.isDenied) {
+            // Llama a la función de eliminar
+             window.location.href = urlEliminar;
+        }
+    });
+}
+
+function showAction2(userId, urlCambiarrol, urlEliminar) {
+    Swal.fire({
+        title: "Acciones disponibles",
+        text: "¿Qué deseas hacer con este usuario?",
+        icon: "question",
+        showCancelButton: true,
+        showDenyButton: true,
+        confirmButtonText: "🔄 Cambiar Rol",
+        denyButtonText: "🗑️ Eliminar",
+        cancelButtonText: "❌ Cancelar",
+        confirmButtonColor: "#28a745",
+        denyButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = urlCambiarrol;
+        } else if (result.isDenied) {
+            window.location.href = urlEliminar;
+        }
+    });
+}
+
+</script>
+
+{% include 'inc/Footer.html' %}

@@ -1,0 +1,54 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'Css/HeaderFooter.css' %}">
+<footer class="footer-distributed">
+    <div class="footer-nav">
+        <a href="/#Menu">Home</a> |
+        <a href="/#sobre-nosotros">Sobre Nosotros</a> |
+        <a href="/#Gestiona">Gestiona</a> |
+        <a href="/#Contactanos">Contáctanos</a> |
+    </div>
+
+    <div class="footer-content">
+        <div class="footer-left">
+            <p>+57 313 3442665</p>
+            <p>PO Box 8585, Burlington, VT 05402</p>
+            <p>© 2024 C&SLA. Todos los derechos reservados.</p>
+            <p>C&SLA by Janeth Castaño</p>
+            <p>Videos reservados a  <a href="https://pixabay.com/es//?utm_source=link-attribution&utm_medium=referral&utm_campaign=video&utm_content=86586" target="_blank">Pixabay</a> </p>
+            <div class="social-icons">
+              <a href="https://www.instagram.com/cysla.sas/?igshid=YmMyMTA2M2Y%3D" target="_blank">
+                  <img src="{% static 'Image/img/instagram.png' %}" alt="Instagram">
+              </a>
+              <a href="https://www.facebook.com/cyslasas" target="_blank">
+                  <img src="{% static 'Image/img/facebook.png' %}" alt="Facebook">
+              </a>
+              <a href="https://api.whatsapp.com/send/?phone=573133442665&text&type=phone_number&app_absent=0" target="_blank">
+                  <img src="{% static 'Image/img/whatsapp.png' %}" alt="Whatsapp">
+              </a>
+          </div>
+
+        </div>
+        <div class="footer-center">
+          <img src="{% static 'Image/img/logo_c&sla.png' %}" alt="Logo" class="footer-logo">
+        </div>
+
+          {% if request.session.usuario_id %}
+          <div class="footer-right">
+            <h3>¿YA TERMINASTE TODO POR LE DIA DE HOY?,ESPERAMOS VUELVAS PRONTO</h3>
+            <a href="{% url 'Home' %}" class="btn-footer">Cerrar sesión</a>
+          </div>
+          {% else %}
+          <div class="footer-right">
+            <h3>¿LISTO PARA UTILIZAR NUESTROS INVENTARIOS?</h3>
+            <a href="{% url 'PlantillaLogueo' %}" class="btn-footer">Iniciar sesión</a>
+          </div>
+          {% endif %}
+     </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</body>
+</html>
