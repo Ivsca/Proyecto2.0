@@ -1,0 +1,1 @@
+elimina esto, solo lo puse por que git me pide un archivo minimo para agregar carpetas
