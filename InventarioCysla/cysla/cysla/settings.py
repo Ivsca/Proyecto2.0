@@ -119,15 +119,15 @@ USE_TZ = True
 
 # Archivos estáticos
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]  # mantenla si tienes carpeta /static
+# STATICFILES_DIRS = [BASE_DIR / "static"]  # mantenla si tienes carpeta /static
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # WhiteNoise storage
+# WhiteNoise
 if DEBUG:
     STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 else:
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-    
 
 # Media files
 MEDIA_URL = "/media/"

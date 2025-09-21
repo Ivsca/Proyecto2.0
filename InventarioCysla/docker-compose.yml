@@ -28,11 +28,6 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 10s
-      retries: 5
     networks:
       - app_network
 
@@ -41,7 +36,6 @@ services:
       context: ./cysla
       dockerfile: Dockerfile
     container_name: django_web
-    # command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     command: sh -c "sleep 15 && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./cysla:/app
@@ -51,7 +45,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      DEBUG: "False"
+      DEBUG: "False"   # En local
       DJANGO_ALLOWED_HOSTS: "*"
       DB_HOST: db
       DB_PORT: 3306
@@ -72,10 +66,8 @@ services:
     ports:
       - "8001:8001"
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - db
+      - redis
     environment:
       DB_HOST: db
       DB_PORT: 3306
@@ -95,10 +87,8 @@ services:
     volumes:
       - ./MicroServicios/servicio_excel:/app
     depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      - db
+      - redis
     environment:
       DB_HOST: db
       DB_PORT: 3306
@@ -119,8 +109,7 @@ services:
       PMA_HOST: db
       MYSQL_ROOT_PASSWORD: cysla
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     networks:
       - app_network
 
