@@ -25,7 +25,9 @@ COPY . .
 RUN chmod +x wait-for.sh || true
 
 # Ejecutar collectstatic sin pedir confirmación
+# Ejecutar collectstatic sin pedir confirmación
 RUN python manage.py collectstatic --noinput
 
-# Mantener contenedor activo (ajusta este CMD según tu proyecto)
-CMD ["tail", "-f", "/dev/null"]
+# Arrancar Django con Gunicorn en Render
+CMD ["gunicorn", "cysla.wsgi:application", "--bind", "0.0.0.0:8000"]
+
