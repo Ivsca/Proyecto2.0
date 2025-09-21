@@ -51,7 +51,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      DEBUG: "True"
+      DEBUG: "False"
       DJANGO_ALLOWED_HOSTS: "*"
       DB_HOST: db
       DB_PORT: 3306
