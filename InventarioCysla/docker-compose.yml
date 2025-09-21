@@ -45,7 +45,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      DEBUG: "False"   # En local
+      DEBUG: "False"   # En remoto debe ser False
       DJANGO_ALLOWED_HOSTS: "*"
       DB_HOST: db
       DB_PORT: 3306
