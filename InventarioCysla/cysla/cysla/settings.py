@@ -25,7 +25,8 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-wbtt-n%1bal47q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["*"]  # O el dominio de Render (en prod lo ideal es restringirlo)
+ALLOWED_HOSTS = ["proyecto2-0-zmw7.onrender.com"]  # O el dominio de Render
+
 
 # Application definition
 
@@ -77,10 +78,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.environ.get('MYSQL_DATABASE', 'flock'),
-        'USER': os.environ.get('MYSQL_USER', 'django_user'),
-        'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'django_pass'),
-        'HOST': os.environ.get('DB_HOST', 'db'),
-        'PORT': os.environ.get('DB_PORT', '3306'),
+        'USER': os.environ.get('MYSQLUSER', 'django_user'),  # Railway normalmente usa MYSQLUSER
+        'PASSWORD': os.environ.get('MYSQLPASSWORD', 'django_pass'),  # Railway usa MYSQLPASSWORD
+        'HOST': os.environ.get('MYSQLHOST', 'db'),  # Railway usa MYSQLHOST
+        'PORT': os.environ.get('MYSQLPORT', '3306'),  # Railway usa MYSQLPORT
     }
 }
 
@@ -116,26 +117,21 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-# URL público para estáticos
+# Archivos estáticos
 STATIC_URL = "/static/"
-
-# Si tienes una carpeta "static" en la raiz del proyecto (no en apps) mantenla:
-STATICFILES_DIRS = [BASE_DIR / "static"]  # si no la usas, puedes comentar esta línea
-
-# Carpeta donde collectstatic recopila todos los archivos para producción
+STATICFILES_DIRS = [BASE_DIR / "static"]  # mantenla si tienes carpeta /static
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Storage recomendado para producción con WhiteNoise:
-# - en DEBUG usamos el storage por defecto para evitar errores locales
-# - en producción usamos CompressedManifest para cache busting (hash) y compresión
+# WhiteNoise storage
 if DEBUG:
     STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 else:
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
 
 # Cabecera para que Django reconozca el esquema https cuando está detrás de proxy (Render)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -143,3 +139,5 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
