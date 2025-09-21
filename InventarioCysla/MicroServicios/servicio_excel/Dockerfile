@@ -24,11 +24,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copiar el resto del proyecto
 COPY . .
 
+# Crear carpeta estática aunque esté vacía
+RUN mkdir -p /app/staticfiles
+
 # Colectar archivos estáticos en /app/staticfiles
 RUN python manage.py collectstatic --noinput
 
 # Exponer el puerto (opcional pero recomendado)
 EXPOSE 8000
 
-# Iniciar Gunicorn (cambia "cysla" si tu proyecto principal tiene otro nombre en wsgi.py)
+# Iniciar Gunicorn (ajusta "cysla" si tu proyecto principal se llama distinto)
 CMD ["gunicorn", "cysla.wsgi:application", "--bind", "0.0.0.0:8000"]
