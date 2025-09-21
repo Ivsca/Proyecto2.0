@@ -24,8 +24,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copiar el resto del proyecto
 COPY . .
 
-# Crear carpeta estática aunque esté vacía
-RUN mkdir -p /app/staticfiles
+# Crear carpeta estática y dar permisos de lectura/ejecución
+RUN mkdir -p /app/staticfiles && chmod -R 755 /app/staticfiles
+
+# Asegurar permisos en la carpeta static también
+RUN chmod -R 755 /app/static
 
 # Colectar archivos estáticos en /app/staticfiles
 RUN python manage.py collectstatic --noinput
