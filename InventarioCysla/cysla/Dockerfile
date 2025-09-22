@@ -1,25 +1,38 @@
-FROM python:3.12-slim
+# Dockerfile
+FROM python:3.12-alpine
 
+# Establecer directorio de trabajo
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    default-libmysqlclient-dev \
-    libssl-dev \
-    libpq-dev \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Instalar dependencias del sistema necesarias para compilar y mysqlclient
+RUN apk add --no-cache \
+    gcc \
+    musl-dev \
+    python3-dev \
+    libffi-dev \
+    mariadb-dev \
+    build-base \
+    pkgconfig \
+    curl
 
+# Copiar requirements primero (mejor uso de cache de Docker)
 COPY requirements.txt .
 
+# Instalar dependencias de Python
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copiar el resto del proyecto
 COPY . .
 
-RUN mkdir -p /app/static /app/staticfiles && chmod -R 755 /app/static /app/staticfiles
+# Crear carpetas estáticas y dar permisos
+RUN mkdir -p /app/static /app/staticfiles && \
+    chmod -R 755 /app/static /app/staticfiles
 
+# Colectar archivos estáticos
 RUN python manage.py collectstatic --noinput
 
+# Exponer el puerto (opcional pero recomendado)
 EXPOSE 8000
 
+# Iniciar Gunicorn (ajusta "cysla" si tu proyecto principal se llama distinto)
 CMD ["gunicorn", "cysla.wsgi:application", "--bind", "0.0.0.0:8000"]

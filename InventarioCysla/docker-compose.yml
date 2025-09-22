@@ -36,6 +36,7 @@ services:
       context: ./cysla
       dockerfile: Dockerfile
     container_name: django_web
+    # Simulación de buildCommand, startCommand y releaseCommand
     command: sh -c "pip install -r requirements.txt && python manage.py collectstatic --noinput && gunicorn cysla.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       - ./cysla:/app
@@ -45,13 +46,13 @@ services:
       db:
         condition: service_healthy
     environment:
-      DEBUG: "False"   # en remoto debe ser False
+      DEBUG: "False"   # En remoto debe ser False
       DJANGO_ALLOWED_HOSTS: "*"
       MYSQLHOST: db
-      MYSQLDATABASE: flock
       MYSQLPORT: 3306
       MYSQLUSER: django_user
       MYSQLPASSWORD: django_pass
+      MYSQLDATABASE: flock
     networks:
       - app_network
 
