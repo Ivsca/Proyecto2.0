@@ -67,6 +67,24 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "cysla.wsgi.application"
+ 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'flock',   # MYSQL_DATABASE
+        'USER': 'root',    # MYSQLUSER
+        'PASSWORD': 'SOXIePBKCunjmXqAMZvbnHFlXjTxFpK',  # MYSQLPASSWORD
+        'HOST': 'gondola.proxy.rlwy.net',  # de MYSQL_PUBLIC_URL
+        'PORT': '15899',   # puerto externo de MYSQL_PUBLIC_URL
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
+    }
+}
+
+
+#region estres de la vida, dolor de cabeza... la base de datos, me tiene cansado 😑😑😑😖🤬🤬🤬🤬
+
 
 # ==========================
 # Base de datos (MySQL)
@@ -128,44 +146,45 @@ WSGI_APPLICATION = "cysla.wsgi.application"
 # Base de datos (MySQL)
 # ==========================
 
-import dj_database_url
-from urllib.parse import urlparse
+# import dj_database_url
+# from urllib.parse import urlparse
 
-def _mask_db_url(u: str):
-    try:
-        p = urlparse(u)
-        user = p.username or "user"
-        return f"{p.scheme}://{user}:***@{p.hostname}:{p.port}{p.path}"
-    except Exception:
-        return u
+# def _mask_db_url(u: str):
+#     try:
+#         p = urlparse(u)
+#         user = p.username or "user"
+#         return f"{p.scheme}://{user}:***@{p.hostname}:{p.port}{p.path}"
+#     except Exception:
+#         return u
 
-# Usamos MYSQL_PUBLIC_URL (Railway te da esa variable). Si no existe usamos variables sueltas.
-DB_URL = os.environ.get("MYSQL_PUBLIC_URL") or os.environ.get("DATABASE_URL") or ""
+# # Usamos MYSQL_PUBLIC_URL (Railway te da esa variable). Si no existe usamos variables sueltas.
+# DB_URL = os.environ.get("MYSQL_PUBLIC_URL") or os.environ.get("DATABASE_URL") or ""
 
-if DB_URL:
-    # Mostrar en logs la URL enmascarada (aparece en logs de Render/Railway — útil para depurar)
-    print("Usando DB URL:", _mask_db_url(DB_URL))
-    try:
-        DATABASES = {
-            "default": dj_database_url.parse(DB_URL, conn_max_age=600)
-        }
-    except Exception as e:
-        # Si falla el parse, levantamos con detalle para que lo veas en los logs
-        raise RuntimeError(f"Error al parsear MYSQL_PUBLIC_URL ({_mask_db_url(DB_URL)}): {e}")
-else:
-    # Fallback local clásico
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.mysql",
-            "NAME": os.environ.get("MYSQLDATABASE", "flock"),
-            "USER": os.environ.get("MYSQLUSER", "root"),
-            "PASSWORD": os.environ.get("MYSQLPASSWORD", ""),
-            "HOST": os.environ.get("MYSQLHOST", "127.0.0.1"),
-            "PORT": os.environ.get("MYSQLPORT", "3306"),
-            "OPTIONS": {"charset": "utf8mb4"},
-        }
-    }
+# if DB_URL:
+#     # Mostrar en logs la URL enmascarada (aparece en logs de Render/Railway — útil para depurar)
+#     print("Usando DB URL:", _mask_db_url(DB_URL))
+#     try:
+#         DATABASES = {
+#             "default": dj_database_url.parse(DB_URL, conn_max_age=600)
+#         }
+#     except Exception as e:
+#         # Si falla el parse, levantamos con detalle para que lo veas en los logs
+#         raise RuntimeError(f"Error al parsear MYSQL_PUBLIC_URL ({_mask_db_url(DB_URL)}): {e}")
+# else:
+#     # Fallback local clásico
+#     DATABASES = {
+#         "default": {
+#             "ENGINE": "django.db.backends.mysql",
+#             "NAME": os.environ.get("MYSQLDATABASE", "flock"),
+#             "USER": os.environ.get("MYSQLUSER", "root"),
+#             "PASSWORD": os.environ.get("MYSQLPASSWORD", ""),
+#             "HOST": os.environ.get("MYSQLHOST", "127.0.0.1"),
+#             "PORT": os.environ.get("MYSQLPORT", "3306"),
+#             "OPTIONS": {"charset": "utf8mb4"},
+#         }
+#     }
 
+#endregion
 
 
 
