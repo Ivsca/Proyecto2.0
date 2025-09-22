@@ -36,7 +36,8 @@ services:
       context: ./cysla
       dockerfile: Dockerfile
     container_name: django_web
-    command: sh -c "sleep 15 && python manage.py runserver 0.0.0.0:8000"
+    # Ejecuta collectstatic en runtime (después del bind-mount) y arranca Gunicorn
+    command: sh -c "python manage.py collectstatic --noinput && gunicorn cysla.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       - ./cysla:/app
     ports:
