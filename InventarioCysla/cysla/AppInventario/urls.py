@@ -28,15 +28,12 @@ urlpatterns = [
     # region Ganado
     path('Ganado/Tabla/', views.TablaGanado, name="TablaGanado"),
     path('Ganado/Tabla/Eliminar/vacuno/<int:id>', views.EliminarVacuno, name="EliminarVacuno"),
-    path('Ganado/Tabla/Reactivar/vaca/<int:id>', views.ReactivarVaca, name="ReactivarVaca"),
     path('Ganado/BuscarCodigo/', views.buscar_codigo_ganado, name='buscar_codigo_ganado'),
     path('registrar_ganado/', views.registrar_ganado, name='registrar_ganado'),
     path('actualizar_ganado/<int:id>/', views.actualizar_ganado, name='actualizar_ganado'),
     path('Ganado/api/obtener/<int:id>/', views.obtener_ganado, name='obtener_ganado'),
     path('Ganado/api/VacasInactivas', views.VacasInactivas, name='VacasInactivas'),
-    path('Ganado/api/ListaRazas', views.ListaRazas, name='ListaRazas'),
-    path('Ganado/api/AgregarRaza', views.AgregarRaza, name='AgregarRaza'),
-    # end region
+    # endregion
 
     # region Cultivo
     path('Cultivo/Tabla/', views.TablaCultivo, name="TablaCultivo"),
