@@ -42,7 +42,7 @@ def Home(request):
 
 def plantilla_logue(request):
     tipos_documentos = TipoDocumentos.objects.all()
-    return render(request, 'Logueo/prueba.html', {
+    return render(request, 'Logueo/Logueo.html', {
         'tipos_documentos': tipos_documentos
     })
 # region solicitudes de acceso
