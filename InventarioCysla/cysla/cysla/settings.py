@@ -71,19 +71,18 @@ WSGI_APPLICATION = "cysla.wsgi.application"
 # ==========================
 # Base de datos (MySQL)
 # ==========================
-# Valor por defecto de DATABASE_URL (para Render)
-DEFAULT_DATABASE_URL = "mysql://root:SOXIePBKCunjmXqAMZvbnHFlXjTxFpK@gondola.proxy.rlwy.net:15899/flock"
 
-if "DATABASE_URL" in os.environ:
-    # Caso Render (usa la URL de entorno)
-    DATABASES = {
-        "default": dj_database_url.config(default=os.environ["DATABASE_URL"])
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.environ.get("MYSQLDATABASE", "flock"),
+        "USER": os.environ.get("MYSQLUSER", "root"),
+        "PASSWORD": os.environ.get("MYSQLPASSWORD", ""),
+        "HOST": os.environ.get("MYSQLHOST", "127.0.0.1"),  # valor seguro por defecto
+        "PORT": os.environ.get("MYSQLPORT", "3306"),
     }
-else:
-    # Caso local (usa URL por defecto o variables separadas)
-    DATABASES = {
-        "default": dj_database_url.config(default=DEFAULT_DATABASE_URL)
-    }
+}
+
 
 # ==========================
 # Validadores de contraseñas
