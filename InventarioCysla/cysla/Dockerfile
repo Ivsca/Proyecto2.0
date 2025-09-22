@@ -4,7 +4,7 @@ FROM python:3.12-alpine
 # Establecer directorio de trabajo
 WORKDIR /app
 
-# Instalar dependencias del sistema necesarias para compilar y para mysqlclient
+# Instalar dependencias del sistema necesarias para compilar y mysqlclient
 RUN apk add --no-cache \
     gcc \
     musl-dev \
@@ -24,14 +24,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copiar el resto del proyecto
 COPY . .
 
-# Crear carpeta estática y dar permisos de lectura/ejecución
-RUN mkdir -p /app/staticfiles && chmod -R 755 /app/staticfiles
-
-# Asegurar permisos en la carpeta static también
-RUN chmod -R 755 /app/static
-
-# Colectar archivos estáticos en /app/staticfiles
-RUN python manage.py collectstatic --noinput
+# Crear carpetas estáticas y dar permisos
+RUN mkdir -p /app/static /app/staticfiles && \
+    chmod -R 755 /app/static /app/staticfiles
 
 # Exponer el puerto (opcional pero recomendado)
 EXPOSE 8000
