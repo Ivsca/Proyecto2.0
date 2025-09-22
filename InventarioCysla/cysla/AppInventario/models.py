@@ -126,7 +126,7 @@ class Enfermedades(models.Model):
     nombre = models.CharField(db_column='nombre',max_length=150)
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'enfermedades'
 
     def __str__(self):
@@ -135,7 +135,7 @@ class Enfermedades(models.Model):
 
 class Ganado(models.Model):
     codigocria = models.CharField(db_column='CodigoCria', max_length=12)
-    foto = models.ImageField(upload_to='Ganado/', db_column='Foto', null=True, blank=True)
+    foto = models.ImageField(upload_to='Ganado/', db_column='Foto', null=False, blank=False)
     crias = models.CharField(db_column='Crias', max_length=2)
     codigoscrias = models.TextField(db_column='CodigosCrias')  # JSON
     codigopapa = models.CharField(db_column='CodigoPapa', max_length=12)
@@ -153,7 +153,7 @@ class Ganado(models.Model):
     razas = models.CharField(db_column='Razas', max_length=255)
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'ganado'
 
     def __str__(self):
@@ -163,7 +163,7 @@ class TablaVacunas(models.Model):
     nombre = models.CharField(max_length=255, db_column='nombre')
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'tablavacunas'
 
     def __str__(self):
@@ -174,7 +174,7 @@ class TablaRazas(models.Model):
     nombre = models.CharField(max_length=100)
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'tablarazas'
 
     def __str__(self):
@@ -185,7 +185,7 @@ class TipoDocumentos(models.Model):
     nombre = models.CharField(max_length=100)
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'tipo_documentos'
 
     def __str__(self):
@@ -197,7 +197,7 @@ class TipoParcela(models.Model):
     estado = models.CharField(db_column='Estado', max_length=9, default="Activo")
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'tipoparcela'
 
     def __str__(self):
@@ -216,7 +216,7 @@ class Usuarios(models.Model):
     estado = models.CharField(db_column='Estado', max_length=9)  
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'usuarios'
 
     def __str__(self):
@@ -235,14 +235,14 @@ class TipoCultivo(models.Model):
 
 class Cultivo(models.Model):
     nombre = models.CharField(max_length=100)
-    foto = models.ImageField(upload_to='cultivos/', null=True, blank=True)
+    foto = models.ImageField(upload_to='cultivos/', null=False, blank=False)
     tipo = models.ForeignKey(TipoCultivo, on_delete=models.CASCADE, db_column='tipo_id')  
     fecha_siembra = models.DateField()
     fecha_cosecha = models.DateField()
     cantidad = models.IntegerField()
     
     class Meta:
-        managed = True  
+        managed = False  
         db_table = 'cultivo'
 
     def __str__(self):
@@ -260,7 +260,7 @@ class Fertilizacion(models.Model):
     fertilizante = models.CharField(max_length=100)
     tipo = models.CharField(max_length=10, choices=TIPO_CHOICES, default='QUIMICO')  
     dosis = models.CharField(max_length=50, default='N/A')  
-    observaciones = models.TextField(blank=True)
+    observaciones = models.TextField(blank=False)
 
     class Meta:
         db_table = 'fertilizacion'
