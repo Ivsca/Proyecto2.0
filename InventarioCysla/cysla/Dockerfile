@@ -28,6 +28,9 @@ COPY . .
 RUN mkdir -p /app/static /app/staticfiles && \
     chmod -R 755 /app/static /app/staticfiles
 
+# Colectar archivos estáticos
+RUN python manage.py collectstatic --noinput
+
 # Exponer el puerto (opcional pero recomendado)
 EXPOSE 8000
 
