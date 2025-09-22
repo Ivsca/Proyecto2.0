@@ -48,10 +48,10 @@ services:
       DEBUG: "False"   # en remoto debe ser False
       DJANGO_ALLOWED_HOSTS: "*"
       MYSQLHOST: db
+      MYSQLDATABASE: flock
       MYSQLPORT: 3306
       MYSQLUSER: django_user
       MYSQLPASSWORD: django_pass
-      MYSQLDATABASE: flock
     networks:
       - app_network
 

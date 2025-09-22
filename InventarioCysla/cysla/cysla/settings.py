@@ -67,24 +67,69 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "cysla.wsgi.application"
- 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv("MYSQL_DATABASE", "flock"),   # nombre de la DB
-        'USER': os.getenv("MYSQLUSER", "root"),         # usuario
-        'PASSWORD': os.getenv("MYSQLPASSWORD", "SOXIePBKCunjmXqAMZvbnHFlXjTxFpK"), # clave correcta de Railway
-        'HOST': os.getenv("MYSQLHOST", "gondola.proxy.rlwy.net"), # host externo de Railway
-        'PORT': os.getenv("MYSQLPORT", "15899"),        # puerto externo de Railway
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
+
+# DATABASES - robusto: detecta MYSQL_PUBLIC_URL o variables individuales
+import dj_database_url
+
+# Opción: usar pymysql para evitar compilación de mysqlclient en Alpine
+# (Si decides mantener mysqlclient, comentalo y no llames install_as_MySQLdb)
+try:
+    import pymysql
+    pymysql.install_as_MySQLdb()
+except Exception:
+    # pymysql puede no estar instalado, seguirá mysqlclient si está presente
+    pass
+
+# Primero, intenta usar la URL completa (Railway suele exponer MYSQL_PUBLIC_URL)
+DB_URL = os.environ.get("MYSQL_PUBLIC_URL") or os.environ.get("DATABASE_URL") or os.environ.get("MYSQL_DATABASE_URL")
+
+if DB_URL:
+    # Parsear la URL completa (ej: mysql://root:pwd@gondola.proxy.rlwy.net:15899/flock)
+    DATABASES = {
+        "default": dj_database_url.parse(DB_URL, conn_max_age=600)
     }
-}
+else:
+    # Aceptar varias formas de nombre: MYSQL_DATABASE o MYSQLDATABASE
+    db_name = os.environ.get("MYSQL_DATABASE") or os.environ.get("MYSQLDATABASE") or "flock"
+    db_user = os.environ.get("MYSQLUSER") or os.environ.get("MYSQL_USER") or "root"
+    db_pass = os.environ.get("MYSQLPASSWORD") or os.environ.get("MYSQL_PASSWORD") or ""
+    db_host = os.environ.get("MYSQLHOST") or os.environ.get("MYSQL_HOST") or "127.0.0.1"
+    db_port = os.environ.get("MYSQLPORT") or os.environ.get("MYSQL_PORT") or "3306"
+
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": db_name,
+            "USER": db_user,
+            "PASSWORD": db_pass,
+            "HOST": db_host,
+            "PORT": db_port,
+            "OPTIONS": {
+                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+                "charset": "utf8mb4",
+            },
+            "CONN_MAX_AGE": 600,
+        }
+    }
+
+ 
 
 
 #region estres de la vida, dolor de cabeza... la base de datos, me tiene cansado 😑😑😑😖🤬🤬🤬🤬
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': os.getenv("MYSQL_DATABASE", "flock"),   # nombre de la DB
+#         'USER': os.getenv("MYSQLUSER", "root"),         # usuario
+#         'PASSWORD': os.getenv("MYSQLPASSWORD", "SOXIePBKCunjmXqAMZvbnHFlXjTxFpK"), # clave correcta de Railway
+#         'HOST': os.getenv("MYSQLHOST", "gondola.proxy.rlwy.net"), # host externo de Railway
+#         'PORT': os.getenv("MYSQLPORT", "15899"),        # puerto externo de Railway
+#         'OPTIONS': {
+#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+#         },
+#     }
+# }
 
 # ==========================
 # Base de datos (MySQL)
