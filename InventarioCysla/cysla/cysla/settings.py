@@ -72,16 +72,30 @@ WSGI_APPLICATION = "cysla.wsgi.application"
 # Base de datos (MySQL)
 # ==========================
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.mysql",
+#         "NAME": os.environ.get("MYSQLDATABASE", "flock"),
+#         "USER": os.environ.get("MYSQLUSER", "root"),
+#         "PASSWORD": os.environ.get("MYSQLPASSWORD", ""),
+#         "HOST": os.environ.get("MYSQLHOST", "127.0.0.1"),  # valor seguro por defecto
+#         "PORT": os.environ.get("MYSQLPORT", "3306"),
+#     }
+# }
+
+# ==========================
+# Base de datos (MySQL)
+# ==========================
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": os.environ.get("MYSQLDATABASE", "flock"),
-        "USER": os.environ.get("MYSQLUSER", "root"),
-        "PASSWORD": os.environ.get("MYSQLPASSWORD", ""),
-        "HOST": os.environ.get("MYSQLHOST", "127.0.0.1"),  # valor seguro por defecto
-        "PORT": os.environ.get("MYSQLPORT", "3306"),
-    }
+    "default": dj_database_url.config(
+        env="MYSQL_PUBLIC_URL",
+        default=f"mysql://{os.environ.get('MYSQLUSER','root')}:{os.environ.get('MYSQLPASSWORD','')}@{os.environ.get('MYSQLHOST','127.0.0.1')}:{os.environ.get('MYSQLPORT','3306')}/{os.environ.get('MYSQLDATABASE','flock')}",
+        conn_max_age=600,
+        ssl_require=False,  # Render y Railway no siempre exigen SSL
+    )
 }
+
 
 
 # ==========================
