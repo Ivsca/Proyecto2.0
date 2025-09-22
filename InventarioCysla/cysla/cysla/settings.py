@@ -68,19 +68,37 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "cysla.wsgi.application"
  
+import dj_database_url
+
+# Configuración principal usando MYSQL_PUBLIC_URL de Railway
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv("MYSQL_DATABASE", "flock"),   # nombre de la DB
-        'USER': os.getenv("MYSQLUSER", "root"),         # usuario
-        'PASSWORD': os.getenv("MYSQLPASSWORD", "SOXIePBKCunjmXqAMZvbnHFlXjTxFpK"), # clave correcta de Railway
-        'HOST': os.getenv("MYSQLHOST", "gondola.proxy.rlwy.net"), # host externo de Railway
-        'PORT': os.getenv("MYSQLPORT", "15899"),        # puerto externo de Railway
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get(
+            'MYSQL_PUBLIC_URL',
+            'mysql://root:soXtepRxCtujbKqWZzvNMFk1jTxfYK@gondola.proxy.rlwy.net:15899/flock'
+        ),
+        conn_max_age=600,
+        conn_health_checks=True,
+    )
 }
+
+# Si falla lo anterior, usar configuración manual con variables CORRECTAS
+if not DATABASES['default']:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.getenv("MYSQLDATABASE", "flock"),
+            'USER': os.getenv("MYSQLUSER", "root"),
+            'PASSWORD': os.getenv("MYSQLPASSWORD", "sOXIePBKCUnjmXqAMZzvbNHFxljTXfPK"),
+            'HOST': os.getenv("MYSQLHOST", "gondola.proxy.rlwy.net"),
+            'PORT': os.getenv("MYSQLPORT", "15899"),
+            'OPTIONS': {
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+                'charset': 'utf8mb4',
+            },
+        }
+    } 
+
 
 
 #region estres de la vida, dolor de cabeza... la base de datos, me tiene cansado 😑😑😑😖🤬🤬🤬🤬
@@ -100,6 +118,21 @@ DATABASES = {
 #         "PORT": os.environ.get("MYSQLPORT", "3306"),
 #     }
 # }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': os.getenv("MYSQL_DATABASE", "flock"),   # nombre de la DB
+#         'USER': os.getenv("MYSQLUSER", "root"),         # usuario
+#         'PASSWORD': os.getenv("MYSQLPASSWORD", "SOXIePBKCunjmXqAMZvbnHFlXjTxFpK"), # clave correcta de Railway
+#         'HOST': os.getenv("MYSQLHOST", "gondola.proxy.rlwy.net"), # host externo de Railway
+#         'PORT': os.getenv("MYSQLPORT", "15899"),        # puerto externo de Railway
+#         'OPTIONS': {
+#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+#         },
+#     }
+# }
+
 
 # ==========================
 # Base de datos (MySQL)

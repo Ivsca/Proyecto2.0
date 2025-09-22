@@ -1,38 +1,30 @@
-# Dockerfile
 FROM python:3.12-alpine
 
-# Establecer directorio de trabajo
 WORKDIR /app
 
-# Instalar dependencias del sistema necesarias para compilar y mysqlclient
+# Instalar dependencias CORRECTAS para MySQL
 RUN apk add --no-cache \
     gcc \
     musl-dev \
     python3-dev \
-    libffi-dev \
     mariadb-dev \
     build-base \
     pkgconfig \
-    curl
+    curl \
+    mariadb-connector-c-dev
 
-# Copiar requirements primero (mejor uso de cache de Docker)
+# Instalar dependencias Python
 COPY requirements.txt .
-
-# Instalar dependencias de Python
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar el resto del proyecto
+# Copiar proyecto
 COPY . .
 
-# Crear carpetas estáticas y dar permisos
-RUN mkdir -p /app/static /app/staticfiles && \
-    chmod -R 755 /app/static /app/staticfiles
-
-# Colectar archivos estáticos
+# Colectar estáticos Y aplicar migraciones
 RUN python manage.py collectstatic --noinput
 
-# Exponer el puerto (opcional pero recomendado)
+# Exponer puerto
 EXPOSE 8000
 
-# Iniciar Gunicorn (ajusta "cysla" si tu proyecto principal se llama distinto)
-CMD ["gunicorn", "cysla.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Comando de inicio que incluye migraciones
+CMD sh -c "python manage.py migrate --noinput && gunicorn cysla.wsgi:application --bind 0.0.0.0:8000"
