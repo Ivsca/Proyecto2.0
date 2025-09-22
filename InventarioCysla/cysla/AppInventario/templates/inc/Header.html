@@ -31,6 +31,10 @@
                 <button class="dropbtn" style="border:none;">Inventario </button>
                 <div class="dropdown-content">
                     <a href="{% url 'TablaGanado' %}">Ganado</a>
+                    <a href="{% url 'VacasInactivas' %}">Vacas inactivas</a>
+                    {% if request.session.rol == 'Admin' %}
+                    <a href="{% url 'VacasInactivas' %}">Vacas inactivas</a>
+                    {% endif %}
                     <a onclick="ShowRazas()">Razas de ganado</a>
                     <a href="{% url 'TablaCultivo' %}">Cultivos</a>
                 {% if request.session.rol == 'Admin' %}

@@ -32,6 +32,7 @@ urlpatterns = [
     path('registrar_ganado/', views.registrar_ganado, name='registrar_ganado'),
     path('actualizar_ganado/<int:id>/', views.actualizar_ganado, name='actualizar_ganado'),
     path('Ganado/api/obtener/<int:id>/', views.obtener_ganado, name='obtener_ganado'),
+    path('Ganado/api/VacasInactivas', views.VacasInactivas, name='VacasInactivas'),
     # endregion
 
     # region Cultivo

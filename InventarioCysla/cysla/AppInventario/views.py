@@ -215,6 +215,12 @@ def TablaGanado(request):
         "Razas": Razas,
         'parcelas': parcelas
     })
+
+@login_requerido
+def VacasInactivas(request):
+    return render(request, 'Ganado/Inactivas.html',{
+    })
+
 @login_requerido
 def buscar_codigo_ganado(request):
     q = request.GET.get('q', '').strip()
