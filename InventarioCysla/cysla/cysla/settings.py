@@ -75,10 +75,10 @@ WSGI_APPLICATION = "cysla.wsgi.application"
 DATABASES = { 
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": os.environ.get("MYSQLDATABASE", "flock"),  
+        "NAME": os.environ.get("MYSQLDATABASE", "flock"),
         "USER": os.environ.get("MYSQLUSER", "root"),
         "PASSWORD": os.environ.get("MYSQLPASSWORD", ""),
-        "HOST": os.environ.get("MYSQLHOST", "127.0.0.1"),
+        "HOST": os.environ.get("MYSQLHOST", "mysql.railway.internal"),
         "PORT": os.environ.get("MYSQLPORT", "3306"),
     }
 }
