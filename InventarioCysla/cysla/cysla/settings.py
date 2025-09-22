@@ -71,14 +71,14 @@ WSGI_APPLICATION = "cysla.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'flock',  # MYSQL_DATABASE
-        'USER': 'root',   # MYSQLUSER
-        'PASSWORD': 'SOXIePBKCunjmXqAMZvbnHFlXjTxFpK',  # MYSQLPASSWORD
-        'HOST': 'gondola.proxy.rlwy.net',  # de MYSQL_PUBLIC_URL
-        'PORT': '15899',  # puerto externo de MYSQL_PUBLIC_URL
+        'NAME': os.getenv("MYSQL_DATABASE", "flock"),   # nombre de la DB
+        'USER': os.getenv("MYSQLUSER", "root"),         # usuario
+        'PASSWORD': os.getenv("MYSQLPASSWORD", "SOXIePBKCunjmXqAMZvbnHFlXjTxFpK"), # clave correcta de Railway
+        'HOST': os.getenv("MYSQLHOST", "gondola.proxy.rlwy.net"), # host externo de Railway
+        'PORT': os.getenv("MYSQLPORT", "15899"),        # puerto externo de Railway
         'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-        }
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
 
