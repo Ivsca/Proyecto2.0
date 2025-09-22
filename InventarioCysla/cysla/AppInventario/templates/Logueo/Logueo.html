@@ -95,6 +95,9 @@
                                 <label class="block text-gray-700">Tipo de Documento</label>
                                 <select class="w-full border p-2 rounded-lg" name="TipoDocumento" id="tipoDocumento" onchange="validarTipoDocumento()">
                                     <option value="">Seleccione una opción</option>
+                                    {% for documento in tipos_documentos %}
+                                        <option value="{{ documento.id }}">{{ documento }}</option>
+                                    {% endfor %}
                                 </select>
                                 <span id="errortipoDocumento" class="text-red-500 text-sm"></span>
                             </div>
