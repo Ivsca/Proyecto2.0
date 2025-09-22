@@ -195,10 +195,10 @@ def logout_view(request):
     return redirect("Home") 
 #endregion 
 
-# region ganado
+# region Ganado
 @login_requerido
 def TablaGanado(request):
-    ganado_list = Ganado.objects.all()
+    ganado_list = Ganado.objects.filter(activo=True)  # Solo ganado activo
     paginator = Paginator(ganado_list, 9)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -216,24 +216,6 @@ def TablaGanado(request):
         'parcelas': parcelas
     })
 
-# En views.py - modificar la función EliminarVacuno
-@login_requerido
-def EliminarVacuno(request, id):
-    vacuno = get_object_or_404(Ganado, id=id)
-    # En lugar de eliminar, marcamos como inactivo
-    vacuno.activo = False
-    vacuno.save()
-    return JsonResponse({'success': True})
-
-# Nueva función para reactivar vaca
-@login_requerido
-def ReactivarVaca(request, id):
-    vacuno = get_object_or_404(Ganado, id=id)
-    vacuno.activo = True
-    vacuno.save()
-    return JsonResponse({'success': True})
-
-# Modificar VacasInactivas para filtrar solo las inactivas
 @login_requerido
 def VacasInactivas(request):
     vacas_inactivas = Ganado.objects.filter(activo=False)
@@ -252,18 +234,69 @@ def buscar_codigo_ganado(request):
     resultados = []
     if q:
         resultados = list(Ganado.objects.filter(codigocria__icontains=q).values('id', 'codigocria'))
-    # Devuelve id y código
     return JsonResponse([{'id': r['id'], 'codigo': r['codigocria']} for r in resultados], safe=False)
 
 @login_requerido
-def EliminarVacuno(id):
+def EliminarVacuno(request, id):
     vacuno = get_object_or_404(Ganado, id=id)
-    vacuno.delete()
-    return redirect('TablaGanado')
+    # En lugar de eliminar, marcamos como inactivo
+    vacuno.activo = False
+    vacuno.save()
+    return JsonResponse({'success': True})
+
+@login_requerido
+def ReactivarVaca(request, id):
+    vacuno = get_object_or_404(Ganado, id=id)
+    vacuno.activo = True
+    vacuno.save()
+    return JsonResponse({'success': True})
+
+@login_requerido
+def obtener_ganado(request, id):
+    vacuno = get_object_or_404(Ganado, id=id)
+    data = {
+        'id': vacuno.id,
+        'codigocria': vacuno.codigocria,
+        'edad': vacuno.edad,
+        'estado': vacuno.estado,
+        'idparcela': vacuno.idparcela,
+        'codigomama': vacuno.codigomama,
+        'codigopapa': vacuno.codigopapa,
+        'razas': vacuno.razas,
+        'enfermedades': vacuno.enfermedades,
+        'infovacunas': vacuno.infovacunas,
+        'codigoscrias': vacuno.codigoscrias,
+        'foto': vacuno.foto.url if vacuno.foto else None,
+        'crias': vacuno.crias,
+    }
+    return JsonResponse(data)
+
+@login_requerido
+def registrar_ganado(request):
+    if request.method == 'POST':
+        try:
+            # Tu lógica existente de registro
+            # Asegúrate de que el ganado nuevo se cree con activo=True
+            pass
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+@login_requerido
+def actualizar_ganado(request, id):
+    if request.method == 'POST':
+        try:
+            # Tu lógica existente de actualización
+            pass
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
 @login_requerido
 def ListaRazas(request):
     razas = TablaRazas.objects.all().values('id', 'nombre')
     return JsonResponse(list(razas), safe=False)
+
 @csrf_exempt
 @login_requerido
 def AgregarRaza(request):
@@ -274,11 +307,11 @@ def AgregarRaza(request):
                 nombre=data.get('nombre'),
             )
             razas.save()
-            return JsonResponse({'success': True, 'id': razas.id})  # Cambiado a 'success'
+            return JsonResponse({'success': True, 'id': razas.id})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
-#end region
+# end region
 
 @csrf_exempt
 @login_requerido

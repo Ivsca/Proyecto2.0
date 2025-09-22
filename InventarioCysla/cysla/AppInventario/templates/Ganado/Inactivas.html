@@ -1,171 +1,156 @@
 {% load static %}
-<title>Vacas Inactivas</title>
-<!-- Inclusión de archivos CSS -->
-<link rel="stylesheet" href="{% static 'Css/bootstrap.min.css' %}">
-<link rel="stylesheet" href="{% static 'Css/Ganado/GanadoInactivo.css' %}">
-<meta name="csrf-token" content="{{ csrf_token }}">
-<!-- Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<!-- SweetAlert2 CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vacas Inactivas</title>
+    <!-- Inclusión de archivos CSS -->
+    <link rel="stylesheet" href="{% static 'Css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'Css/Ganado/GanadoInactivo.css' %}">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+</head>
+<body>
+    {% include 'inc/Header.html' %}
 
-{% include 'inc/Header.html' %}
-
-<div class="container mt-5">
-    <!-- Título principal -->
-    <div class="text-center mb-4">
-        <h2 class="title-vacas-inactivas">
-            <i class="fas fa-heart-broken me-3"></i>
-            Vacas Inactivas
-        </h2>
-        <p class="subtitle-vacas">Gestiona las vacas que están fuera del inventario activo</p>
-    </div>
-    
-    <!-- BUSCADOR MEJORADO -->
-    <div class="search-container mb-4">
-        <div class="search-form">
-            <select class="search-select" id="TipoBusqueda">
-                <option value="">Buscar en todo</option>
-                <option value="codigo">Por código</option>
-                <option value="raza">Por raza</option>
-                <option value="edad">Por edad</option>
-            </select>
-            
-            <input type="text" class="search-input" id="searchInput" 
-                placeholder="¿Qué vaca buscas?">
-            
-            <button type="button" class="search-btn" onclick="filtrarVacas()">
-                <i class="fas fa-search"></i> Buscar
-            </button>
+    <div class="container mt-5">
+        <!-- Título principal -->
+        <div class="text-center mb-4">
+            <h2 class="title-vacas-inactivas">
+                <i class="fas fa-heart-broken me-3"></i>
+                Vacas Inactivas
+            </h2>
+            <p class="subtitle-vacas">Gestiona las vacas que están fuera del inventario activo</p>
         </div>
-    </div>
-
-    <!-- Estadísticas rápidas -->
-    <div class="stats-container mb-4">
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-exclamation-triangle"></i>
-            </div>
-            <div class="stat-info">
-                <h3>{{ total_inactivas }}</h3>
-                <p>Vacas Inactivas</p>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-undo"></i>
-            </div>
-            <div class="stat-info">
-                <h3 id="totalRestauradas">0</h3>
-                <p>Restauradas Hoy</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="row justify-content-center">
-        {% for vaca in page_obj %}
-            <div class="col-lg-4 col-md-6 mb-4 vaca-item"
-                 data-codigo="{{ vaca.codigocria|lower }}"
-                 data-raza="{{ vaca.razas|lower }}"
-                 data-edad="{{ vaca.edad }}">
-                <div class="card vaca-card h-100">
-                    {% if vaca.foto %}
-                        <img src="{{ vaca.foto.url }}" class="card-img-top" alt="{{ vaca.codigocria }}">
-                    {% else %}
-                        <img src="{% static 'Image/img/vaca-default.jpg' %}" class="card-img-top" alt="Sin imagen">
-                    {% endif %}
-                    
-                    <div class="vaca-overlay">
-                        <div class="vaca-info">
-                            <h5 class="card-title">{{ vaca.codigocria }}</h5>
-                            <p><strong>Raza:</strong> {{ vaca.razas }}</p>
-                            <p><strong>Edad:</strong> {{ vaca.edad }} años</p>
-                            <p><strong>Crías:</strong> {{ vaca.crias }}</p>
-                            <p><strong>Estado:</strong> 
-                                <span class="badge badge-inactive">{{ vaca.estado }}</span>
-                            </p>
-                        </div>
-                        <div class="vaca-buttons">
-                            <button class="btn btn-info" onclick="verInformacion('{{ vaca.id }}')">
-                                <i class="fas fa-info-circle"></i> Ver Info
-                            </button>
-                            <button class="btn btn-success btn-restore" onclick="restaurarVaca('{{ vaca.id }}', '{{ vaca.codigocria }}')">
-                                <i class="fas fa-heart"></i> Reactivar
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Código de la vaca en esquina superior -->
-                    <div class="vaca-code">
-                        {{ vaca.codigocria }}
-                    </div>
-                </div>
-            </div>
-        {% empty %}
-            <div class="col-12 text-center">
-                <div class="alert alert-success empty-state">
-                    <i class="fas fa-smile-beam fa-3x mb-3"></i>
-                    <h4>¡Excelente!</h4>
-                    <p>No hay vacas inactivas en este momento. Todas tus vacas están en el inventario activo.</p>
-                    <a href="{% url 'TablaGanado' %}" class="btn btn-success mt-2">
-                        <i class="fas fa-arrow-left"></i> Ir al Inventario Activo
-                    </a>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
-
-    <!-- Paginación centrada debajo de las cards -->
-    {% if page_obj.has_other_pages %}
-    <div class="d-flex justify-content-center mt-4">
-        <ul class="pagination">
-            {% if page_obj.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">« Anterior</a>
-                </li>
-            {% endif %}
-            {% for num in page_obj.paginator.page_range %}
-                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                </li>
-            {% endfor %}
-            {% if page_obj.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente »</a>
-                </li>
-            {% endif %}
-        </ul>
-    </div>
-    {% endif %}
-</div>
-
-<!-- Modal para ver información detallada -->
-<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="infoModalLabel">
-                    <i class="fas fa-info-circle"></i> Información Detallada
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="modalBody">
-                <!-- Contenido se carga dinámicamente -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-success" id="btnRestaurarModal">
-                    <i class="fas fa-heart"></i> Reactivar Vaca
+        
+        <!-- BUSCADOR MEJORADO -->
+        <div class="search-container mb-4">
+            <div class="search-form">
+                <select class="search-select" id="TipoBusqueda">
+                    <option value="">Buscar en todo</option>
+                    <option value="codigo">Por código</option>
+                    <option value="raza">Por raza</option>
+                    <option value="edad">Por edad</option>
+                </select>
+                
+                <input type="text" class="search-input" id="searchInput" 
+                    placeholder="¿Qué vaca buscas?">
+                
+                <button type="button" class="search-btn" onclick="filtrarVacas()">
+                    <i class="fas fa-search"></i> Buscar
                 </button>
             </div>
         </div>
+
+        <!-- Estadísticas rápidas -->
+        <div class="stats-container mb-4">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ total_inactivas }}</h3>
+                    <p>Vacas Inactivas</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-undo"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalRestauradas">0</h3>
+                    <p>Restauradas Hoy</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center" id="vacasContainer">
+            {% for vaca in page_obj %}
+                <div class="col-lg-4 col-md-6 mb-4 vaca-item"
+                     data-codigo="{{ vaca.codigocria|lower }}"
+                     data-raza="{{ vaca.razas|lower }}"
+                     data-edad="{{ vaca.edad }}">
+                    <div class="card vaca-card h-100">
+                        {% if vaca.foto %}
+                            <img src="{{ vaca.foto.url }}" class="card-img-top" alt="{{ vaca.codigocria }}">
+                        {% else %}
+                            <img src="{% static 'Image/img/vaca-default.jpg' %}" class="card-img-top" alt="Sin imagen">
+                        {% endif %}
+                        
+                        <div class="vaca-overlay">
+                            <div class="vaca-info">
+                                <h5 class="card-title">{{ vaca.codigocria }}</h5>
+                                <p><strong>Raza:</strong> {{ vaca.razas }}</p>
+                                <p><strong>Edad:</strong> {{ vaca.edad }} meses</p>
+                                <p><strong>Crías:</strong> {{ vaca.crias }}</p>
+                                <p><strong>Estado:</strong> 
+                                    <span class="badge badge-inactive">Inactiva</span>
+                                </p>
+                            </div>
+                            <div class="vaca-buttons">
+                                <button class="btn btn-info" onclick="verInformacion('{{ vaca.id }}')">
+                                    <i class="fas fa-info-circle"></i> Ver Info
+                                </button>
+                                <button class="btn btn-success btn-restore" onclick="reactivarVaca('{{ vaca.id }}', '{{ vaca.codigocria }}')">
+                                    <i class="fas fa-heart"></i> Reactivar
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Código de la vaca en esquina superior -->
+                        <div class="vaca-code">
+                            {{ vaca.codigocria }}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center">
+                    <div class="alert alert-success empty-state">
+                        <i class="fas fa-smile-beam fa-3x mb-3"></i>
+                        <h4>¡Excelente!</h4>
+                        <p>No hay vacas inactivas en este momento. Todas tus vacas están en el inventario activo.</p>
+                        <a href="{% url 'TablaGanado' %}" class="btn btn-success mt-2">
+                            <i class="fas fa-arrow-left"></i> Ir al Inventario Activo
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Paginación centrada debajo de las cards -->
+        {% if page_obj.has_other_pages %}
+        <div class="d-flex justify-content-center mt-4">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">« Anterior</a>
+                    </li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Siguiente »</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %}
     </div>
-</div>
 
-<!-- Inclusión de scripts -->
-<script src="{% static 'JavaScripts/bootstrap.bundle.min.js' %}"></script>
-<script src="{% static 'JavaScripts/Ganado/GanadoInactivo.js' %}"></script>
-<!-- SweetAlert2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Inclusión de scripts -->
+    <script src="{% static 'JavaScripts/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'JavaScripts/Ganado/GanadoInactivo.js' %}"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-{% include 'inc/Footer.html' %}
+    {% include 'inc/Footer.html' %}
+</body>
+</html>

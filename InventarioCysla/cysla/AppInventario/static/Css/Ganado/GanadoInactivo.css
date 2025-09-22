@@ -745,6 +745,7 @@
 .loading {
     opacity: 0.6;
     pointer-events: none;
+    position: relative;
 }
 
 .loading::after {
@@ -759,6 +760,7 @@
     border-radius: 50%;
     animation: spin 1s linear infinite;
     transform: translate(-50%, -50%);
+    z-index: 1000;
 }
 
 @keyframes spin {

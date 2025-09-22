@@ -16,6 +16,12 @@ function reactivarVaca(id, codigoCria) {
         backdrop: 'rgba(40, 167, 69, 0.15)'
     }).then((result) => {
         if (result.isConfirmed) {
+            // Mostrar estado de carga
+            const card = document.querySelector(`.vaca-item[data-codigo="${codigoCria.toLowerCase()}"]`);
+            if (card) {
+                card.classList.add('loading');
+            }
+
             fetch(`/Ganado/Tabla/Reactivar/vaca/${id}`, {
                 method: 'POST',
                 headers: {
@@ -23,17 +29,21 @@ function reactivarVaca(id, codigoCria) {
                     'X-CSRFToken': getCSRFToken()
                 }
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     // Actualizar estadísticas
                     actualizarEstadisticas();
                     
-                    // Eliminar la tarjeta de la vista
-                    const card = document.querySelector(`.vaca-item[data-codigo="${codigoCria.toLowerCase()}"]`);
+                    // Eliminar la tarjeta de la vista con animación
                     if (card) {
                         card.style.opacity = '0';
-                        card.style.transform = 'scale(0.8)';
+                        card.style.transform = 'scale(0.8) translateY(-20px)';
                         setTimeout(() => {
                             card.remove();
                             verificarListaVacia();
@@ -48,11 +58,15 @@ function reactivarVaca(id, codigoCria) {
                         backdrop: 'rgba(40, 167, 69, 0.15)'
                     });
                 } else {
-                    Swal.fire('Error', 'No se pudo reactivar la vaca.', 'error');
+                    throw new Error('No se pudo reactivar la vaca');
                 }
             })
-            .catch(() => {
-                Swal.fire('Error', 'Error de conexión al reactivar la vaca.', 'error');
+            .catch((error) => {
+                console.error('Error:', error);
+                if (card) {
+                    card.classList.remove('loading');
+                }
+                Swal.fire('Error', 'No se pudo reactivar la vaca. ' + error.message, 'error');
             });
         }
     });
@@ -62,9 +76,26 @@ function reactivarVaca(id, codigoCria) {
  * Muestra la información detallada de una vaca inactiva
  */
 function verInformacion(id) {
+    // Mostrar loader mientras se cargan los datos
+    Swal.fire({
+        title: 'Cargando información...',
+        text: 'Por favor espere',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
     fetch(`/Ganado/api/obtener/${id}/`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al obtener los datos');
+            }
+            return response.json();
+        })
         .then(vaca => {
+            Swal.close();
+            
             let enfermedades = [];
             let vacunas = [];
             let crias = [];
@@ -90,13 +121,17 @@ function verInformacion(id) {
                 backdrop: 'rgba(220, 53, 69, 0.15)',
                 customClass: {
                     popup: 'info-vaca-inactiva-popup'
+                },
+                didOpen: () => {
+                    // Asignar evento al botón de reactivar dentro del modal
+                    const btnReactivar = document.getElementById('btnReactivarModal');
+                    if (btnReactivar) {
+                        btnReactivar.addEventListener('click', () => {
+                            Swal.close();
+                            reactivarVaca(vaca.id, vaca.codigocria);
+                        });
+                    }
                 }
-            });
-            
-            // Asignar evento al botón de reactivar dentro del modal
-            document.getElementById('btnReactivarModal').addEventListener('click', () => {
-                Swal.close();
-                reactivarVaca(vaca.id, vaca.codigocria);
             });
         })
         .catch(error => {
@@ -188,8 +223,8 @@ function generarHTMLInformacion(vaca, enfermedades, vacunas, crias) {
 function generarListaEnfermedades(enfermedades) {
     return enfermedades.map(e => `
         <div class="item-lista">
-            <span class="item-nombre">${e.disease}</span>
-            <span class="item-fecha">${e.date}</span>
+            <span class="item-nombre">${e.disease || 'Enfermedad no especificada'}</span>
+            <span class="item-fecha">${e.date || 'Fecha no especificada'}</span>
         </div>
     `).join('');
 }
@@ -197,17 +232,25 @@ function generarListaEnfermedades(enfermedades) {
 function generarListaVacunas(vacunas) {
     return vacunas.map(v => `
         <div class="item-lista">
-            <span class="item-nombre">${v.vaccine}</span>
-            <span class="item-detalle">${v.amount} dosis - ${v.type}</span>
-            <span class="item-fecha">${v.date}</span>
+            <span class="item-nombre">${v.vaccine || 'Vacuna no especificada'}</span>
+            <span class="item-detalle">${v.amount || '0'} dosis - ${v.type || 'Tipo no especificado'}</span>
+            <span class="item-fecha">${v.date || 'Fecha no especificada'}</span>
         </div>
     `).join('');
 }
 
 function generarListaCrias(crias) {
+    if (typeof crias === 'string') {
+        try {
+            crias = JSON.parse(crias);
+        } catch (e) {
+            crias = [crias];
+        }
+    }
+    
     return crias.map(c => `
         <div class="item-lista">
-            <span class="item-nombre">${c}</span>
+            <span class="item-nombre">${c || 'Cría no especificada'}</span>
         </div>
     `).join('');
 }
@@ -216,7 +259,7 @@ function generarListaCrias(crias) {
  * Filtra las vacas inactivas según el criterio de búsqueda
  */
 function filtrarVacas() {
-    const searchText = document.getElementById('searchInput').value.toLowerCase();
+    const searchText = document.getElementById('searchInput').value.toLowerCase().trim();
     const filterType = document.getElementById('TipoBusqueda').value;
     const vacaItems = document.querySelectorAll('.vaca-item');
 
@@ -225,12 +268,15 @@ function filtrarVacas() {
     vacaItems.forEach(item => {
         let matches = false;
         
-        if (!filterType || filterType === "") {
+        if (!searchText) {
+            // Si no hay texto de búsqueda, mostrar todos
+            matches = true;
+        } else if (!filterType || filterType === "") {
             // Búsqueda en todos los campos
             matches =
-                item.getAttribute('data-codigo').includes(searchText) ||
-                item.getAttribute('data-raza').includes(searchText) ||
-                item.getAttribute('data-edad').includes(searchText);
+                (item.getAttribute('data-codigo') || '').includes(searchText) ||
+                (item.getAttribute('data-raza') || '').includes(searchText) ||
+                (item.getAttribute('data-edad') || '').includes(searchText);
         } else {
             // Búsqueda en campo específico
             let attr = '';
@@ -279,13 +325,15 @@ function filtrarVacas() {
 function actualizarEstadisticas() {
     const totalElement = document.querySelector('.stat-card:first-child h3');
     if (totalElement) {
-        const currentTotal = parseInt(totalElement.textContent);
-        totalElement.textContent = currentTotal - 1;
+        const currentTotal = parseInt(totalElement.textContent) || 0;
+        if (currentTotal > 0) {
+            totalElement.textContent = currentTotal - 1;
+        }
     }
     
     const restauradasElement = document.getElementById('totalRestauradas');
     if (restauradasElement) {
-        const currentRestored = parseInt(restauradasElement.textContent);
+        const currentRestored = parseInt(restauradasElement.textContent) || 0;
         restauradasElement.textContent = currentRestored + 1;
     }
 }
@@ -294,9 +342,13 @@ function actualizarEstadisticas() {
  * Verifica si la lista está vacía y muestra un mensaje
  */
 function verificarListaVacia() {
-    const vacaItems = document.querySelectorAll('.vaca-item');
+    const vacaItems = document.querySelectorAll('.vaca-item:not([style*="display: none"])');
     const emptyState = document.querySelector('.empty-state');
     const row = document.querySelector('.row.justify-content-center');
+    const noResults = document.getElementById('noResults');
+    
+    // Si hay mensaje de no resultados, no mostrar el estado vacío
+    if (noResults) return;
     
     if (vacaItems.length === 0 && !emptyState) {
         const emptyHtml = `
@@ -311,7 +363,11 @@ function verificarListaVacia() {
                 </div>
             </div>
         `;
-        row.innerHTML = emptyHtml;
+        if (row) {
+            row.innerHTML = emptyHtml;
+        }
+    } else if (vacaItems.length > 0 && emptyState) {
+        emptyState.remove();
     }
 }
 
@@ -319,8 +375,15 @@ function verificarListaVacia() {
  * Obtiene el token CSRF
  */
 function getCSRFToken() {
-    return document.querySelector('[name=csrf-token]')?.content ||
-           document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+    const csrfToken = document.querySelector('[name=csrf-token]')?.content ||
+                      document.querySelector('[name=csrfmiddlewaretoken]')?.value ||
+                      document.querySelector('input[name="csrfmiddlewaretoken"]')?.value;
+    
+    if (!csrfToken) {
+        console.warn('CSRF token no encontrado');
+    }
+    
+    return csrfToken || '';
 }
 
 // =========================[ REGION: Inicialización ]========================
@@ -351,7 +414,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Inicializar estadísticas
-    const totalInactivas = document.querySelectorAll('.vaca-item').length;
+    // Inicializar contador de restauradas
     document.getElementById('totalRestauradas').textContent = '0';
+    
+    // Verificar si la lista está vacía al cargar
+    setTimeout(verificarListaVacia, 100);
 });
+
+// =========================[ REGION: Utilidades globales ]========================
+// Función global para ser llamada desde el CRUD principal al "eliminar" (desactivar)
+window.moverAInactivas = function(id, codigoCria) {
+    // Esta función sería llamada desde Table.html cuando se "elimina" un vacuno
+    console.log(`Moviendo vacuno ${codigoCria} a inactivas`);
+    // La lógica real de desactivación se maneja en la view EliminarVacuno
+};
