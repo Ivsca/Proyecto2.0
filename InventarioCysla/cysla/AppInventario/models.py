@@ -159,6 +159,32 @@ class Ganado(models.Model):
     def __str__(self):
         return f"Ganado {self.codigocria}"
     
+class GanadoInactivo(models.Model):
+    codigocria = models.CharField(db_column='CodigoCria', max_length=12)
+    foto = models.ImageField(upload_to='Ganado/', db_column='Foto', null=True, blank=True)
+    crias = models.CharField(db_column='Crias', max_length=2)
+    codigoscrias = models.TextField(db_column='CodigosCrias')  # JSON
+    codigopapa = models.CharField(db_column='CodigoPapa', max_length=12)
+    codigomama = models.CharField(db_column='CodigoMama', max_length=12)
+    edad = models.CharField(db_column='Edad', max_length=2)
+    infovacunas = models.TextField(db_column='InfoVacunas')  # JSON
+    enfermedades = models.TextField(db_column='Enfermedades')  # JSON
+    estado = models.CharField(db_column='Estado', max_length=7)
+    idparcela = models.ForeignKey(
+        'TipoParcela',
+        models.DO_NOTHING,
+        db_column='IdParcela',
+        default=1  # Debe existir un registro con ID=1
+    )
+    razas = models.CharField(db_column='Razas', max_length=255)
+
+    class Meta:
+        managed = True
+        db_table = 'GanadoInactivo'
+
+    def __str__(self):
+        return f"Ganado {self.codigocria}"
+    
 class TablaVacunas(models.Model):
     nombre = models.CharField(max_length=255, db_column='nombre')
 

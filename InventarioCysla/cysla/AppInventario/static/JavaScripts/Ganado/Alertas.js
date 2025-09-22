@@ -996,15 +996,16 @@ let html = `
 /**
  * Elimina un vacuno y su registro asociado.
  */
+// En Table.html - modificar la función EliminarVacuno
 window.EliminarVacuno = function(id) {
     Swal.fire({
-        title: '¿Eliminar vacuno?',
-        text: 'Esta acción no se puede deshacer. ¿Está seguro de que desea eliminar este vacuno y su registro asociado?',
+        title: '¿Desactivar vacuno?',
+        text: 'El vacuno se moverá al inventario de vacas inactivas. Podrás reactivarlo posteriormente.',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#4CAF50',
-        confirmButtonText: 'Sí, eliminar',
+        confirmButtonText: 'Sí, desactivar',
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
@@ -1012,20 +1013,26 @@ window.EliminarVacuno = function(id) {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': getCSRFToken() // Necesario para POST en Django
+                    'X-CSRFToken': getCSRFToken()
                 }
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    Swal.fire('¡Eliminado!', 'El vacuno ha sido eliminado correctamente.', 'success')
-                        .then(() => window.location.reload());
+                    Swal.fire({
+                        title: '¡Desactivado!',
+                        text: 'El vacuno ha sido movido al inventario inactivo.',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.reload();
+                    });
                 } else {
-                    Swal.fire('Error', data.error || 'No se pudo eliminar el vacuno.', 'error');
+                    Swal.fire('Error', 'No se pudo desactivar el vacuno.', 'error');
                 }
             })
             .catch(() => {
-                Swal.fire('Error', 'Ocurrió un error al eliminar el vacuno.', 'error');
+                Swal.fire('Error', 'Error de conexión.', 'error');
             });
         }
     });
