@@ -71,16 +71,18 @@ WSGI_APPLICATION = "cysla.wsgi.application"
 # ==========================
 # Base de datos (MySQL)
 # ==========================
+
 DATABASES = { 
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": os.environ.get("MYSQLDATABASE", "flock"),  
         "USER": os.environ.get("MYSQLUSER", "root"),
-        "PASSWORD": os.environ.get("MYSQLPASSWORD", os.environ.get("MYSQL_ROOT_PASSWORD", "")),
+        "PASSWORD": os.environ.get("MYSQLPASSWORD", ""),
         "HOST": os.environ.get("MYSQLHOST", "127.0.0.1"),
         "PORT": os.environ.get("MYSQLPORT", "3306"),
     }
 }
+
 
 # ==========================
 # Validadores de contraseñas

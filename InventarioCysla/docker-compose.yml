@@ -48,11 +48,11 @@ services:
     environment:
       DEBUG: "False"   # En remoto debe ser False
       DJANGO_ALLOWED_HOSTS: "*"
-      DB_HOST: db
-      DB_PORT: 3306
-      MYSQL_USER: django_user
-      MYSQL_PASSWORD: django_pass
-      MYSQL_DATABASE: flock
+      MYSQLHOST: db
+      MYSQLPORT: 3306
+      MYSQLUSER: django_user
+      MYSQLPASSWORD: django_pass
+      MYSQLDATABASE: flock
     networks:
       - app_network
 
@@ -70,11 +70,11 @@ services:
       - db
       - redis
     environment:
-      DB_HOST: db
-      DB_PORT: 3306
-      MYSQL_USER: django_user
-      MYSQL_PASSWORD: django_pass
-      MYSQL_DATABASE: flock
+      MYSQLHOST: db
+      MYSQLPORT: 3306
+      MYSQLUSER: django_user
+      MYSQLPASSWORD: django_pass
+      MYSQLDATABASE: flock
       CELERY_BROKER_URL: redis://redis:6379/0
     networks:
       - app_network
@@ -91,11 +91,11 @@ services:
       - db
       - redis
     environment:
-      DB_HOST: db
-      DB_PORT: 3306
-      MYSQL_USER: django_user
-      MYSQL_PASSWORD: django_pass
-      MYSQL_DATABASE: flock
+      MYSQLHOST: db
+      MYSQLPORT: 3306
+      MYSQLUSER: django_user
+      MYSQLPASSWORD: django_pass
+      MYSQLDATABASE: flock
       CELERY_BROKER_URL: redis://redis:6379/0
     networks:
       - app_network
