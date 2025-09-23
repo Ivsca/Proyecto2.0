@@ -218,31 +218,36 @@ def TablaGanado(request):
     })
 
 
-@login_requerido
-def VacasInactivas(request):
-    ganado_list = Ganado.objects.filter(activo=False)  # Solo ganado inactivo
-    paginator = Paginator(ganado_list, 9)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+# @login_requerido
+# def VacasInactivas(request):
+#     ganado_list = Ganado.objects.filter(activo=False)  # Solo ganado inactivo
+#     paginator = Paginator(ganado_list, 9)
+#     page_number = request.GET.get('page')
+#     page_obj = paginator.get_page(page_number)
     
-    return render(request, 'Ganado/Inactivas.html', {
-        'page_obj': page_obj,
-    })
+#     return render(request, 'Ganado/Inactivas.html', {
+#         'page_obj': page_obj,
+#     })
 
-@login_requerido
-def EliminarVacuno(request, id):
-    vacuno = get_object_or_404(Ganado, id=id)
-    # En lugar de eliminar, marcamos como inactivo
-    vacuno.activo = False
-    vacuno.save()
-    return JsonResponse({'success': True})
 
-@login_requerido
-def ActivarVacuno(request, id):
-    vacuno = get_object_or_404(Ganado, id=id)
-    vacuno.activo = True
-    vacuno.save()
-    return JsonResponse({'success': True})
+# @login_requerido
+# def EliminarVacuno(request, id):
+#     """Marca un vacuno como inactivo en lugar de eliminarlo."""
+#     vacuno = get_object_or_404(Ganado, id=id)
+#     vacuno.activo = False
+#     vacuno.save()
+#     return JsonResponse({'success': True})
+
+
+# @login_requerido
+# def ActivarVacuno(request, id):
+#     """Restaura un vacuno previamente marcado como inactivo."""
+#     vacuno = get_object_or_404(Ganado, id=id)
+#     vacuno.activo = True
+#     vacuno.save()
+#     return JsonResponse({'success': True})
+
+
 
 @login_requerido
 def buscar_codigo_ganado(request):
@@ -253,11 +258,7 @@ def buscar_codigo_ganado(request):
     # Devuelve id y código
     return JsonResponse([{'id': r['id'], 'codigo': r['codigocria']} for r in resultados], safe=False)
 
-@login_requerido
-def EliminarVacuno(id):
-    vacuno = get_object_or_404(Ganado, id=id)
-    vacuno.delete()
-    return redirect('TablaGanado')
+
 @login_requerido
 def ListaRazas(request):
     razas = TablaRazas.objects.all().values('id', 'nombre')
