@@ -1,12 +1,52 @@
 <!doctype html>
-<html>
-  <body>
-    <h2>Verificar código</h2>
-    <form method="post">
-      {% csrf_token %}
-      <input type="text" name="code" placeholder="Código recibido" required>
-      <button type="submit">Verificar</button>
-    </form>
-    {% if message %}<p>{{ message }}</p>{% endif %}
-  </body>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="{% static 'Css/logueo/Logueo.css' %}">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-6">
+
+    <!-- Botón volver -->
+    <div class="w-full max-w-md mb-4">
+        <a href="{% url 'Home' %}" class="bg-teal-600 text-white px-4 py-2 rounded-lg inline-block">
+            Inicio
+        </a>
+    </div>
+        <div class="w-full max-w-md mb-4">
+        <a href="{% url 'olvidar_contra' %}" class="bg-teal-600 text-white px-4 py-2 rounded-lg inline-block">
+            Anterior
+        </a>
+    </div>
+
+    <!-- Formulario verificar código -->
+    <div class="container mx-auto p-6 bg-white rounded-lg shadow-lg max-w-md">
+        <h2 class="text-2xl font-bold text-center mb-4">Verificar código</h2>
+        
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label for="code" class="block text-gray-700 text-center">Código recibido</label>
+                <input id="code" type="text" name="code" placeholder="Ingresa tu código"
+                       class="w-full border p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                       required>
+            </div>
+            <button type="submit" class="bg-teal-600 text-white w-full py-2 rounded-lg hover:bg-teal-700 transition">
+                Verificar
+            </button>
+        </form>
+
+        {% if message %}
+            <p class="text-center text-red-500 mt-2">{{ message }}</p>
+        {% endif %}
+    </div>
+
+</body>
 </html>

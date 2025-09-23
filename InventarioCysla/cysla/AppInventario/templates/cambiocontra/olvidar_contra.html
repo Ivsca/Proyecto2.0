@@ -1,12 +1,53 @@
 <!doctype html>
-<html>
-  <body>
-    <h2>Recuperar contraseña</h2>
-    <form method="post">
-      {% csrf_token %}
-      <input type="email" name="email" placeholder="Tu correo" required>
-      <button type="submit">Enviar código</button>
-    </form>
-    {% if message %}<p>{{ message }}</p>{% endif %}
-  </body>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="{% static 'Css/logueo/Logueo.css' %}">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .form-container {
+            max-height: 500px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-6">
+
+    <!-- Botón volver -->
+    <div class="w-full max-w-md mb-4">
+        <a href="{% url 'Home' %}" class="bg-teal-600 text-white px-4 py-2 rounded-lg inline-block">
+            Volver
+        </a>
+    </div>
+
+    <!-- Formulario -->
+    <div class="container mx-auto p-6 bg-white rounded-lg shadow-lg form-container max-w-md">
+        <h2 class="text-2xl font-bold text-center mb-4">Recuperar tu contraseña</h2>
+        
+        <form id="loginForm" action="" method="post" class="max-h-[400px] overflow-y-auto p-1">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="Correo" class="block text-gray-700 text-center">Correo</label>
+                <input id="Correo" class="w-full border p-2 rounded-lg" type="email" name="correo" required>
+                <span id="errorCorreo" class="text-red-500 text-sm"></span>
+            </div>
+            <button type="submit" class="bg-teal-600 text-white w-full py-2 rounded-lg">
+                Enviar código
+            </button>
+            <a href="{% url 'RegisterUser' %}" class="block text-center mt-4 text-blue-500 hover:underline">
+                ¿No tienes cuenta? Regístrate
+            </a>
+        </form>
+
+        {% if message %}
+            <p class="text-center text-red-500 mt-2">{{ message }}</p>
+        {% endif %}
+    </div>
+
+</body>
 </html>

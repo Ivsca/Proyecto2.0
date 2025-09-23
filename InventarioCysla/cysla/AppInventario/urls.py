@@ -50,17 +50,17 @@ urlpatterns = [
     path('Cultivo/fertilizar/<int:cultivo_id>/', views.agregar_fertilizacion),
     path('notificaciones/', views.obtener_notificaciones, name='obtener_notificaciones'),
 
-    #servicios para excel de cultivos y vacas
-    #ganado
-    path("excel/ganado/", views.PlantillaTablas, name="PlantillaTablas"),
-    path("consultar-vacunos/", views.ConsultarVacunos, name="ConsultarVacunos"),
-    path("exportar-excel/", views.ExportarExcel, name="ExportarExcel"),
+    # #servicios para excel de cultivos y vacas
+    # #ganado
+    # path("excel/ganado/", views.PlantillaTablas, name="PlantillaTablas"),
+    # path("consultar-vacunos/", views.ConsultarVacunos, name="ConsultarVacunos"),
+    # path("exportar-excel/", views.ExportarExcel, name="ExportarExcel"),
     
-    # Cultivos
-    path("excel/cultivos/", views.PlantillaCultivos, name="PlantillaCultivos"),
-    path("consultar-cultivos/", views.ConsultarCultivos, name="ConsultarCultivos"),
-    path("exportar-excel-cultivos/", views.ExportarExcelCultivos, name="ExportarExcelCultivos"),
-    # endregion
+    # # Cultivos
+    # path("excel/cultivos/", views.PlantillaCultivos, name="PlantillaCultivos"),
+    # path("consultar-cultivos/", views.ConsultarCultivos, name="ConsultarCultivos"),
+    # path("exportar-excel-cultivos/", views.ExportarExcelCultivos, name="ExportarExcelCultivos"),
+    # # endregion
 
     # region Parcela
     path('agregar-parcela/', views.agregar_parcela, name='agregar_parcela'),
