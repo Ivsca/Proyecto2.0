@@ -48,7 +48,8 @@ urlpatterns = [
     path('notificaciones/', views.obtener_notificaciones, name='obtener_notificaciones'),
 
     #servicios para excel de cultivos y vacas
-    path("excel/ganado", views.PlantillaTablas, name="PlantillaTablas"),
+    #ganado
+    path("excel/ganado/", views.PlantillaTablas, name="PlantillaTablas"),
     path("consultar-vacunos/", views.ConsultarVacunos, name="ConsultarVacunos"),
     path("exportar-excel/", views.ExportarExcel, name="ExportarExcel"),
     
