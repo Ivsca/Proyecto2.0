@@ -979,9 +979,9 @@ def SistemaNotficacionesGmail(request):
 
 def olvidar_contra(request):
     if request.method == "POST":
-        email = request.POST.get("email")
+        email = request.POST.get("email").strip().lower()
         try:
-            user = User.objects.get(email=email)
+            user = Usuarios.objects.get(correo=email)
             code = str(random.randint(100000, 999999))
             code_hash = hashlib.sha256(code.encode()).hexdigest()
             expires = timezone.now() + timedelta(minutes=15)
@@ -989,9 +989,10 @@ def olvidar_contra(request):
                 user=user,
                 defaults={"code_hash": code_hash, "expires_at": expires, "attempts": 0},
             )
-            send_reset_email(user.email, code)
-        except User.DoesNotExist:
-            pass  # no revelar nada
+            request.session["reset_email"] = email  # ✅ guardar en sesión
+            send_reset_email(user.correo, code)
+        except Usuarios.DoesNotExist:
+            pass  # no revelar si existe o no
         return render(request, "olvidar_contra.html", {"message": "Si existe una cuenta, se envió un código"})
     return render(request, "olvidar_contra.html")
 
@@ -1001,31 +1002,27 @@ def verificar_codigo(request):
         code = request.POST.get("code")
         email = request.session.get("reset_email")
         try:
-            user = User.objects.get(email=email)
+            user = Usuarios.objects.get(correo=email)
             reset_obj = codigo.objects.get(user=user)
             if reset_obj.is_expired() or not reset_obj.check_code(code):
                 return render(request, "verificar_codigo.html", {"message": "Código inválido o expirado"})
-            # Guardar token simple en sesión
             request.session["verified"] = True
             reset_obj.delete()
-            return redirect("reset_password")
-        except (User.DoesNotExist, codigo.DoesNotExist):
+            return redirect("restablecer_contra")
+        except (Usuarios.DoesNotExist, codigo.DoesNotExist):
             return render(request, "verificar_codigo.html", {"message": "Código inválido"})
     return render(request, "verificar_codigo.html")
 
 
 def restablecer_contra(request):
     if not request.session.get("verified"):
-        return redirect("forgot_password")
+        return redirect("olvidar_contra")
     if request.method == "POST":
         new_password = request.POST.get("new_password")
         email = request.session.get("reset_email")
-        user = User.objects.get(email=email)
-        user.password = make_password(new_password)
+        user = Usuarios.objects.get(correo=email)
+        user.clave = new_password  # ⚠️ Mejor con make_password
         user.save()
         request.session.flush()
         return render(request, "restablecer_contra.html", {"message": "Contraseña cambiada con éxito"})
     return render(request, "restablecer_contra.html")
-
-
-
