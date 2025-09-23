@@ -978,37 +978,27 @@ def SistemaNotficacionesGmail(request):
 # endregion
 #inicio de region cambio de contraseña
 
-def olvidar_contra(request):
-    if request.method == "POST":
-        email = request.POST.get("correo")  # 🔹 usa 'correo' como en el form
-        if email:
-            email = email.strip().lower()
-            try:
-                user = Usuarios.objects.get(correo=email)
-                code = str(random.randint(100000, 999999))
-                code_hash = hashlib.sha256(code.encode()).hexdigest()
-                expires = timezone.now() + timedelta(minutes=15)
+def restablecer_contra(request):
+    if not request.session.get("verified"):
+        return redirect("olvidar_contra")
 
-                codigo.objects.update_or_create(
-                    user=user,
-                    defaults={"code_hash": code_hash, "expires_at": expires, "attempts": 0},
-                )
-                request.session["reset_email"] = email
-                send_reset_email(user.correo, code)
-            except Usuarios.DoesNotExist:
-                pass  # No revelar si existe o no
-            return render(
-                request,
-                "olvidar_contra.html",
-                {"message": "Si existe una cuenta, se envió un código"},
-            )
-        else:
-            return render(
-                request,
-                "olvidar_contra.html",
-                {"message": "Debes ingresar un correo válido"},
-            )
-    return render(request, "olvidar_contra.html")
+    if request.method == "POST":
+        new_password = request.POST.get("new_password")
+        email = request.session.get("reset_email")
+        try:
+            user = Usuarios.objects.get(correo=email)
+            # 🔐 Hashear contraseña en vez de guardarla en texto plano
+            user.clave = make_password(new_password)
+            user.save()
+
+            # Limpia la sesión para seguridad
+            request.session.flush()
+
+            return render(request, "restablecer_contra.html", {"message": "Contraseña cambiada con éxito"})
+        except Usuarios.DoesNotExist:
+            return redirect("olvidar_contra")
+
+    return render(request, "restablecer_contra.html")
 
 
 def verificar_codigo(request):
