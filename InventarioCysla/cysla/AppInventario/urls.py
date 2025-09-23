@@ -33,7 +33,6 @@ urlpatterns = [
     path('actualizar_ganado/<int:id>/', views.actualizar_ganado, name='actualizar_ganado'),
     path('Ganado/api/obtener/<int:id>/', views.obtener_ganado, name='obtener_ganado'),
     path('Ganado/api/VacasInactivas', views.VacasInactivas, name='VacasInactivas'),
-    path('Ganado/Inactivas/Restaurar/<int:id>', views.ActivarVacuno, name="RestaurarVacuno"),
     # endregion
 
     # region Cultivo

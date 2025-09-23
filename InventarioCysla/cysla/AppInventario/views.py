@@ -14,8 +14,6 @@ from datetime import datetime, date, timedelta
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-
 from .models import (
     TablaRazas,
     TipoDocumentos,
@@ -27,7 +25,6 @@ from .models import (
     TablaVacunas,
     Fertilizacion,
     TipoParcela,
-    GanadoInactivo
 )
 import re
 
@@ -158,7 +155,6 @@ def RegisterUser(request):
 def registro_exitoso(request):
     return render(request, 'Logueo/creado.html')
 #endregion 
-
 # region Login
 
 def LoginUser(request):
@@ -199,15 +195,8 @@ def logout_view(request):
     return redirect("Home") 
 #endregion 
 
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
-import json
-
-# region Ganado
-@login_required
+# region ganado
+@login_requerido
 def TablaGanado(request):
     ganado_list = Ganado.objects.all()
     paginator = Paginator(ganado_list, 9)
@@ -216,82 +205,67 @@ def TablaGanado(request):
 
     enfermedades = Enfermedades.objects.all()
     vacunas = TablaVacunas.objects.all()
-    razas = TablaRazas.objects.all()
+    Razas = TablaRazas.objects.all()
     parcelas = TipoParcela.objects.all()
 
     return render(request, 'Ganado/Table.html', {
         'page_obj': page_obj,
         "enfermedades": enfermedades,
         "vacunas": vacunas,
-        "razas": razas,
+        "Razas": Razas,
         'parcelas': parcelas
     })
 
-
-@login_required
+@login_requerido
 def VacasInactivas(request):
-    ganado_list = Ganado.objects.filter(activo=False)  # Solo ganado inactivo
-    paginator = Paginator(ganado_list, 9)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    
-    return render(request, 'Ganado/Inactivas.html', {
-        'page_obj': page_obj,
+    return render(request, 'Ganado/Inactivas.html',{
     })
 
-
-@login_required
-def EliminarVacuno(request, id):
-    vacuno = get_object_or_404(Ganado, id=id)
-    vacuno.activo = False
-    vacuno.save()
-    return JsonResponse({'success': True})
-
-
-@login_required
-def ActivarVacuno(request, id):
-    vacuno = get_object_or_404(Ganado, id=id)
-    vacuno.activo = True
-    vacuno.save()
-    return JsonResponse({'success': True})
-
-
-@login_required
+@login_requerido
 def buscar_codigo_ganado(request):
     q = request.GET.get('q', '').strip()
     resultados = []
     if q:
         resultados = list(Ganado.objects.filter(codigocria__icontains=q).values('id', 'codigocria'))
+    # Devuelve id y código
     return JsonResponse([{'id': r['id'], 'codigo': r['codigocria']} for r in resultados], safe=False)
 
-
-@login_required
+@login_requerido
+def EliminarVacuno(id):
+    vacuno = get_object_or_404(Ganado, id=id)
+    vacuno.delete()
+    return redirect('TablaGanado')
+@login_requerido
 def ListaRazas(request):
     razas = TablaRazas.objects.all().values('id', 'nombre')
     return JsonResponse(list(razas), safe=False)
-
-
 @csrf_exempt
-@login_required
+@login_requerido
 def AgregarRaza(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            raza = TablaRazas(nombre=data.get('nombre'))
-            raza.save()
-            return JsonResponse({'success': True, 'id': raza.id})
+            razas = TablaRazas(
+                nombre=data.get('nombre'),
+            )
+            razas.save()
+            return JsonResponse({'success': True, 'id': razas.id})  # Cambiado a 'success'
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
-    return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
-
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+#end region
 
 @csrf_exempt
-@login_required
+@login_requerido
 def registrar_ganado(request):
     if request.method == "POST":
         try:
             codigocria = request.POST.get('CodigoCria')
             foto = request.FILES.get('Foto')
+            foto_name = ''
+            if foto:
+                from django.core.files.storage import default_storage
+                foto_name = default_storage.save('ganado/' + foto.name, foto)
             crias = request.POST.get('Crias', '0')
             codigoscrias = request.POST.get('CodigosCrias', '[]')
             codigopapa = request.POST.get('CodigoPapa', '')
@@ -305,7 +279,7 @@ def registrar_ganado(request):
 
             ganado = Ganado.objects.create(
                 codigocria=codigocria,
-                foto=foto,
+                foto=foto_name,
                 crias=crias,
                 codigoscrias=codigoscrias,
                 codigopapa=codigopapa,
@@ -322,15 +296,14 @@ def registrar_ganado(request):
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
 
-
 @csrf_exempt
-@login_required
+@login_requerido
 def actualizar_ganado(request, id):
     if request.method == "POST":
         try:
             ganado = Ganado.objects.get(id=id)
             ganado.codigocria = request.POST.get('CodigoCria')
-            ganado.foto = request.FILES.get('Foto', ganado.foto)
+            ganado.foto = request.POST.get('Foto', '')
             ganado.crias = request.POST.get('Crias', '0')
             ganado.codigoscrias = request.POST.get('CodigosCrias', '[]')
             ganado.codigopapa = request.POST.get('CodigoPapa', '')
@@ -338,6 +311,8 @@ def actualizar_ganado(request, id):
             ganado.edad = request.POST.get('Edad', '')
             ganado.infovacunas = request.POST.get('Vacunas', '[]')
             ganado.enfermedades = request.POST.get('Enfermedades', '[]')
+            ganado.codigoscrias = request.POST.get('CodigosCrias', '[]')
+            ganado.crias = request.POST.get('Crias', '0')
             ganado.estado = request.POST.get('Estado', '')
             ganado.idparcela_id = request.POST.get('IdParcela', '')
             ganado.razas = request.POST.get('Razas', '')
@@ -347,9 +322,8 @@ def actualizar_ganado(request, id):
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
 
-
 @csrf_exempt
-@login_required
+@login_requerido
 def obtener_ganado(request, id):
     try:
         vacuno = Ganado.objects.get(id=id)
@@ -369,6 +343,7 @@ def obtener_ganado(request, id):
         })
     except Ganado.DoesNotExist:
         return JsonResponse({'error': 'Vacuno no encontrado'}, status=404)
+
 # endregion
 
 # region cultivo
