@@ -170,8 +170,8 @@ def ExportarExcel(request):
     except Exception as e:
         return HttpResponse(f"Error: {str(e)}", status=500)
 
-def PlantillaGraficas(request):
-    return render(request, 'Ganado/graficas.html')
+# def PlantillaGraficas(request):
+#     return render(request, 'Ganado/graficas.html')
 
 #Cultivo
 
