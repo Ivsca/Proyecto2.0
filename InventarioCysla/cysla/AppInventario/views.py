@@ -978,27 +978,24 @@ def SistemaNotficacionesGmail(request):
 # endregion
 #inicio de region cambio de contraseña
 
-def restablecer_contra(request):
-    if not request.session.get("verified"):
-        return redirect("olvidar_contra")
-
+def olvidar_contra(request):
     if request.method == "POST":
-        new_password = request.POST.get("new_password")
-        email = request.session.get("reset_email")
+        correo = request.POST.get("Correo").strip().lower()
         try:
-            user = Usuarios.objects.get(correo=email)
-            # 🔐 Hashear contraseña en vez de guardarla en texto plano
-            user.clave = make_password(new_password)
-            user.save()
-
-            # Limpia la sesión para seguridad
-            request.session.flush()
-
-            return render(request, "restablecer_contra.html", {"message": "Contraseña cambiada con éxito"})
+            user = Usuarios.objects.get(correo=correo)
+            code = str(random.randint(100000, 999999))
+            code_hash = hashlib.sha256(code.encode()).hexdigest()
+            expires = timezone.now() + timedelta(minutes=15)
+            codigo.objects.update_or_create(
+                user=user,
+                defaults={"code_hash": code_hash, "expires_at": expires, "attempts": 0},
+            )
+            request.session["reset_email"] = correo  # ✅ guardar en sesión
+            send_reset_email(user.correo, code)
         except Usuarios.DoesNotExist:
-            return redirect("olvidar_contra")
-
-    return render(request, "restablecer_contra.html")
+            pass  # no revelar si existe o no
+        return render(request, "olvidar_contra.html", {"message": "Si existe una cuenta, se envió un código"})
+    return render(request, "olvidar_contra.html")
 
 
 def verificar_codigo(request):
