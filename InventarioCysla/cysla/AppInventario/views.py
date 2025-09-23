@@ -988,7 +988,7 @@ def olvidar_contra(request):
         correo = request.POST.get("correo", "").strip().lower()
         
         if not correo:
-            return render(request, "olvidar_contra.html", {"error": "El correo es obligatorio"})
+            return render(request, "cambiocontra/olvidar_contra.html", {"error": "El correo es obligatorio"})
         
         try:
             user = Usuarios.objects.get(correo=correo)
@@ -1016,7 +1016,7 @@ def olvidar_contra(request):
                 send_reset_email(user.correo, code)
             except Exception as e:
                 print(f"Error enviando email: {e}")
-                return render(request, "olvidar_contra.html", {
+                return render(request, "cambiocontra/olvidar_contra.html", {
                     "error": "Error al enviar el código. Intenta nuevamente."
                 })
 
@@ -1024,18 +1024,18 @@ def olvidar_contra(request):
             
         except Usuarios.DoesNotExist:
             # Por seguridad, redirigir igual
-            return redirect("verificar_codigo")
+            return redirect("cambiocontra/verificar_codigo")
         except Exception as e:
             print(f"Error en olvidar_contra: {e}")
-            return render(request, "olvidar_contra.html", {
+            return render(request, "cambiocontra/olvidar_contra.html", {
                 "error": "Error interno del sistema. Intenta nuevamente."
             })
     
-    return render(request, "olvidar_contra.html")
+    return render(request, "cambiocontra/olvidar_contra.html")
 
 def verificar_codigo(request):
     if not request.session.get("reset_email"):
-        return redirect("olvidar_contra")
+        return redirect("cambiocontra/olvidar_contra")
     
     if request.method == "POST":
         code = request.POST.get("code", "").strip()
@@ -1043,7 +1043,7 @@ def verificar_codigo(request):
         user_id = request.session.get("reset_user_id")
         
         if not code or len(code) != 6 or not code.isdigit():
-            return render(request, "verificar_codigo.html", {
+            return render(request, "cambiocontra/verificar_codigo.html", {
                 "error": "El código debe tener exactamente 6 dígitos"
             })
         
@@ -1053,7 +1053,7 @@ def verificar_codigo(request):
             
             if reset_obj.is_expired():
                 reset_obj.delete()
-                return render(request, "verificar_codigo.html", {
+                return render(request, "cambiocontra/verificar_codigo.html", {
                     "error": "El código ha expirado. Solicita uno nuevo."
                 })
             
@@ -1063,12 +1063,12 @@ def verificar_codigo(request):
                 
                 if reset_obj.attempts >= 3:
                     reset_obj.delete()
-                    return render(request, "verificar_codigo.html", {
+                    return render(request, "cambiocontra/verificar_codigo.html", {
                         "error": "Demasiados intentos fallidos. Solicita un nuevo código."
                     })
                 
                 intentos_restantes = 3 - reset_obj.attempts
-                return render(request, "verificar_codigo.html", {
+                return render(request, "cambiocontra/verificar_codigo.html", {
                     "error": f"Código incorrecto. Te quedan {intentos_restantes} intento(s)."
                 })
             
@@ -1078,20 +1078,20 @@ def verificar_codigo(request):
             return redirect("restablecer_contra")
             
         except Usuarios.DoesNotExist:
-            return render(request, "verificar_codigo.html", {
+            return render(request, "cambiocontra/verificar_codigo.html", {
                 "error": "Sesión expirada. Solicita un nuevo código."
             })
         except codigo.DoesNotExist:
-            return render(request, "verificar_codigo.html", {
+            return render(request, "cambiocontra/verificar_codigo.html", {
                 "error": "Código no encontrado. Solicita uno nuevo."
             })
         except Exception as e:
             print(f"Error en verificar_codigo: {e}")
-            return render(request, "verificar_codigo.html", {
+            return render(request, "cambiocontra/verificar_codigo.html", {
                 "error": "Error interno del sistema."
             })
     
-    return render(request, "verificar_codigo.html")
+    return render(request, "cambiocontra/verificar_codigo.html")
 
 def restablecer_contra(request):
     if not request.session.get("verified") or not request.session.get("reset_email"):
@@ -1104,17 +1104,17 @@ def restablecer_contra(request):
         user_id = request.session.get("reset_user_id")
         
         if not new_password:
-            return render(request, "restablecer_contra.html", {
+            return render(request, "cambiocontra/restablecer_contra.html", {
                 "error": "La contraseña es obligatoria"
             })
         
         if new_password != confirm_password:
-            return render(request, "restablecer_contra.html", {
+            return render(request, "cambiocontra/restablecer_contra.html", {
                 "error": "Las contraseñas no coinciden"
             })
         
         if len(new_password) < 8 or not re.search(r'[A-Z]', new_password) or not re.search(r'[0-9]', new_password):
-            return render(request, "restablecer_contra.html", {
+            return render(request, "cambiocontra/restablecer_contra.html", {
                 "error": "La contraseña debe tener mínimo 8 caracteres, incluir una mayúscula y un número"
             })
         
@@ -1134,9 +1134,9 @@ def restablecer_contra(request):
             return redirect("olvidar_contra")
         except Exception as e:
             print(f"Error en restablecer_contra: {e}")
-            return render(request, "restablecer_contra.html", {
+            return render(request, "cambiocontra/restablecer_contra.html", {
                 "error": "Error interno del sistema."
             })
     
-    return render(request, "restablecer_contra.html")
+    return render(request, "cambiocontra/wrestablecer_contra.html")
 # endregion
