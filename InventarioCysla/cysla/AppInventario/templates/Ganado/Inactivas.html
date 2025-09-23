@@ -1,5 +1,362 @@
 {% load static %}
-{% include 'inc/Header.html' %}
-juan se compro unas gafas
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vacas Inactivas - C&SLA</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'Image/img/logo_c&sla.png' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+    <link rel="stylesheet" href="{% static 'Css/HeaderFooter.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <style>
+        .ganado-container {
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .ganado-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .ganado-header h1 {
+            color: #2e8b57;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .ganado-header p {
+            color: #666;
+            font-size: 1.2rem;
+        }
+        
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        
+        .search-container input {
+            width: 300px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .search-container select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .ganado-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .ganado-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            position: relative;
+        }
+        
+        .ganado-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .ganado-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .ganado-code {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .ganado-info {
+            padding: 15px;
+        }
+        
+        .ganado-info h3 {
+            margin-top: 0;
+            color: #2e8b57;
+        }
+        
+        .ganado-actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            background: #f9f9f9;
+        }
+        
+        .ganado-actions button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .btn-ver {
+            background: #17a2b8;
+        }
+        
+        .btn-activar {
+            background: #28a745;
+        }
+        
+        .inactive-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .pagination a {
+            padding: 8px 16px;
+            margin: 0 4px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            color: #007bff;
+        }
+        
+        .pagination .current {
+            padding: 8px 16px;
+            margin: 0 4px;
+            background: #007bff;
+            color: white;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'inc/Header.html' %}
 
-{% include 'inc/Footer.html' %}
+    <div class="ganado-container">
+        <div class="ganado-header">
+            <h1>Vacas Inactivas</h1>
+            <p>Listado de vacas que han sido desactivadas del inventario principal</p>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Buscar vacas inactivas...">
+            <select id="TipoBusqueda">
+                <option value="">Todo</option>
+                <option value="codigo">Código</option>
+                <option value="raza">Raza</option>
+                <option value="estado">Estado</option>
+                <option value="edad">Edad</option>
+            </select>
+        </div>
+
+        <div class="ganado-grid">
+            {% for vaca in page_obj %}
+            <div class="ganado-item ganado-card" 
+                 data-codigo="{{ vaca.codigocria|lower }}" 
+                 data-raza="{{ vaca.razas|lower }}" 
+                 data-estado="{{ vaca.estado|lower }}" 
+                 data-edad="{{ vaca.edad }}">
+                
+                <div class="inactive-badge">INACTIVA</div>
+                
+                {% if vaca.foto %}
+                    <img src="{{ vaca.foto.url }}" alt="{{ vaca.codigocria }}">
+                {% else %}
+                    <img src="{% static 'Image/img/fondo_vaca.jpg' %}" alt="{{ vaca.codigocria }}">
+                {% endif %}
+                
+                <span class="ganado-code">{{ vaca.codigocria }}</span>
+                
+                <div class="ganado-info">
+                    <h3>{{ vaca.codigocria }}</h3>
+                    <p><strong>Raza:</strong> {{ vaca.razas }}</p>
+                    <p><strong>Edad:</strong> {{ vaca.edad }} meses</p>
+                    <p><strong>Estado:</strong> {{ vaca.estado }}</p>
+                    <p><strong>Madre:</strong> {{ vaca.codigomama|default:"N/A" }}</p>
+                    <p><strong>Padre:</strong> {{ vaca.codigopapa|default:"N/A" }}</p>
+                </div>
+                
+                <div class="ganado-actions">
+                    <button class="btn-ver" onclick="abrirFormularioVer('{{ vaca.codigocria }}')">
+                        <i class="fas fa-eye"></i> Ver más
+                    </button>
+                    <button class="btn-activar" onclick="ActivarVacuno({{ vaca.id }})">
+                        <i class="fas fa-undo"></i> Activar
+                    </button>
+                </div>
+            </div>
+            {% empty %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px;">
+                <i class="fas fa-cow" style="font-size: 60px; color: #ccc; margin-bottom: 20px;"></i>
+                <h3 style="color: #666;">No hay vacas inactivas</h3>
+                <p style="color: #888;">Todas las vacas se encuentran activas en el inventario principal.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Paginación -->
+        <div class="pagination">
+            <span class="step-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; primera</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">anterior</a>
+                {% endif %}
+
+                <span class="current">
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">siguiente</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">última &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+    {% include 'inc/Footer.html' %}
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Función para activar vacuno
+        function ActivarVacuno(id) {
+            Swal.fire({
+                title: '¿Activar vacuno?',
+                text: 'El vacuno volverá al inventario principal.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, activar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/Ganado/Tabla/Activar/vacuno/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': getCSRFToken()
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: '¡Activado!',
+                                text: 'El vacuno ha sido restaurado al inventario principal.',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire('Error', 'No se pudo activar el vacuno.', 'error');
+                        }
+                    })
+                    .catch(() => {
+                        Swal.fire('Error', 'Error de conexión.', 'error');
+                    });
+                }
+            });
+        }
+
+        // Función para obtener el token CSRF
+        function getCSRFToken() {
+            return document.querySelector('[name=csrf-token]')?.content ||
+                   document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+        }
+
+        // Filtrado de búsqueda
+        function filtrarGanado() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const filterType = document.getElementById('TipoBusqueda').value;
+            const ganadoItems = document.querySelectorAll('.ganado-item');
+
+            ganadoItems.forEach(item => {
+                let matches = false;
+                if (!filterType || filterType === "") {
+                    // Buscar en todo
+                    matches =
+                        item.getAttribute('data-codigo').includes(searchText) ||
+                        item.getAttribute('data-raza').includes(searchText) ||
+                        item.getAttribute('data-estado').includes(searchText) ||
+                        (item.getAttribute('data-edad') || '').toString().includes(searchText);
+                } else {
+                    // Buscar solo en el campo seleccionado
+                    let attr = '';
+                    if (filterType === 'codigo') attr = 'data-codigo';
+                    if (filterType === 'raza') attr = 'data-raza';
+                    if (filterType === 'estado') attr = 'data-estado';
+                    if (filterType === 'edad') attr = 'data-edad';
+                    matches = (item.getAttribute(attr) || '').toLowerCase().includes(searchText);
+                }
+                item.style.display = matches ? '' : 'none';
+            });
+        }
+
+        // Filtrado en vivo al escribir
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(this.timer);
+                    this.timer = setTimeout(filtrarGanado, 200);
+                });
+            }
+            const tipoBusqueda = document.getElementById('TipoBusqueda');
+            if (tipoBusqueda) {
+                tipoBusqueda.addEventListener('change', filtrarGanado);
+            }
+        });
+
+        // Función para ver detalles (la misma que en Table.html)
+        window.abrirFormularioVer = function(codigoCria) {
+            fetch(`/Ganado/BuscarCodigo/?q=${encodeURIComponent(codigoCria)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.length) {
+                        Swal.fire('Error', 'No se encontró el vacuno.', 'error');
+                        return;
+                    }
+                    const vacunoId = data[0].id;
+                    fetch(`/Ganado/api/obtener/${vacunoId}/`)
+                        .then(r => r.json())
+                        .then(vacuno => {
+                            // ... (código idéntico al de Table.html para mostrar detalles)
+                            // Copia aquí la función abrirFormularioVer completa de Table.html
+                        });
+                });
+        };
+    </script>
+</body>
+</html>

@@ -25,6 +25,7 @@ from .models import (
     TablaVacunas,
     Fertilizacion,
     TipoParcela,
+    GanadoInactivo
 )
 import re
 
@@ -217,9 +218,31 @@ def TablaGanado(request):
     })
 
 
+@login_requerido
 def VacasInactivas(request):
-    return render(request, 'Ganado/Inactivas.html',{
+    ganado_list = Ganado.objects.filter(activo=False)  # Solo ganado inactivo
+    paginator = Paginator(ganado_list, 9)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'Ganado/Inactivas.html', {
+        'page_obj': page_obj,
     })
+
+@login_requerido
+def EliminarVacuno(request, id):
+    vacuno = get_object_or_404(Ganado, id=id)
+    # En lugar de eliminar, marcamos como inactivo
+    vacuno.activo = False
+    vacuno.save()
+    return JsonResponse({'success': True})
+
+@login_requerido
+def ActivarVacuno(request, id):
+    vacuno = get_object_or_404(Ganado, id=id)
+    vacuno.activo = True
+    vacuno.save()
+    return JsonResponse({'success': True})
 
 @login_requerido
 def buscar_codigo_ganado(request):

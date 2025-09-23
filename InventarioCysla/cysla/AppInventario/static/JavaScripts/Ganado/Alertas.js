@@ -1025,7 +1025,11 @@ window.EliminarVacuno = function(id) {
                         icon: 'success',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        window.location.reload();
+                        // Remover la tarjeta del DOM
+                        const card = document.querySelector(`[onclick="EliminarVacuno('${id}')"]`).closest('.ganado-item');
+                        if (card) {
+                            card.remove();
+                        }
                     });
                 } else {
                     Swal.fire('Error', 'No se pudo desactivar el vacuno.', 'error');

@@ -151,6 +151,7 @@ class Ganado(models.Model):
         default=1  # Debe existir un registro con ID=1
     )
     razas = models.CharField(db_column='Razas', max_length=255)
+    activo = models.BooleanField(default=True)
 
     class Meta:
         managed = True
