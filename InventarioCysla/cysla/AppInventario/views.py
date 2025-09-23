@@ -986,15 +986,22 @@ def olvidar_contra(request):
             code = str(random.randint(100000, 999999))
             code_hash = hashlib.sha256(code.encode()).hexdigest()
             expires = timezone.now() + timedelta(minutes=15)
+
             codigo.objects.update_or_create(
                 user=user,
                 defaults={"code_hash": code_hash, "expires_at": expires, "attempts": 0},
             )
-            request.session["reset_email"] = correo  # ✅ guardar en sesión
+            request.session["reset_email"] = correo  # guardar email en sesión
             send_reset_email(user.correo, code)
+
         except Usuarios.DoesNotExist:
-            pass  # no revelar si existe o no
-        return render(request, "olvidar_contra.html", {"message": "Si existe una cuenta, se envió un código"})
+            pass  # No revelar si existe o no
+
+        return render(
+            request,
+            "olvidar_contra.html",
+            {"message": "Si existe una cuenta, se envió un código"},
+        )
     return render(request, "olvidar_contra.html")
 
 
@@ -1018,12 +1025,20 @@ def verificar_codigo(request):
 def restablecer_contra(request):
     if not request.session.get("verified"):
         return redirect("olvidar_contra")
+
     if request.method == "POST":
         new_password = request.POST.get("new_password")
         email = request.session.get("reset_email")
-        user = Usuarios.objects.get(correo=email)
-        user.clave = new_password  
-        user.save()
-        request.session.flush()
-        return render(request, "restablecer_contra.html", {"message": "Contraseña cambiada con éxito"})
+
+        try:
+            user = Usuarios.objects.get(correo=email)
+            user.clave = make_password(new_password)  # 🔐 Guardar encriptado
+            user.save()
+
+            request.session.flush()  # limpiar sesión
+            return render(request, "restablecer_contra.html", {"message": "Contraseña cambiada con éxito"})
+
+        except Usuarios.DoesNotExist:
+            return redirect("olvidar_contra")
+
     return render(request, "restablecer_contra.html")
