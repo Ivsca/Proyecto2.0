@@ -56,50 +56,6 @@ services:
     networks:
       - app_network
 
-  servicio_excel:
-    build:
-      context: ./MicroServicios/servicio_excel
-      dockerfile: Dockerfile
-    container_name: servicio_excel_web
-    command: python manage.py runserver 0.0.0.0:8001
-    volumes:
-      - ./MicroServicios/servicio_excel:/app
-    ports:
-      - "8001:8001"
-    depends_on:
-      - db
-      - redis
-    environment:
-      MYSQLHOST: db
-      MYSQLPORT: 3306
-      MYSQLUSER: django_user
-      MYSQLPASSWORD: django_pass
-      MYSQLDATABASE: flock
-      CELERY_BROKER_URL: redis://redis:6379/0
-    networks:
-      - app_network
-
-  celery_worker:
-    build:
-      context: ./MicroServicios/servicio_excel
-      dockerfile: Dockerfile
-    container_name: servicio_excel_celery
-    command: celery -A servicio_excel worker --loglevel=info
-    volumes:
-      - ./MicroServicios/servicio_excel:/app
-    depends_on:
-      - db
-      - redis
-    environment:
-      MYSQLHOST: db
-      MYSQLPORT: 3306
-      MYSQLUSER: django_user
-      MYSQLPASSWORD: django_pass
-      MYSQLDATABASE: flock
-      CELERY_BROKER_URL: redis://redis:6379/0
-    networks:
-      - app_network
-
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin
