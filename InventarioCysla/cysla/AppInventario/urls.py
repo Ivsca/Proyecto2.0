@@ -17,9 +17,9 @@ urlpatterns = [
     path('Logueo/Logout/', views.logout_view, name='LogoutUser'),
     path('Cambiarrol/<int:id_usuario>/', views.Cambiarrol, name='Cambiarrol'),
     # endregion
-    path("olvidar_contra", views.olvidar_contra, name="olvidar_contra"),
-    path("verificar_codigo", views.verificar_codigo, name="verificar_codigo"),
-    path("restablecer_contra", views.restablecer_contra, name="restablecer_contra"),
+    path('olvidar-contra/', views.olvidar_contra, name='olvidar_contra'),
+    path('verificar-codigo/', views.verificar_codigo, name='verificar_codigo'),
+    path('restablecer-contra/', views.restablecer_contra, name='restablecer_contra'),
     # region Solicitudes de acceso
     path('Logueo/TablaSolicitudesUser/', views.TablaSolicitudesUsuarios, name='TablaSolicitudesUsuarios'),
     path('Logueo/TablaSolicitudesUser/aceptada/<int:id_solicitud>', views.SolicitudAceptada, name='SolicitudAceptada'),

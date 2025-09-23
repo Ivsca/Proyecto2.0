@@ -30,18 +30,19 @@
     <div class="container mx-auto p-6 bg-white rounded-lg shadow-lg max-w-md">
         <h2 class="text-2xl font-bold text-center mb-4">Verificar código</h2>
         
-        <form method="post" class="space-y-4">
-            {% csrf_token %}
-            <div>
-                <label for="code" class="block text-gray-700 text-center">Código recibido</label>
-                <input id="code" type="text" name="code" placeholder="Ingresa tu código"
-                       class="w-full border p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                       required>
-            </div>
-            <button type="submit" class="bg-teal-600 text-white w-full py-2 rounded-lg hover:bg-teal-700 transition">
-                Verificar
-            </button>
-        </form>
+       <form method="post" class="space-y-4">
+    {% csrf_token %}
+    <div>
+        <label for="code" class="block text-gray-700 text-center">Código recibido</label>
+        <input id="code" type="text" name="code" placeholder="Ingresa tu código" required>
+        {% if error %}
+            <span class="text-red-500 text-sm">{{ error }}</span>
+        {% endif %}
+    </div>
+    <button type="submit" class="bg-teal-600 text-white w-full py-2 rounded-lg">
+        Verificar
+    </button>
+</form>
 
         {% if message %}
             <p class="text-center text-red-500 mt-2">{{ message }}</p>

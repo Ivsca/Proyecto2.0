@@ -976,69 +976,167 @@ def SistemaNotficacionesGmail(request):
 
 
 # endregion
-#inicio de region cambio de contraseña
+# region recuperación de contraseña
 
+# region recuperación de contraseña
+# region recuperación de contraseña
 def olvidar_contra(request):
+    if request.session.get("usuario_id"):
+        return redirect("Home")
+    
     if request.method == "POST":
-        correo = request.POST.get("Correo").strip().lower()
+        correo = request.POST.get("correo", "").strip().lower()
+        
+        if not correo:
+            return render(request, "olvidar_contra.html", {"error": "El correo es obligatorio"})
+        
         try:
             user = Usuarios.objects.get(correo=correo)
             code = str(random.randint(100000, 999999))
             code_hash = hashlib.sha256(code.encode()).hexdigest()
             expires = timezone.now() + timedelta(minutes=15)
 
-            codigo.objects.update_or_create(
-                user=user,
-                defaults={"code_hash": code_hash, "expires_at": expires, "attempts": 0},
+            # Limpiar códigos expirados y códigos previos
+            codigo.limpiar_codigos_expirados()
+            codigo.objects.filter(user_id=user.id).delete()
+            
+            # Crear nuevo código
+            codigo_obj = codigo.objects.create(
+                user_id=user.id,
+                code_hash=code_hash,
+                expires_at=expires,
+                attempts=0
             )
-            request.session["reset_email"] = correo  # guardar email en sesión
-            send_reset_email(user.correo, code)
+            
+            request.session["reset_email"] = correo
+            request.session["reset_user_id"] = user.id
+            
+            # Enviar email
+            try:
+                send_reset_email(user.correo, code)
+            except Exception as e:
+                print(f"Error enviando email: {e}")
+                return render(request, "olvidar_contra.html", {
+                    "error": "Error al enviar el código. Intenta nuevamente."
+                })
 
+            return redirect("verificar_codigo")
+            
         except Usuarios.DoesNotExist:
-            pass  # No revelar si existe o no
-
-        return render(
-            request,
-            "olvidar_contra.html",
-            {"message": "Si existe una cuenta, se envió un código"},
-        )
+            # Por seguridad, redirigir igual
+            return redirect("verificar_codigo")
+        except Exception as e:
+            print(f"Error en olvidar_contra: {e}")
+            return render(request, "olvidar_contra.html", {
+                "error": "Error interno del sistema. Intenta nuevamente."
+            })
+    
     return render(request, "olvidar_contra.html")
 
-
 def verificar_codigo(request):
+    if not request.session.get("reset_email"):
+        return redirect("olvidar_contra")
+    
     if request.method == "POST":
-        code = request.POST.get("code")
+        code = request.POST.get("code", "").strip()
         email = request.session.get("reset_email")
+        user_id = request.session.get("reset_user_id")
+        
+        if not code or len(code) != 6 or not code.isdigit():
+            return render(request, "verificar_codigo.html", {
+                "error": "El código debe tener exactamente 6 dígitos"
+            })
+        
         try:
-            user = Usuarios.objects.get(correo=email)
-            reset_obj = codigo.objects.get(user=user)
-            if reset_obj.is_expired() or not reset_obj.check_code(code):
-                return render(request, "verificar_codigo.html", {"message": "Código inválido o expirado"})
+            user = Usuarios.objects.get(id=user_id, correo=email)
+            reset_obj = codigo.objects.get(user_id=user.id)  # ← Cambio clave aquí
+            
+            if reset_obj.is_expired():
+                reset_obj.delete()
+                return render(request, "verificar_codigo.html", {
+                    "error": "El código ha expirado. Solicita uno nuevo."
+                })
+            
+            if not reset_obj.check_code(code):
+                reset_obj.attempts += 1
+                reset_obj.save()
+                
+                if reset_obj.attempts >= 3:
+                    reset_obj.delete()
+                    return render(request, "verificar_codigo.html", {
+                        "error": "Demasiados intentos fallidos. Solicita un nuevo código."
+                    })
+                
+                intentos_restantes = 3 - reset_obj.attempts
+                return render(request, "verificar_codigo.html", {
+                    "error": f"Código incorrecto. Te quedan {intentos_restantes} intento(s)."
+                })
+            
+            # Código correcto
             request.session["verified"] = True
             reset_obj.delete()
             return redirect("restablecer_contra")
-        except (Usuarios.DoesNotExist, codigo.DoesNotExist):
-            return render(request, "verificar_codigo.html", {"message": "Código inválido"})
+            
+        except Usuarios.DoesNotExist:
+            return render(request, "verificar_codigo.html", {
+                "error": "Sesión expirada. Solicita un nuevo código."
+            })
+        except codigo.DoesNotExist:
+            return render(request, "verificar_codigo.html", {
+                "error": "Código no encontrado. Solicita uno nuevo."
+            })
+        except Exception as e:
+            print(f"Error en verificar_codigo: {e}")
+            return render(request, "verificar_codigo.html", {
+                "error": "Error interno del sistema."
+            })
+    
     return render(request, "verificar_codigo.html")
 
-
 def restablecer_contra(request):
-    if not request.session.get("verified"):
+    if not request.session.get("verified") or not request.session.get("reset_email"):
         return redirect("olvidar_contra")
-
+    
     if request.method == "POST":
-        new_password = request.POST.get("new_password")
+        new_password = request.POST.get("new_password", "").strip()
+        confirm_password = request.POST.get("confirm_password", "").strip()
         email = request.session.get("reset_email")
-
+        user_id = request.session.get("reset_user_id")
+        
+        if not new_password:
+            return render(request, "restablecer_contra.html", {
+                "error": "La contraseña es obligatoria"
+            })
+        
+        if new_password != confirm_password:
+            return render(request, "restablecer_contra.html", {
+                "error": "Las contraseñas no coinciden"
+            })
+        
+        if len(new_password) < 8 or not re.search(r'[A-Z]', new_password) or not re.search(r'[0-9]', new_password):
+            return render(request, "restablecer_contra.html", {
+                "error": "La contraseña debe tener mínimo 8 caracteres, incluir una mayúscula y un número"
+            })
+        
         try:
-            user = Usuarios.objects.get(correo=email)
-            user.clave = make_password(new_password)  # 🔐 Guardar encriptado
+            user = Usuarios.objects.get(id=user_id, correo=email)
+            user.clave = make_password(new_password)
             user.save()
-
-            request.session.flush()  # limpiar sesión
-            return render(request, "restablecer_contra.html", {"message": "Contraseña cambiada con éxito"})
-
+            
+            # Limpiar sesión
+            request.session.flush()
+            
+            messages.success(request, "¡Contraseña cambiada exitosamente! Ya puedes iniciar sesión.")
+            return redirect("PlantillaLogueo")
+            
         except Usuarios.DoesNotExist:
+            messages.error(request, "Error al cambiar la contraseña. Intenta nuevamente.")
             return redirect("olvidar_contra")
-
+        except Exception as e:
+            print(f"Error en restablecer_contra: {e}")
+            return render(request, "restablecer_contra.html", {
+                "error": "Error interno del sistema."
+            })
+    
     return render(request, "restablecer_contra.html")
+# endregion

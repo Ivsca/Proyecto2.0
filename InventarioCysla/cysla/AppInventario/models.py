@@ -126,17 +126,41 @@ from django.contrib.auth.models import User
 #         db_table = 'django_session'
 
 class codigo(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    code_hash = models.CharField(max_length=64)   # hash del código
+    user_id = models.IntegerField(help_text="ID del usuario en la tabla usuarios")
+    code_hash = models.CharField(max_length=64)
     expires_at = models.DateTimeField()
     attempts = models.IntegerField(default=0)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        db_table = 'codigo_recuperacion'
 
     def is_expired(self):
         return timezone.now() > self.expires_at
 
     def check_code(self, code: str) -> bool:
+        # Validar que el código tenga 6 dígitos
+        if not code or len(code) != 6 or not code.isdigit():
+            return False
         return hashlib.sha256(code.encode()).hexdigest() == self.code_hash
 
+    def __str__(self):
+        return f"Código para usuario {self.user_id}"
+
+    # Método para obtener el usuario relacionado
+    def get_user(self):
+        try:
+            return Usuarios.objects.get(id=self.user_id)
+        except Usuarios.DoesNotExist:
+            return None
+
+    # Método estático para limpiar códigos expirados
+    @classmethod
+    def limpiar_codigos_expirados(cls):
+        expired_codes = cls.objects.filter(expires_at__lt=timezone.now())
+        count = expired_codes.count()
+        expired_codes.delete()
+        return count
 
 class Enfermedades(models.Model):
     nombre = models.CharField(db_column='nombre',max_length=150)

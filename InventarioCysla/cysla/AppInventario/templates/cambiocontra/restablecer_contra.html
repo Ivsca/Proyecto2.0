@@ -31,18 +31,23 @@
     <div class="container mx-auto p-6 bg-white rounded-lg shadow-lg max-w-md">
         <h2 class="text-2xl font-bold text-center mb-4">Nueva contraseña</h2>
         
-        <form method="post" class="space-y-4">
-            {% csrf_token %}
-            <div>
-                <label for="new_password" class="block text-gray-700 text-center">Escribe tu nueva contraseña</label>
-                <input id="new_password" type="password" name="new_password" placeholder="Nueva contraseña"
-                       class="w-full border p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                       required>
-            </div>
-            <button type="submit" class="bg-teal-600 text-white w-full py-2 rounded-lg hover:bg-teal-700 transition">
-                Cambiar contraseña
-            </button>
-        </form>
+       <form method="post" class="space-y-4">
+    {% csrf_token %}
+    <div>
+        <label for="new_password" class="block text-gray-700">Nueva contraseña</label>
+        <input id="new_password" type="password" name="new_password" class="w-full border p-2 rounded-lg" required>
+    </div>
+    <div>
+        <label for="confirm_password" class="block text-gray-700">Confirmar contraseña</label>
+        <input id="confirm_password" type="password" name="confirm_password" class="w-full border p-2 rounded-lg" required>
+    </div>
+    {% if error %}
+        <div class="text-red-500 text-sm">{{ error }}</div>
+    {% endif %}
+    <button type="submit" class="bg-teal-600 text-white w-full py-2 rounded-lg hover:bg-teal-700">
+        Cambiar contraseña
+    </button>
+</form>
 
         {% if message %}
             <p class="text-center text-red-500 mt-2">{{ message }}</p>

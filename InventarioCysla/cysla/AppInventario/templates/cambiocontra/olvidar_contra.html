@@ -26,23 +26,19 @@
     </div>
 
     <!-- Formulario -->
-    <div class="container mx-auto p-6 bg-white rounded-lg shadow-lg form-container max-w-md">
-        <h2 class="text-2xl font-bold text-center mb-4">Recuperar tu contraseña</h2>
-        
-        <form id="loginForm" action="" method="post" class="max-h-[400px] overflow-y-auto p-1">
-            {% csrf_token %}
-            <div class="mb-4">
-                <label for="Correo" class="block text-gray-700 text-center">Correo</label>
-                <input id="Correo" class="w-full border p-2 rounded-lg" type="email" name="correo" required>
-                <span id="errorCorreo" class="text-red-500 text-sm"></span>
-            </div>
-            <button type="submit" class="bg-teal-600 text-white w-full py-2 rounded-lg">
-                Enviar código
-            </button>
-            <a href="{% url 'RegisterUser' %}" class="block text-center mt-4 text-blue-500 hover:underline">
-                ¿No tienes cuenta? Regístrate
-            </a>
-        </form>
+ <form id="loginForm" action="" method="post" class="max-h-[400px] overflow-y-auto p-1">
+    {% csrf_token %}
+    <div class="mb-4">
+        <label for="correo" class="block text-gray-700 text-center">Correo</label>
+        <input id="correo" class="w-full border p-2 rounded-lg" type="email" name="correo" required>
+        {% if error %}
+            <span class="text-red-500 text-sm">{{ error }}</span>
+        {% endif %}
+    </div>
+    <button type="submit" class="bg-teal-600 text-white w-full py-2 rounded-lg">
+        Enviar código
+    </button>
+</form>
 
         {% if message %}
             <p class="text-center text-red-500 mt-2">{{ message }}</p>
