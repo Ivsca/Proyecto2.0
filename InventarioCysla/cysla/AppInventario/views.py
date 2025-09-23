@@ -216,7 +216,7 @@ def TablaGanado(request):
         'parcelas': parcelas
     })
 
-@login_requerido
+
 def VacasInactivas(request):
     return render(request, 'Ganado/Inactivas.html',{
     })
