@@ -34,6 +34,9 @@ urlpatterns = [
     path('Ganado/api/obtener/<int:id>/', views.obtener_ganado, name='obtener_ganado'),
     path('Ganado/api/VacasInactivas', views.VacasInactivas, name='VacasInactivas'),
     # endregion
+    path("olvidar_contra", views.olvidar_contra, name="olvidar_contra"),
+    path("verificar_codigo", views.verificar_codigo, name="verificar_codigo"),
+    path("restablecer_contra", views.restablecer_contra, name="restablecer_contra"),
 
     # region Cultivo
     path('Cultivo/Tabla/', views.TablaCultivo, name="TablaCultivo"),

@@ -6,6 +6,10 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
+from django.db import models
+from django.utils import timezone
+import hashlib 
+from django.contrib.auth.models import User
 
 
 # class AuthGroup(models.Model):
@@ -120,6 +124,18 @@ from django.db import models
 #     class Meta:
 #         managed = False
 #         db_table = 'django_session'
+
+class codigo(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    code_hash = models.CharField(max_length=64)   # hash del código
+    expires_at = models.DateTimeField()
+    attempts = models.IntegerField(default=0)
+
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    def check_code(self, code: str) -> bool:
+        return hashlib.sha256(code.encode()).hexdigest() == self.code_hash
 
 
 class Enfermedades(models.Model):

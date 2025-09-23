@@ -1,0 +1,12 @@
+<!doctype html>
+<html>
+  <body>
+    <h2>Nueva contraseña</h2>
+    <form method="post">
+      {% csrf_token %}
+      <input type="password" name="new_password" placeholder="Nueva contraseña" required>
+      <button type="submit">Cambiar</button>
+    </form>
+    {% if message %}<p>{{ message }}</p>{% endif %}
+  </body>
+</html>

@@ -1,0 +1,12 @@
+<!doctype html>
+<html>
+  <body>
+    <h2>Recuperar contraseña</h2>
+    <form method="post">
+      {% csrf_token %}
+      <input type="email" name="email" placeholder="Tu correo" required>
+      <button type="submit">Enviar código</button>
+    </form>
+    {% if message %}<p>{{ message }}</p>{% endif %}
+  </body>
+</html>

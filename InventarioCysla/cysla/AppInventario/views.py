@@ -41,6 +41,7 @@ from .models import (
     TablaVacunas,
     Fertilizacion,
     TipoParcela,
+    codigo,
 )
 
 # ==========================
@@ -48,6 +49,12 @@ from .models import (
 # ==========================
 from .decoradores import login_requerido
 from AppInventario.Notificaciones import NotificacionesCultivos
+import hashlib, random
+from datetime import timedelta
+from django.utils import timezone
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
+from .utils import send_reset_email
 
 
 
@@ -968,7 +975,57 @@ def SistemaNotficacionesGmail(request):
 
 
 # endregion
+#inicio de region cambio de contraseña
 
+def olvidar_contra(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        try:
+            user = User.objects.get(email=email)
+            code = str(random.randint(100000, 999999))
+            code_hash = hashlib.sha256(code.encode()).hexdigest()
+            expires = timezone.now() + timedelta(minutes=15)
+            codigo.objects.update_or_create(
+                user=user,
+                defaults={"code_hash": code_hash, "expires_at": expires, "attempts": 0},
+            )
+            send_reset_email(user.email, code)
+        except User.DoesNotExist:
+            pass  # no revelar nada
+        return render(request, "olvidar_contra.html", {"message": "Si existe una cuenta, se envió un código"})
+    return render(request, "olvidar_contra.html")
+
+
+def verificar_codigo(request):
+    if request.method == "POST":
+        code = request.POST.get("code")
+        email = request.session.get("reset_email")
+        try:
+            user = User.objects.get(email=email)
+            reset_obj = codigo.objects.get(user=user)
+            if reset_obj.is_expired() or not reset_obj.check_code(code):
+                return render(request, "verificar_codigo.html", {"message": "Código inválido o expirado"})
+            # Guardar token simple en sesión
+            request.session["verified"] = True
+            reset_obj.delete()
+            return redirect("reset_password")
+        except (User.DoesNotExist, codigo.DoesNotExist):
+            return render(request, "verificar_codigo.html", {"message": "Código inválido"})
+    return render(request, "verificar_codigo.html")
+
+
+def restablecer_contra(request):
+    if not request.session.get("verified"):
+        return redirect("forgot_password")
+    if request.method == "POST":
+        new_password = request.POST.get("new_password")
+        email = request.session.get("reset_email")
+        user = User.objects.get(email=email)
+        user.password = make_password(new_password)
+        user.save()
+        request.session.flush()
+        return render(request, "restablecer_contra.html", {"message": "Contraseña cambiada con éxito"})
+    return render(request, "restablecer_contra.html")
 
 
 
