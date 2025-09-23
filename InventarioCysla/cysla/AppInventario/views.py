@@ -980,21 +980,34 @@ def SistemaNotficacionesGmail(request):
 
 def olvidar_contra(request):
     if request.method == "POST":
-        email = request.POST.get("email").strip().lower()
-        try:
-            user = Usuarios.objects.get(correo=email)
-            code = str(random.randint(100000, 999999))
-            code_hash = hashlib.sha256(code.encode()).hexdigest()
-            expires = timezone.now() + timedelta(minutes=15)
-            codigo.objects.update_or_create(
-                user=user,
-                defaults={"code_hash": code_hash, "expires_at": expires, "attempts": 0},
+        email = request.POST.get("correo")  # 🔹 usa 'correo' como en el form
+        if email:
+            email = email.strip().lower()
+            try:
+                user = Usuarios.objects.get(correo=email)
+                code = str(random.randint(100000, 999999))
+                code_hash = hashlib.sha256(code.encode()).hexdigest()
+                expires = timezone.now() + timedelta(minutes=15)
+
+                codigo.objects.update_or_create(
+                    user=user,
+                    defaults={"code_hash": code_hash, "expires_at": expires, "attempts": 0},
+                )
+                request.session["reset_email"] = email
+                send_reset_email(user.correo, code)
+            except Usuarios.DoesNotExist:
+                pass  # No revelar si existe o no
+            return render(
+                request,
+                "olvidar_contra.html",
+                {"message": "Si existe una cuenta, se envió un código"},
             )
-            request.session["reset_email"] = email  # ✅ guardar en sesión
-            send_reset_email(user.correo, code)
-        except Usuarios.DoesNotExist:
-            pass  # no revelar si existe o no
-        return render(request, "olvidar_contra.html", {"message": "Si existe una cuenta, se envió un código"})
+        else:
+            return render(
+                request,
+                "olvidar_contra.html",
+                {"message": "Debes ingresar un correo válido"},
+            )
     return render(request, "olvidar_contra.html")
 
 
