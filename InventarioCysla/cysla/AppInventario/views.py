@@ -24,7 +24,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.core.paginator import Paginator
 from django.core.serializers import serialize
-from django.views.decorators.http import require_POST, csrf_exempt
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 
 # ==========================
@@ -1021,7 +1022,7 @@ def restablecer_contra(request):
         new_password = request.POST.get("new_password")
         email = request.session.get("reset_email")
         user = Usuarios.objects.get(correo=email)
-        user.clave = new_password  # ⚠️ Mejor con make_password
+        user.clave = new_password  
         user.save()
         request.session.flush()
         return render(request, "restablecer_contra.html", {"message": "Contraseña cambiada con éxito"})
