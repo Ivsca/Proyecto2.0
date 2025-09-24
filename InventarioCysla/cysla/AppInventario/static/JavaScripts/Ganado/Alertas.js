@@ -1009,7 +1009,7 @@ window.EliminarVacuno = function(id) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`/Ganado/Tabla/Eliminar/vacuno/${id}/`, {
+            fetch(`/Ganado/api/Eliminar/${id}/`, {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
