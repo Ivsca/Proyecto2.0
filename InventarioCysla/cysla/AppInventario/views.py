@@ -978,9 +978,9 @@ def SistemaNotficacionesGmail(request):
 
 
 # endregion
-# region recuperación de contraseña
 
-# region recuperación de contraseña
+
+
 # region recuperación de contraseña
 def olvidar_contra(request):
     if request.session.get("usuario_id"):
@@ -1021,11 +1021,11 @@ def olvidar_contra(request):
                     "error": "Error al enviar el código. Intenta nuevamente."
                 })
 
-            return redirect("verificar_codigo")  # ✅ CORREGIDO
+            return redirect("verificar_codigo")
             
         except Usuarios.DoesNotExist:
             # Por seguridad, redirigir igual
-            return redirect("verificar_codigo")  # ✅ CORREGIDO
+            return redirect("verificar_codigo")
         except Exception as e:
             print(f"Error en olvidar_contra: {e}")
             return render(request, "cambiocontra/olvidar_contra.html", {
@@ -1036,18 +1036,7 @@ def olvidar_contra(request):
 
 def verificar_codigo(request):
     if not request.session.get("reset_email"):
-        return redirect("olvidar_contra")  # ✅ CORREGIDO
-    
-    # ... resto del código igual
-
-def restablecer_contra(request):
-    if not request.session.get("verified") or not request.session.get("reset_email"):
-        return redirect("olvidar_contra")  # ✅ CORREGIDO
-    # ... resto del código igual
-
-def verificar_codigo(request):
-    if not request.session.get("reset_email"):
-        return redirect("cambiocontra/olvidar_contra")
+        return redirect("olvidar_contra")
     
     if request.method == "POST":
         code = request.POST.get("code", "").strip()
@@ -1061,7 +1050,7 @@ def verificar_codigo(request):
         
         try:
             user = Usuarios.objects.get(id=user_id, correo=email)
-            reset_obj = codigo.objects.get(user_id=user.id)  # ← Cambio clave aquí
+            reset_obj = codigo.objects.get(user_id=user.id)
             
             if reset_obj.is_expired():
                 reset_obj.delete()
@@ -1132,7 +1121,8 @@ def restablecer_contra(request):
         
         try:
             user = Usuarios.objects.get(id=user_id, correo=email)
-            user.clave = make_password(new_password)
+            # ✅ CAMBIO CLAVE: Guardar en texto plano (sin make_password)
+            user.clave = new_password  # ← Texto plano directamente
             user.save()
             
             # Limpiar sesión
@@ -1151,4 +1141,5 @@ def restablecer_contra(request):
             })
     
     return render(request, "cambiocontra/restablecer_contra.html")
+
 # endregion
