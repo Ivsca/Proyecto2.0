@@ -999,7 +999,6 @@ def olvidar_contra(request):
             expires = timezone.now() + timedelta(minutes=15)
 
             # Limpiar códigos expirados y códigos previos
-            codigo.limpiar_codigos_expirados()
             codigo.objects.filter(user_id=user.id).delete()
             
             # Crear nuevo código
@@ -1022,11 +1021,11 @@ def olvidar_contra(request):
                     "error": "Error al enviar el código. Intenta nuevamente."
                 })
 
-            return redirect("verificar_codigo")
+            return redirect("verificar_codigo")  # ✅ CORREGIDO
             
         except Usuarios.DoesNotExist:
             # Por seguridad, redirigir igual
-            return redirect("cambiocontra/verificar_codigo")
+            return redirect("verificar_codigo")  # ✅ CORREGIDO
         except Exception as e:
             print(f"Error en olvidar_contra: {e}")
             return render(request, "cambiocontra/olvidar_contra.html", {
@@ -1034,6 +1033,17 @@ def olvidar_contra(request):
             })
     
     return render(request, "cambiocontra/olvidar_contra.html")
+
+def verificar_codigo(request):
+    if not request.session.get("reset_email"):
+        return redirect("olvidar_contra")  # ✅ CORREGIDO
+    
+    # ... resto del código igual
+
+def restablecer_contra(request):
+    if not request.session.get("verified") or not request.session.get("reset_email"):
+        return redirect("olvidar_contra")  # ✅ CORREGIDO
+    # ... resto del código igual
 
 def verificar_codigo(request):
     if not request.session.get("reset_email"):
@@ -1140,5 +1150,5 @@ def restablecer_contra(request):
                 "error": "Error interno del sistema."
             })
     
-    return render(request, "cambiocontra/wrestablecer_contra.html")
+    return render(request, "cambiocontra/restablecer_contra.html")
 # endregion

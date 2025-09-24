@@ -246,3 +246,20 @@ if not DEBUG:
 # Django 5 default
 # ==========================
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+# En settings.py - PEGA LA CONTRASEÑA AQUÍ
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'gestorempresa1@gmail.com'
+EMAIL_HOST_PASSWORD = 'bbrz gzqp hoxu qraj'  # ← PEGA AQUÍ TU CONTRASEÑA
+
+DEFAULT_FROM_EMAIL = 'gestorempresa1@gmail.com'
+SERVER_EMAIL = 'gestorempresa1@gmail.com'
+
+# Sesiones
+SESSION_COOKIE_AGE = 1209600
+SESSION_SAVE_EVERY_REQUEST = True
+
+# Autenticación
+LOGIN_URL = '/Logueo/Plantilla/'

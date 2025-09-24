@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="es">
 <head>
@@ -26,7 +27,7 @@
     </div>
 
     <!-- Formulario -->
- <form id="loginForm" action="" method="post" class="max-h-[400px] overflow-y-auto p-1">
+<form id="loginForm" action="{% url 'olvidar_contra' %}" method="post" class="max-h-[400px] overflow-y-auto p-1">
     {% csrf_token %}
     <div class="mb-4">
         <label for="correo" class="block text-gray-700 text-center">Correo</label>
