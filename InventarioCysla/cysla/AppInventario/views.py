@@ -821,150 +821,150 @@ def Desactivar(request, registro_id):
 
 # #Cultivo
 
-# def PlantillaCultivos(request):
-#     tipos = TipoCultivo.objects.all()
-#     campos_cultivo = [field.name for field in Cultivo._meta.fields if field.name not in ['id', 'foto']]
-#     return render(request, 'Cultivo/excel.html', {
-#         'tipos': tipos,
-#         'campos_disponibles': campos_cultivo
-#     })
+def PlantillaCultivos(request):
+    tipos = TipoCultivo.objects.all()
+    campos_cultivo = [field.name for field in Cultivo._meta.fields if field.name not in ['id', 'foto']]
+    return render(request, 'Cultivo/excel.html', {
+        'tipos': tipos,
+        'campos_disponibles': campos_cultivo
+    })
 
-# def ConsultarCultivos(request):
-#     try:
-#         limit = int(request.GET.get('limit', 10))
-#         offset = int(request.GET.get('offset', 0))
-#         fields = request.GET.get('fields', '')
-#         selected_fields = [f for f in fields.split(',') if f]
-#         all_fields = [f.name for f in Cultivo._meta.fields]
-#         valid_fields = [f for f in selected_fields if f in all_fields]
+def ConsultarCultivos(request):
+    try:
+        limit = int(request.GET.get('limit', 10))
+        offset = int(request.GET.get('offset', 0))
+        fields = request.GET.get('fields', '')
+        selected_fields = [f for f in fields.split(',') if f]
+        all_fields = [f.name for f in Cultivo._meta.fields]
+        valid_fields = [f for f in selected_fields if f in all_fields]
 
-#         if not valid_fields:
-#             return JsonResponse({'success': True, 'cultivos': [], 'total': 0})
+        if not valid_fields:
+            return JsonResponse({'success': True, 'cultivos': [], 'total': 0})
 
-#         queryset = Cultivo.objects.all()
+        queryset = Cultivo.objects.all()
 
-#         # Filtro por tipo
-#         filter_tipo = request.GET.get('filter_tipo')
-#         if filter_tipo:
-#             queryset = queryset.filter(tipo=filter_tipo)
+        # Filtro por tipo
+        filter_tipo = request.GET.get('filter_tipo')
+        if filter_tipo:
+            queryset = queryset.filter(tipo=filter_tipo)
 
-#         # Orden dinámico
-#         order_fields = []
-#         for key, value in request.GET.items():
-#             if key.startswith('sort_') and value in ['asc', 'desc']:
-#                 field = key[5:]
-#                 if field in valid_fields:
-#                     order_fields.append(f'-{field}' if value == 'desc' else field)
-#         if order_fields:
-#             queryset = queryset.order_by(*order_fields)
+        # Orden dinámico
+        order_fields = []
+        for key, value in request.GET.items():
+            if key.startswith('sort_') and value in ['asc', 'desc']:
+                field = key[5:]
+                if field in valid_fields:
+                    order_fields.append(f'-{field}' if value == 'desc' else field)
+        if order_fields:
+            queryset = queryset.order_by(*order_fields)
 
-#         total = queryset.count()
-#         cultivos = queryset.only(*valid_fields)[offset:offset+limit]
+        total = queryset.count()
+        cultivos = queryset.only(*valid_fields)[offset:offset+limit]
 
-#         data = []
-#         for cultivo in cultivos:
-#             item = {}
-#             for field in valid_fields:
-#                 value = getattr(cultivo, field, '')
-#                 if hasattr(value, 'id'):
-#                     value = value.id
-#                 item[field] = value
-#             data.append(item)
+        data = []
+        for cultivo in cultivos:
+            item = {}
+            for field in valid_fields:
+                value = getattr(cultivo, field, '')
+                if hasattr(value, 'id'):
+                    value = value.id
+                item[field] = value
+            data.append(item)
 
-#         return JsonResponse({'success': True, 'cultivos': data, 'total': total})
-#     except Exception as e:
-#         return JsonResponse({'success': False, 'error': str(e)}, status=500)
-
-
+        return JsonResponse({'success': True, 'cultivos': data, 'total': total})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
-# def ExportarExcelCultivos(request):
-#     try:
-#         filename = request.GET.get('filename', 'cultivos')
-#         if not filename or re.search(r'[<>:"/\\|?*]', filename):
-#             return HttpResponse("Nombre de archivo inválido", status=400)
 
-#         selected_fields = request.GET.get('fields', '').split(',')
-#         if not selected_fields:
-#             return HttpResponse("Selecciona columnas", status=400)
 
-#         # Validar campos reales y extra
-#         model_fields = [f.name for f in Cultivo._meta.fields]
-#         extra_fields = ['fecha_fertilizacion', 'dosis_fertilizacion']
-#         valid_fields = [f for f in selected_fields if f in model_fields or f in extra_fields]
+def ExportarExcelCultivos(request):
+    try:
+        filename = request.GET.get('filename', 'cultivos')
+        if not filename or re.search(r'[<>:"/\\|?*]', filename):
+            return HttpResponse("Nombre de archivo inválido", status=400)
 
-#         queryset = Cultivo.objects.all()
+        selected_fields = request.GET.get('fields', '').split(',')
+        if not selected_fields:
+            return HttpResponse("Selecciona columnas", status=400)
 
-#         # Orden y filtros (opcional)
-#         for key, value in request.GET.items():
-#             if key.startswith('sort_') and value in ['asc', 'desc']:
-#                 field = key[5:]
-#                 if field in valid_fields:
-#                     queryset = queryset.order_by(f"{'-' if value == 'desc' else ''}{field}")
+        # Validar campos reales y extra
+        model_fields = [f.name for f in Cultivo._meta.fields]
+        extra_fields = ['fecha_fertilizacion', 'dosis_fertilizacion']
+        valid_fields = [f for f in selected_fields if f in model_fields or f in extra_fields]
 
-#         cultivos = queryset
+        queryset = Cultivo.objects.all()
 
-#         # Crear libro
-#         wb = openpyxl.Workbook()
-#         ws = wb.active
-#         ws.title = "Cultivos"
+        # Orden y filtros (opcional)
+        for key, value in request.GET.items():
+            if key.startswith('sort_') and value in ['asc', 'desc']:
+                field = key[5:]
+                if field in valid_fields:
+                    queryset = queryset.order_by(f"{'-' if value == 'desc' else ''}{field}")
 
-#         # Título
-#         ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=len(valid_fields))
-#         title_cell = ws.cell(row=1, column=1)
-#         title_cell.value = "Información de los Cultivos Registrados"
-#         title_cell.font = Font(size=14, bold=True)
-#         title_cell.alignment = Alignment(horizontal="center", vertical="center")
+        cultivos = queryset
 
-#         # Encabezados
-#         header_font = Font(bold=True, color="FFFFFF")
-#         header_fill = PatternFill("solid", fgColor="4CAF50")
-#         border = Border(
-#             left=Side(style='thin'), right=Side(style='thin'),
-#             top=Side(style='thin'), bottom=Side(style='thin')
-#         )
-#         for col_idx, field in enumerate(valid_fields, 1):
-#             cell = ws.cell(row=2, column=col_idx, value=field)
-#             cell.font = header_font
-#             cell.fill = header_fill
-#             cell.alignment = Alignment(horizontal="center")
-#             cell.border = border
+        # Crear libro
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Cultivos"
 
-#         # Datos
-#         for row_idx, cultivo in enumerate(cultivos, start=3):
-#             for col_idx, field in enumerate(valid_fields, 1):
-#                 if field in extra_fields:
-#                     # Buscar primera fertilización
-#                     fert = Fertilizacion.objects.filter(cultivo=cultivo).order_by('fecha').first()
-#                     if field == 'fecha_fertilizacion':
-#                         value = fert.fecha if fert else ''
-#                     elif field == 'dosis_fertilizacion':
-#                         value = fert.dosis if fert else ''
-#                 else:
-#                     value = getattr(cultivo, field, '')
-#                     if hasattr(value, 'nombre_tipo'):  # relaciones
-#                         value = value.nombre_tipo
-#                 ws.cell(row=row_idx, column=col_idx, value=value).border = border
+        # Título
+        ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=len(valid_fields))
+        title_cell = ws.cell(row=1, column=1)
+        title_cell.value = "Información de los Cultivos Registrados"
+        title_cell.font = Font(size=14, bold=True)
+        title_cell.alignment = Alignment(horizontal="center", vertical="center")
 
-#         # Ancho automático
-#         for col in ws.columns:
-#             max_length = max(len(str(cell.value)) if cell.value else 0 for cell in col)
-#             ws.column_dimensions[get_column_letter(col[0].column)].width = max_length + 3
+        # Encabezados
+        header_font = Font(bold=True, color="FFFFFF")
+        header_fill = PatternFill("solid", fgColor="4CAF50")
+        border = Border(
+            left=Side(style='thin'), right=Side(style='thin'),
+            top=Side(style='thin'), bottom=Side(style='thin')
+        )
+        for col_idx, field in enumerate(valid_fields, 1):
+            cell = ws.cell(row=2, column=col_idx, value=field)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = Alignment(horizontal="center")
+            cell.border = border
 
-#         # Guardar
-#         output = BytesIO()
-#         wb.save(output)
-#         output.seek(0)
+        # Datos
+        for row_idx, cultivo in enumerate(cultivos, start=3):
+            for col_idx, field in enumerate(valid_fields, 1):
+                if field in extra_fields:
+                    # Buscar primera fertilización
+                    fert = Fertilizacion.objects.filter(cultivo=cultivo).order_by('fecha').first()
+                    if field == 'fecha_fertilizacion':
+                        value = fert.fecha if fert else ''
+                    elif field == 'dosis_fertilizacion':
+                        value = fert.dosis if fert else ''
+                else:
+                    value = getattr(cultivo, field, '')
+                    if hasattr(value, 'nombre_tipo'):  # relaciones
+                        value = value.nombre_tipo
+                ws.cell(row=row_idx, column=col_idx, value=value).border = border
 
-#         response = HttpResponse(
-#             output,
-#             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-#         )
-#         response['Content-Disposition'] = f'attachment; filename={filename}.xlsx'
-#         return response
+        # Ancho automático
+        for col in ws.columns:
+            max_length = max(len(str(cell.value)) if cell.value else 0 for cell in col)
+            ws.column_dimensions[get_column_letter(col[0].column)].width = max_length + 3
 
-#     except Exception as e:
-#         return HttpResponse(f"Error: {str(e)}", status=500)
+        # Guardar
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = f'attachment; filename={filename}.xlsx'
+        return response
+
+    except Exception as e:
+        return HttpResponse(f"Error: {str(e)}", status=500)
 
 
 # #endregion

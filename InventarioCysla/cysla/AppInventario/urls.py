@@ -60,9 +60,9 @@ urlpatterns = [
     # path("exportar-excel/", views.ExportarExcel, name="ExportarExcel"),
     
     # # Cultivos
-    # path("excel/cultivos/", views.PlantillaCultivos, name="PlantillaCultivos"),
-    # path("consultar-cultivos/", views.ConsultarCultivos, name="ConsultarCultivos"),
-    # path("exportar-excel-cultivos/", views.ExportarExcelCultivos, name="ExportarExcelCultivos"),
+    path("excel/cultivos/", views.PlantillaCultivos, name="PlantillaCultivos"),
+    path("consultar-cultivos/", views.ConsultarCultivos, name="ConsultarCultivos"),
+    path("exportar-excel-cultivos/", views.ExportarExcelCultivos, name="ExportarExcelCultivos"),
     # # endregion
 
     # region Parcela
