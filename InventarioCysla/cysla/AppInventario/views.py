@@ -965,6 +965,11 @@ def ExportarExcelCultivos(request):
 
     except Exception as e:
         return HttpResponse(f"Error: {str(e)}", status=500)
+    
+def ApiTiposCultivo(request):
+    tipos = TipoCultivo.objects.all().values('id', 'nombre_tipo')
+    return JsonResponse({'tipos': list(tipos)})
+
 
 
 # #endregion

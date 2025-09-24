@@ -560,7 +560,7 @@ function handleExcelGeneration() {
     const queryString = new URLSearchParams(params).toString();
     
     // Create download link
-    const downloadUrl = `/exportar-excel/?${queryString}`;
+    const downloadUrl = `/exportar-excel-cultivos/?${queryString}`;
     
     // Trigger download
     window.location.href = downloadUrl;
@@ -805,17 +805,14 @@ function showLoadingToast(message) {
 // =============================================
 function loadInitialData() {
     // Load razas for dynamic select
-    fetch('/consultar-cultivos/?fields=razas&limit=1000')
-        .then(res => res.json())
-        .then(data => {
-            if (data.success && data.vacunos) {
-                const razasSet = new Set(data.vacunos.map(v => v.razas).filter(Boolean));
-                window.razasArray = Array.from(razasSet).sort();
-            }
-        })
-        .catch(error => {
-            console.error('Error loading razas:', error);
-        });
+    fetch('/api/tipos-cultivo/')
+    .then(res => res.json())
+    .then(data => {
+        if (data.tipos) {
+            window.tiposArray = data.tipos;
+        }
+    });
+
     
     // Initial render
     renderTableHeaders();
@@ -829,3 +826,4 @@ function showInitialLoading() {
         hideLoading();
     }, 500);
 }
+

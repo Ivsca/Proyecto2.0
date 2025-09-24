@@ -63,6 +63,8 @@ urlpatterns = [
     path("excel/cultivos/", views.PlantillaCultivos, name="PlantillaCultivos"),
     path("consultar-cultivos/", views.ConsultarCultivos, name="ConsultarCultivos"),
     path("exportar-excel-cultivos/", views.ExportarExcelCultivos, name="ExportarExcelCultivos"),
+    path("api/tipos-cultivo/", views.ApiTiposCultivo, name="ApiTiposCultivo"),
+
     # # endregion
 
     # region Parcela
