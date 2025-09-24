@@ -255,13 +255,12 @@ def VacasInactivas(request):
     })
 
 # Eliminar vacuno (pasar a inactivos)
-@login_requerido
+@login_required
 @require_POST
-def EliminarVacuno(request, id):
-    vacuno = get_object_or_404(Ganado, id=id)
-
+def EliminarVacuno(request):
+    vacuno_id = request.POST.get('id')
+    vacuno = get_object_or_404(Ganado, id=vacuno_id)
     try:
-        # Guardar en tabla de inactivos
         GanadoInactivo.objects.create(
             codigocria=vacuno.codigocria,
             foto=vacuno.foto,
@@ -276,14 +275,10 @@ def EliminarVacuno(request, id):
             idparcela=vacuno.idparcela,
             razas=vacuno.razas
         )
-
-        # Eliminar de la tabla principal
         vacuno.delete()
-
-        return JsonResponse({"success": True})
-
+        return JsonResponse({'success': True, 'message': 'Vacuno desactivado correctamente'})
     except Exception as e:
-        return JsonResponse({"success": False, "message": str(e)})
+        return JsonResponse({'success': False, 'message': str(e)})
 
 # Rehabilitar un vacuno
 @login_requerido

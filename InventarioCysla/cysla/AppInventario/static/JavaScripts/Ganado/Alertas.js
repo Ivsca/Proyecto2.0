@@ -997,10 +997,10 @@ let html = `
  * Elimina un vacuno y su registro asociado.
  */
 // En Table.html - modificar la función EliminarVacuno
-window.EliminarVacuno = function(id) {
+function EliminarVacuno(id) {
     Swal.fire({
         title: '¿Desactivar vacuno?',
-        text: 'El vacuno se moverá al inventario de vacas inactivas. Podrás reactivarlo posteriormente.',
+        text: "El vacuno se moverá al inventario de vacas inactivas. Podrás reactivarlo posteriormente.",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
@@ -1009,23 +1009,24 @@ window.EliminarVacuno = function(id) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`/Ganado/api/Eliminar/${id}/`, {
+            fetch('/Ganado/api/Eliminar/', {
                 method: 'POST',
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': getCSRFToken()
-                }
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `id=${id}`
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al desactivar el vacuno');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
-                    Swal.fire({
-                        title: '¡Desactivado!',
-                        text: 'El vacuno ha sido movido al inventario inactivo.',
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                    }).then(() => {
-                        // Remover la tarjeta del DOM (mejor forma: buscar por dataset o id directo)
+                    Swal.fire('¡Desactivado!', 'El vacuno ha sido movido al inventario inactivo.', 'success').then(() => {
+                        // Quitar del DOM la tarjeta del animal
                         const card = document.querySelector(`[data-vacuno-id="${id}"]`);
                         if (card) {
                             card.remove();
@@ -1035,12 +1036,13 @@ window.EliminarVacuno = function(id) {
                     Swal.fire('Error', data.message || 'No se pudo desactivar el vacuno.', 'error');
                 }
             })
-            .catch(() => {
-                Swal.fire('Error', 'Error de conexión con el servidor.', 'error');
+            .catch(error => {
+                Swal.fire('Error', error.message, 'error');
             });
         }
     });
-};
+}
+
 
 
 // =========================[ REGION: Buscador de ganado en vivo ]========================

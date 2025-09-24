@@ -1,5 +1,6 @@
 {% load static %}
 <title>Gestor de Ganado</title>
+<meta name="csrf-token" content="{{ csrf_token }}">
 <!-- Inclusión de archivos CSS -->
 <link rel="stylesheet" href="{% static 'Css/bootstrap.min.css' %}">
 <link rel="stylesheet" href="{% static 'Css/Ganado/Ganado.css' %}">
@@ -241,54 +242,54 @@
 
     <!-- Contenedor de las tarjetas de ganado -->
     <div class="row justify-content-center"> 
-    {% for vacuno in page_obj %}
-    <!-- Tarjeta individual para cada animal -->
-    <div class="col-lg-4 col-md-6 mb-4 ganado-item"
-        data-vacuno-id="{{ vacuno.id }}"
-        data-codigo="{{ vacuno.codigocria|lower }}"
-        data-raza="{{ vacuno.razas|lower }}"
-        data-estado="{{ vacuno.estado|lower }}"
-        data-edad="{{ vacuno.edad }}">
-        
-        <div class="card ganado-card h-100 position-relative">
-            {% if vacuno.foto %}
-                <img src="{{ vacuno.foto.url }}" class="card-img-top" alt="{{ vacuno.nombre }}">
-            {% else %}
-                <img src="{% static 'Image/img/fondo_vaca.jpg' %}" class="card-img-top" alt="{{ vacuno.nombre }}">
-            {% endif %}
-            <span class="ganado-code">{{ vacuno.codigocria|default:"G-001" }}</span>
-            <div class="ganado-overlay">
-                <div class="ganado-info">
-                    <h5 class="card-title">{{ vacuno.codigocria|default:"G-001" }}</h5>
-                    <p><strong>Raza:</strong> {{ vacuno.razas|default:"Angus" }}</p>
-                    <p><strong>Edad:</strong> {{ vacuno.edad|default:"3" }} años</p>
-                    <p><strong>Estado:</strong> {{ vacuno.estado|default:"Saludable" }}</p>
-                    <p><strong>Padre:</strong> {{ vacuno.codigopapa|default:"N/A" }}</p>
-                    <p><strong>Madre:</strong> {{ vacuno.codigomama|default:"N/A" }}</p>
-                    <p><strong>Crias:</strong> {{ vacuno.crias|default:"0" }}</p>
-                </div>
-                <div class="ganado-buttons">
-                    <button class="btn btn-primary" onclick="abrirFormularioVer('{{ vacuno.codigocria }}')">
-                        <i class="fas fa-eye"></i> Ver
-                    </button>
-                    <button class="btn btn-warning" onclick="mostrarFormularioEditar('{{ vacuno.codigocria }}')">
-                        <i class="fas fa-edit"></i> Editar
-                    </button>
-                    <button class="btn btn-danger" onclick="EliminarVacuno('{{ vacuno.id }}')">
-                        <i class="fas fa-trash-alt"></i> Eliminar
-                    </button>
+        {% for vacuno in page_obj %}
+        <!-- Tarjeta individual para cada animal -->
+        <div class="col-lg-4 col-md-6 mb-4 ganado-item"
+            data-vacuno-id="{{ vacuno.id }}"
+            data-codigo="{{ vacuno.codigocria|lower }}"
+            data-raza="{{ vacuno.razas|lower }}"
+            data-estado="{{ vacuno.estado|lower }}"
+            data-edad="{{ vacuno.edad }}">
+            
+            <div class="card ganado-card h-100 position-relative">
+                {% if vacuno.foto %}
+                    <img src="{{ vacuno.foto.url }}" class="card-img-top" alt="{{ vacuno.nombre }}">
+                {% else %}
+                    <img src="{% static 'Image/img/fondo_vaca.jpg' %}" class="card-img-top" alt="{{ vacuno.nombre }}">
+                {% endif %}
+                <span class="ganado-code">{{ vacuno.codigocria|default:"G-001" }}</span>
+                <div class="ganado-overlay">
+                    <div class="ganado-info">
+                        <h5 class="card-title">{{ vacuno.codigocria|default:"G-001" }}</h5>
+                        <p><strong>Raza:</strong> {{ vacuno.razas|default:"Angus" }}</p>
+                        <p><strong>Edad:</strong> {{ vacuno.edad|default:"3" }} años</p>
+                        <p><strong>Estado:</strong> {{ vacuno.estado|default:"Saludable" }}</p>
+                        <p><strong>Padre:</strong> {{ vacuno.codigopapa|default:"N/A" }}</p>
+                        <p><strong>Madre:</strong> {{ vacuno.codigomama|default:"N/A" }}</p>
+                        <p><strong>Crias:</strong> {{ vacuno.crias|default:"0" }}</p>
+                    </div>
+                    <div class="ganado-buttons">
+                        <button class="btn btn-primary" onclick="abrirFormularioVer('{{ vacuno.codigocria }}')">
+                            <i class="fas fa-eye"></i> Ver
+                        </button>
+                        <button class="btn btn-warning" onclick="mostrarFormularioEditar('{{ vacuno.codigocria }}')">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button class="btn btn-danger" onclick="EliminarVacuno('{{ vacuno.id }}')">
+                            <i class="fas fa-trash-alt"></i> Eliminar
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    {% empty %}
-    <div class="col-12 text-center">
-        <div class="alert alert-info">
-            No se encontraron animales registrados.
+        {% empty %}
+        <div class="col-12 text-center">
+            <div class="alert alert-info">
+                No se encontraron animales registrados.
+            </div>
         </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-</div>
 
 
     <!-- paginación centrada debajo de las cards -->
