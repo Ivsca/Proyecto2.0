@@ -22,8 +22,7 @@ urlpatterns = [
     path('restablecer-contra/', views.restablecer_contra, name='restablecer_contra'),
     # region Solicitudes de acceso
     path('Logueo/TablaSolicitudesUser/', views.TablaSolicitudesUsuarios, name='TablaSolicitudesUsuarios'),
-    path('Logueo/TablaSolicitudesUser/aceptada/<int:id_solicitud>', views.SolicitudAceptada, name='SolicitudAceptada'),
-    path('Logueo/TablaSolicitudesUser/Eliminar/<int:id_solicitud>', views.EliminarSolicitud, name='EliminarSolicitud'),
+    pa  path('Logueo/TablaSolicitudesUser/Eliminar/<int:id_solicitud>', views.EliminarSolicitud, name='EliminarSolicitud'),
     path('Logueo/TablaUsuarios/', views.TablaUsuarios, name='TablaUsuarios'),
     # endregion
 
@@ -38,7 +37,8 @@ urlpatterns = [
 
     path('Ganado/api/VacasInactivas', views.VacasInactivas, name='VacasInactivas'),
     path("Ganado/api/Eliminar/<int:id>/", views.EliminarVacuno, name="EliminarVacuno"),
-    path('Ganado/api/Rehabilitar/<int:id>/', views.RehabilitarVacuno, name='RehabilitarVacuno'),
+    path('Ganado/api/Rehabilitar/<int:id>/', views.RehabilitarVacuno, name='RehabilitarVacuno'),th('Logueo/TablaSolicitudesUser/aceptada/<int:id_solicitud>', views.SolicitudAceptada, name='SolicitudAceptada'),
+  
 
 
     path('cambiocontra/olvidar_contra/', views.olvidar_contra, name='olvidar_contra'),

@@ -318,11 +318,6 @@ def buscar_codigo_ganado(request):
     # Devuelve id y código
     return JsonResponse([{'id': r['id'], 'codigo': r['codigocria']} for r in resultados], safe=False)
 
-@login_requerido
-def EliminarVacuno(id):
-    vacuno = get_object_or_404(Ganado, id=id)
-    vacuno.delete()
-    return redirect('TablaGanado')
 
 @login_requerido
 def ListaRazas(request):
