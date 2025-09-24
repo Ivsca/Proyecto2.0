@@ -1,4 +1,72 @@
 {% load static %}
 {% include 'inc/Header.html' %}
-volvio todo a la normalidad
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Vacunos Inactivos</h2>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered text-center align-middle shadow">
+            <thead class="table-dark">
+                <tr>
+                    <th>Foto</th>
+                    <th>Código</th>
+                    <th>Raza</th>
+                    <th>Edad</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vaca in vacas_inactivas %}
+                <tr>
+                    <td>
+                        {% if vaca.foto %}
+                            <img src="{{ vaca.foto.url }}" class="img-thumbnail" style="width:80px;height:80px;object-fit:cover;">
+                        {% else %}
+                            <img src="{% static 'Image/img/fondo_vaca.jpg' %}" class="img-thumbnail" style="width:80px;height:80px;object-fit:cover;">
+                        {% endif %}
+                    </td>
+                    <td>{{ vaca.codigocria }}</td>
+                    <td>{{ vaca.razas }}</td>
+                    <td>{{ vaca.edad }} meses</td>
+                    <td>{{ vaca.estado }}</td>
+                    <td>
+                        <button class="btn btn-info btn-sm" onclick="abrirFormularioVer('{{ vaca.codigocria }}')">
+                            <i class="fas fa-eye"></i> Ver
+                        </button>
+                        <button class="btn btn-success btn-sm" onclick="rehabilitarVacuno({{ vaca.id }})">
+                            <i class="fas fa-check"></i> Rehabilitar
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No hay vacunos inactivos</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function rehabilitarVacuno(id) {
+    Swal.fire({
+        title: "¿Rehabilitar vacuno?",
+        text: "El vacuno volverá a la tabla activa.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#198754",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Sí, rehabilitar"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = `/Ganado/api/Rehabilitar/${id}/`;
+        }
+    });
+}
+</script>
+
 {% include 'inc/Footer.html' %}

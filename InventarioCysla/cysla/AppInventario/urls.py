@@ -36,6 +36,12 @@ urlpatterns = [
     path('Ganado/api/obtener/<int:id>/', views.obtener_ganado, name='obtener_ganado'),
     path('Ganado/api/VacasInactivas', views.VacasInactivas, name='VacasInactivas'),
     # endregion
+
+    path('Ganado/api/VacasInactivas', views.VacasInactivas, name='VacasInactivas'),
+    path('Ganado/api/Eliminar/<int:id>/', views.EliminarVacuno, name='EliminarVacuno'),
+    path('Ganado/api/Rehabilitar/<int:id>/', views.RehabilitarVacuno, name='RehabilitarVacuno'),
+
+
     path('cambiocontra/olvidar_contra/', views.olvidar_contra, name='olvidar_contra'),
     path('cambiocontra/verificar_codigo/', views.verificar_codigo, name='verificar_codigo'),
     path('cambiocontra/restablecer_contra/', views.restablecer_contra, name='restablecer_contra'),

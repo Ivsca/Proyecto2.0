@@ -45,6 +45,7 @@ from .models import (
     Fertilizacion,
     TipoParcela,
     codigo,
+    GanadoInactivo
 )
 
 # ==========================
@@ -248,8 +249,63 @@ def TablaGanado(request):
 
 @login_requerido
 def VacasInactivas(request):
-    return render(request, 'Ganado/Inactivas.html',{
+    vacas_inactivas = GanadoInactivo.objects.all()
+    return render(request, 'Ganado/Inactivas.html', {
+        'vacas_inactivas': vacas_inactivas
     })
+
+# Eliminar vacuno (pasar a inactivos)
+@login_requerido
+def EliminarVacuno(request, id):
+    vacuno = get_object_or_404(Ganado, id=id)
+
+    # Guardar en tabla de inactivos
+    GanadoInactivo.objects.create(
+        codigocria=vacuno.codigocria,
+        foto=vacuno.foto,
+        crias=vacuno.crias,
+        codigoscrias=vacuno.codigoscrias,
+        codigopapa=vacuno.codigopapa,
+        codigomama=vacuno.codigomama,
+        edad=vacuno.edad,
+        infovacunas=vacuno.infovacunas,
+        enfermedades=vacuno.enfermedades,
+        estado=vacuno.estado,
+        idparcela=vacuno.idparcela,
+        razas=vacuno.razas
+    )
+
+    # Eliminar de la tabla principal
+    vacuno.delete()
+    messages.success(request, "El vacuno fue movido a inactivos correctamente.")
+    return redirect('TablaGanado')
+
+# Rehabilitar un vacuno
+@login_requerido
+def RehabilitarVacuno(request, id):
+    vacuno_inactivo = get_object_or_404(GanadoInactivo, id=id)
+
+    # Pasar a la tabla principal
+    Ganado.objects.create(
+        codigocria=vacuno_inactivo.codigocria,
+        foto=vacuno_inactivo.foto,
+        crias=vacuno_inactivo.crias,
+        codigoscrias=vacuno_inactivo.codigoscrias,
+        codigopapa=vacuno_inactivo.codigopapa,
+        codigomama=vacuno_inactivo.codigomama,
+        edad=vacuno_inactivo.edad,
+        infovacunas=vacuno_inactivo.infovacunas,
+        enfermedades=vacuno_inactivo.enfermedades,
+        estado=vacuno_inactivo.estado,
+        idparcela=vacuno_inactivo.idparcela,
+        razas=vacuno_inactivo.razas,
+        activo=True
+    )
+
+    # Eliminar de inactivos
+    vacuno_inactivo.delete()
+    messages.success(request, "El vacuno fue rehabilitado correctamente.")
+    return redirect('VacasInactivas')
 
 @login_requerido
 def buscar_codigo_ganado(request):
@@ -265,6 +321,7 @@ def EliminarVacuno(id):
     vacuno = get_object_or_404(Ganado, id=id)
     vacuno.delete()
     return redirect('TablaGanado')
+
 @login_requerido
 def ListaRazas(request):
     razas = TablaRazas.objects.all().values('id', 'nombre')
@@ -1087,7 +1144,6 @@ def verificar_codigo(request):
                     "error": f"Código incorrecto. Te quedan {intentos_restantes} intento(s)."
                 })
             
-            # Código correcto
             request.session["verified"] = True
             reset_obj.delete()
             return redirect("restablecer_contra")
