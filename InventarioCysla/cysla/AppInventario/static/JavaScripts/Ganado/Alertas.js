@@ -1009,7 +1009,7 @@ function EliminarVacuno(id) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`/Ganado/api/Eliminar/${id}/`, {
+            fetch(`/Ganado/Inactivas/Eliminar/${id}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
