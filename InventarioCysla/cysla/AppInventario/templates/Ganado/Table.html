@@ -1,6 +1,7 @@
 {% load static %}
 <title>Gestor de Ganado</title>
 <meta name="csrf-token" content="{{ csrf_token }}">
+
 <!-- Inclusión de archivos CSS -->
 <link rel="stylesheet" href="{% static 'Css/bootstrap.min.css' %}">
 <link rel="stylesheet" href="{% static 'Css/Ganado/Ganado.css' %}">
@@ -275,7 +276,7 @@
                         <button class="btn btn-warning" onclick="mostrarFormularioEditar('{{ vacuno.codigocria }}')">
                             <i class="fas fa-edit"></i> Editar
                         </button>
-                        <button class="btn btn-danger" onclick="EliminarVacuno('{{ vacuno.id }}')">
+                        <button class="btn btn-danger" onclick="EliminarVacuno('{{ vacuno.id }}')">>
                             <i class="fas fa-trash-alt"></i> Eliminar
                         </button>
                     </div>

@@ -1009,35 +1009,26 @@ function EliminarVacuno(id) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch('/Ganado/api/Eliminar/', {
+            fetch(`/Ganado/api/Eliminar/${id}/`, {
                 method: 'POST',
                 headers: {
-                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Content-Type': 'application/x-www-form-urlencoded'
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
-                body: `id=${id}`
+                body: JSON.stringify({ id: id })
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error al desactivar el vacuno');
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    Swal.fire('¡Desactivado!', 'El vacuno ha sido movido al inventario inactivo.', 'success').then(() => {
-                        // Quitar del DOM la tarjeta del animal
-                        const card = document.querySelector(`[data-vacuno-id="${id}"]`);
-                        if (card) {
-                            card.remove();
-                        }
-                    });
+                    Swal.fire('Desactivado!', data.message, 'success')
+                        .then(() => location.reload()); // Recargar para reflejar cambios
                 } else {
-                    Swal.fire('Error', data.message || 'No se pudo desactivar el vacuno.', 'error');
+                    Swal.fire('Error', data.message, 'error');
                 }
             })
             .catch(error => {
-                Swal.fire('Error', error.message, 'error');
+                Swal.fire('Error', 'Ocurrió un problema en la petición.', 'error');
+                console.error(error);
             });
         }
     });

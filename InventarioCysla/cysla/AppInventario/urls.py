@@ -38,7 +38,8 @@ urlpatterns = [
     # endregion
 
     path('Ganado/api/VacasInactivas', views.VacasInactivas, name='VacasInactivas'),
-    path('Ganado/api/Eliminar/', views.EliminarVacuno, name='EliminarVacuno'),
+    path("Ganado/api/Eliminar/<int:id>/", views.EliminarVacuno, name="EliminarVacuno"),
+
     path('Ganado/api/Rehabilitar/<int:id>/', views.RehabilitarVacuno, name='RehabilitarVacuno'),
 
 
