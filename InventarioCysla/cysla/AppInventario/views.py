@@ -52,7 +52,7 @@ from .models import (
 # ==========================
 # Decoradores y otros módulos locales
 # ==========================
-from .decoradores import login_requerido
+from .decoradores import login_required
 from AppInventario.Notificaciones import NotificacionesCultivos
 import hashlib, random
 from datetime import timedelta
@@ -78,27 +78,27 @@ def plantilla_logue(request):
         'tipos_documentos': tipos_documentos
     })
 # region solicitudes de acceso
-@login_requerido
+@login_required
 def TablaSolicitudesUsuarios(request):
     usuarios = Usuarios.objects.filter(estado="Solicitud")
     return render(request, 'Logueo/Table.html',{
         'usuarios':usuarios
     })
 
-@login_requerido
+@login_required
 def SolicitudAceptada(request, id_solicitud):
     solicitud = Usuarios.objects.get(id=id_solicitud)
     solicitud.estado = "Usuario"
     solicitud.save()
     return redirect("TablaSolicitudesUsuarios")
 
-@login_requerido
+@login_required
 def EliminarSolicitud(request,id_solicitud):
     Solicitud = Usuarios.objects.get(id=id_solicitud)
     Solicitud.delete()
     return redirect("TablaSolicitudesUsuarios")
 # endregion
-@login_requerido
+@login_required
 def TablaUsuarios(request):
     usuarios = Usuarios.objects.filter(estado="Usuario")
     return render(request, 'Logueo/Table.html',{
@@ -229,7 +229,7 @@ def logout_view(request):
 #endregion 
 
 # region ganado
-@login_requerido
+@login_required
 def TablaGanado(request):
     ganado_list = Ganado.objects.all()
     paginator = Paginator(ganado_list, 9)
@@ -249,7 +249,7 @@ def TablaGanado(request):
         'parcelas': parcelas
     })
 
-@login_requerido
+@login_required
 def VacasInactivas(request):
     vacas_inactivas = GanadoInactivo.objects.all()
     return render(request, 'Ganado/Inactivas.html', {
@@ -285,7 +285,7 @@ def EliminarVacuno(request, id):
         return JsonResponse({'success': False, 'message': str(e)})
 
 # Rehabilitar un vacuno
-@login_requerido
+@login_required
 def RehabilitarVacuno(request, id):
     vacuno_inactivo = get_object_or_404(GanadoInactivo, id=id)
 
@@ -311,7 +311,7 @@ def RehabilitarVacuno(request, id):
     messages.success(request, "El vacuno fue rehabilitado correctamente.")
     return redirect('VacasInactivas')
 
-@login_requerido
+@login_required
 def buscar_codigo_ganado(request):
     q = request.GET.get('q', '').strip()
     resultados = []
@@ -321,12 +321,12 @@ def buscar_codigo_ganado(request):
     return JsonResponse([{'id': r['id'], 'codigo': r['codigocria']} for r in resultados], safe=False)
 
 
-@login_requerido
+@login_required
 def ListaRazas(request):
     razas = TablaRazas.objects.all().values('id', 'nombre')
     return JsonResponse(list(razas), safe=False)
 @csrf_exempt
-@login_requerido
+@login_required
 def AgregarRaza(request):
     if request.method == 'POST':
         try:
@@ -342,7 +342,7 @@ def AgregarRaza(request):
 #end region
 
 @csrf_exempt
-@login_requerido
+@login_required
 def registrar_ganado(request):
     if request.method == "POST":
         try:
@@ -383,7 +383,7 @@ def registrar_ganado(request):
     return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
 
 @csrf_exempt
-@login_requerido
+@login_required
 def actualizar_ganado(request, id):
     if request.method == "POST":
         try:
@@ -409,7 +409,7 @@ def actualizar_ganado(request, id):
     return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
 
 @csrf_exempt
-@login_requerido
+@login_required
 def obtener_ganado(request, id):
     try:
         vacuno = Ganado.objects.get(id=id)
@@ -433,7 +433,7 @@ def obtener_ganado(request, id):
 # endregion
 
 # region cultivo
-@login_requerido
+@login_required
 def TablaCultivo(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
@@ -465,7 +465,7 @@ def TablaCultivo(request):
         'page_obj': page_obj,
         'tipos_cultivo': TipoCultivo.objects.all()  # Pasar los tipos disponibles al template
     })
-@login_requerido
+@login_required
 def obtener_cultivo(request, id):
     try:
         cultivo = Cultivo.objects.select_related('tipo').get(pk=id)
@@ -534,7 +534,7 @@ def agregar_fertilizacion(request, cultivo_id):
         except Exception as e:
             return HttpResponseBadRequest(str(e))
 
-@login_requerido
+@login_required
 def editar_cultivo(request):
     if request.method == 'POST':
         cultivo_id = request.POST.get('id')
@@ -559,7 +559,7 @@ def editar_cultivo(request):
             return JsonResponse({'error': 'Cultivo no encontrado'}, status=404)
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
-@login_requerido
+@login_required
 def eliminar_cultivo(request):
     cultivo_id = request.POST.get('id')
     try:
@@ -569,7 +569,7 @@ def eliminar_cultivo(request):
     except Cultivo.DoesNotExist:
         return JsonResponse({'error': 'El cultivo no existe'}, status=404)
 
-@login_requerido
+@login_required
 def InfoBuscador(request,TipoBusqueda,valor):
     if TipoBusqueda == 'documento':
         ganado = Ganado.objects.filter(documento__icontains=valor)
@@ -588,13 +588,13 @@ def InfoBuscador(request,TipoBusqueda,valor):
     
     ganadojson = serialize('json', ganado)
     return HttpResponse(ganadojson, content_type='application/json')
-@login_requerido
+@login_required
 def obtener_tipoCultivos(request):
     tipos = list(TipoCultivo.objects.values("id", "nombre_tipo"))
     return JsonResponse(tipos, safe=False)
 
 @csrf_exempt
-@login_requerido
+@login_required
 def agregar_tipoCultivo(request):
     if request.method == "POST":
         data = json.loads(request.body)
@@ -639,7 +639,7 @@ def eliminar_tipoCultivo(request, id):
 # endregion
 
 #RegionParcelas
-@login_requerido
+@login_required
 def agregar_parcela(request):
     if request.method == 'POST':
         try:
@@ -653,14 +653,14 @@ def agregar_parcela(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
-@login_requerido
+@login_required
 def listar_parcelas(request):
     parcelas = TipoParcela.objects.all().values('id', 'nombre', 'estado')
     return JsonResponse(list(parcelas), safe=False)
 
 @csrf_exempt
 @require_POST
-@login_requerido
+@login_required
 def activar(request, registro_id):
     try:
         parcela = TipoParcela.objects.get(id=registro_id)  # Cambiado a TipoParcela
@@ -683,7 +683,7 @@ def activar(request, registro_id):
             'success': False,
             'message': str(e)
         }, status=500)
-@login_requerido    
+@login_required    
 def Desactivar(request, registro_id):
     try:
         parcela = TipoParcela.objects.get(id=registro_id)  # Cambiado a TipoParcela
