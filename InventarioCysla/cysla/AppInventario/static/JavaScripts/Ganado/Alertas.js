@@ -1013,15 +1013,22 @@ function EliminarVacuno(id) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
                 },
                 body: JSON.stringify({ id: id })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) throw new Error("Error en la respuesta del servidor");
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
-                    Swal.fire('Desactivado!', data.message, 'success')
-                        .then(() => location.reload()); // Recargar para reflejar cambios
+                    Swal.fire({
+                        title: 'Desactivado!',
+                        text: data.message,
+                        icon: 'success',
+                        confirmButtonColor: '#3085d6'
+                    }).then(() => location.reload());
                 } else {
                     Swal.fire('Error', data.message, 'error');
                 }
