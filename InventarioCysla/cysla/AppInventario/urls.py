@@ -55,9 +55,9 @@ urlpatterns = [
 
     #servicios para excel de cultivos y vacas
     #ganado
-    path("excel/ganado/", views.PlantillaTablas, name="PlantillaTablas"), 
-    path("consultar-vacunos/", views.ConsultarVacunos, name="ConsultarVacunos"),
-    path("exportar-excel/", views.ExportarExcel, name="ExportarExcel"),
+    # path("excel/ganado/", views.PlantillaTablas, name="PlantillaTablas"), 
+    # path("consultar-vacunos/", views.ConsultarVacunos, name="ConsultarVacunos"),
+    # path("exportar-excel/", views.ExportarExcel, name="ExportarExcel"),
     
     # # Cultivos
     # path("excel/cultivos/", views.PlantillaCultivos, name="PlantillaCultivos"),
