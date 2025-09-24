@@ -321,11 +321,11 @@ function renderTableHeaders() {
 }
 
 function getFilterOptions(column, currentValue = '') {
-    if (column === 'razas') {
-        let options = '<option value="">Todas las razas</option>';
-        if (window.razasArray) {
-            window.razasArray.forEach(raza => {
-                options += `<option value="${raza}" ${raza === currentValue ? 'selected' : ''}>${raza}</option>`;
+    if (column === 'tipo') {
+        let options = '<option value="">Todos los tipos</option>';
+        if (window.tiposArray) {
+            window.tiposArray.forEach(tipo => {
+                options += `<option value="${tipo}" ${tipo === currentValue ? 'selected' : ''}>${tipo}</option>`;
             });
         }
         return options;
@@ -337,6 +337,7 @@ function getFilterOptions(column, currentValue = '') {
         `;
     }
 }
+
 
 function handleFilterChange(event) {
     const select = event.target;
@@ -363,7 +364,7 @@ function fetchTableData() {
     const params = buildQueryParams();
     const queryString = new URLSearchParams(params).toString();
     
-    fetch(`/consultar-vacunos/?${queryString}`)
+    fetch(`/consultar-cultivos/?${queryString}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -394,11 +395,12 @@ function buildQueryParams() {
             const value = currentFilters[field];
             if (!value) return;
 
-            if (field === 'razas') {
-                params['filter_raza'] = value;
+            if (field === 'tipo') {
+                params['filter_tipo'] = value;
             } else {
                 params[`sort_${field}`] = value;
             }
+
         }
     });
     
@@ -803,7 +805,7 @@ function showLoadingToast(message) {
 // =============================================
 function loadInitialData() {
     // Load razas for dynamic select
-    fetch('/consultar-vacunos/?fields=razas&limit=1000')
+    fetch('/consultar-cultivos/?fields=razas&limit=1000')
         .then(res => res.json())
         .then(data => {
             if (data.success && data.vacunos) {
