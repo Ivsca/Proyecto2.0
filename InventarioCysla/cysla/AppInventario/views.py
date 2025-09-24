@@ -256,29 +256,34 @@ def VacasInactivas(request):
 
 # Eliminar vacuno (pasar a inactivos)
 @login_requerido
+@require_POST
 def EliminarVacuno(request, id):
     vacuno = get_object_or_404(Ganado, id=id)
 
-    # Guardar en tabla de inactivos
-    GanadoInactivo.objects.create(
-        codigocria=vacuno.codigocria,
-        foto=vacuno.foto,
-        crias=vacuno.crias,
-        codigoscrias=vacuno.codigoscrias,
-        codigopapa=vacuno.codigopapa,
-        codigomama=vacuno.codigomama,
-        edad=vacuno.edad,
-        infovacunas=vacuno.infovacunas,
-        enfermedades=vacuno.enfermedades,
-        estado=vacuno.estado,
-        idparcela=vacuno.idparcela,
-        razas=vacuno.razas
-    )
+    try:
+        # Guardar en tabla de inactivos
+        GanadoInactivo.objects.create(
+            codigocria=vacuno.codigocria,
+            foto=vacuno.foto,
+            crias=vacuno.crias,
+            codigoscrias=vacuno.codigoscrias,
+            codigopapa=vacuno.codigopapa,
+            codigomama=vacuno.codigomama,
+            edad=vacuno.edad,
+            infovacunas=vacuno.infovacunas,
+            enfermedades=vacuno.enfermedades,
+            estado=vacuno.estado,
+            idparcela=vacuno.idparcela,
+            razas=vacuno.razas
+        )
 
-    # Eliminar de la tabla principal
-    vacuno.delete()
-    messages.success(request, "El vacuno fue movido a inactivos correctamente.")
-    return redirect('TablaGanado')
+        # Eliminar de la tabla principal
+        vacuno.delete()
+
+        return JsonResponse({"success": True})
+
+    except Exception as e:
+        return JsonResponse({"success": False, "message": str(e)})
 
 # Rehabilitar un vacuno
 @login_requerido

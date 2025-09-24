@@ -1009,7 +1009,7 @@ window.EliminarVacuno = function(id) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`/Ganado/Tabla/Eliminar/vacuno/${id}`, {
+            fetch(`/Ganado/Tabla/Eliminar/vacuno/${id}/`, {
                 method: 'POST',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
@@ -1025,22 +1025,23 @@ window.EliminarVacuno = function(id) {
                         icon: 'success',
                         confirmButtonText: 'OK'
                     }).then(() => {
-                        // Remover la tarjeta del DOM
-                        const card = document.querySelector(`[onclick="EliminarVacuno('${id}')"]`).closest('.ganado-item');
+                        // Remover la tarjeta del DOM (mejor forma: buscar por dataset o id directo)
+                        const card = document.querySelector(`[data-vacuno-id="${id}"]`);
                         if (card) {
                             card.remove();
                         }
                     });
                 } else {
-                    Swal.fire('Error', 'No se pudo desactivar el vacuno.', 'error');
+                    Swal.fire('Error', data.message || 'No se pudo desactivar el vacuno.', 'error');
                 }
             })
             .catch(() => {
-                Swal.fire('Error', 'Error de conexión.', 'error');
+                Swal.fire('Error', 'Error de conexión con el servidor.', 'error');
             });
         }
     });
-}
+};
+
 
 // =========================[ REGION: Buscador de ganado en vivo ]========================
 
