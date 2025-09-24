@@ -218,6 +218,7 @@ def LoginUser(request):
 
         # Si no está logueado, mostrar login
         return redirect("PlantillaLogueo")
+    
 def nocreada(request):
     return render(request, 'Logueo/nocreado.html')
 
