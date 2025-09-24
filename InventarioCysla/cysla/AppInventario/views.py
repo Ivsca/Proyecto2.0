@@ -824,7 +824,7 @@ def ExportarExcel(request):
 def PlantillaCultivos(request):
     tipos = TipoCultivo.objects.all()
     campos_cultivo = [field.name for field in Cultivo._meta.fields if field.name not in ['id', 'foto']]
-    return render(request, 'Cultivo/excel.html', {
+    return render(request, 'Cultivo/tablas.html', {
         'tipos': tipos,
         'campos_disponibles': campos_cultivo
     })
@@ -835,56 +835,47 @@ def ConsultarCultivos(request):
         offset = int(request.GET.get('offset', 0))
         fields = request.GET.get('fields', '')
         selected_fields = [f for f in fields.split(',') if f]
-
-        # ✅ Incluir campos extra
-        model_fields = [f.name for f in Cultivo._meta.fields]
-        extra_fields = ['fecha_fertilizacion', 'dosis_fertilizacion']
-        valid_fields = [f for f in selected_fields if f in model_fields or f in extra_fields]
+        all_fields = [f.name for f in Cultivo._meta.fields]
+        valid_fields = [f for f in selected_fields if f in all_fields]
 
         if not valid_fields:
             return JsonResponse({'success': True, 'cultivos': [], 'total': 0})
 
         queryset = Cultivo.objects.all()
 
-        # ✅ Filtro por tipo
+        # Filtro por tipo
         filter_tipo = request.GET.get('filter_tipo')
         if filter_tipo:
             queryset = queryset.filter(tipo=filter_tipo)
 
-        # ✅ Orden dinámico
+        # Orden dinámico
         order_fields = []
         for key, value in request.GET.items():
             if key.startswith('sort_') and value in ['asc', 'desc']:
                 field = key[5:]
-                if field in model_fields:
+                if field in valid_fields:
                     order_fields.append(f'-{field}' if value == 'desc' else field)
         if order_fields:
             queryset = queryset.order_by(*order_fields)
 
         total = queryset.count()
-        cultivos = queryset[offset:offset + limit]
+        cultivos = queryset.only(*valid_fields)[offset:offset+limit]
 
         data = []
         for cultivo in cultivos:
             item = {}
             for field in valid_fields:
-                if field == 'fecha_fertilizacion':
-                    fert = Fertilizacion.objects.filter(cultivo=cultivo).order_by('fecha').first()
-                    item[field] = fert.fecha if fert else ''
-                elif field == 'dosis_fertilizacion':
-                    fert = Fertilizacion.objects.filter(cultivo=cultivo).order_by('fecha').first()
-                    item[field] = fert.dosis if fert else ''
-                else:
-                    value = getattr(cultivo, field, '')
-                    if hasattr(value, 'nombre_tipo'):  # Relación con TipoCultivo
-                        value = value.nombre_tipo
-                    item[field] = value
+                value = getattr(cultivo, field, '')
+                if hasattr(value, 'id'):
+                    value = value.id
+                item[field] = value
             data.append(item)
 
         return JsonResponse({'success': True, 'cultivos': data, 'total': total})
-
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
 
 
 def ExportarExcelCultivos(request):
@@ -974,12 +965,6 @@ def ExportarExcelCultivos(request):
 
     except Exception as e:
         return HttpResponse(f"Error: {str(e)}", status=500)
-    
-def ApiTiposCultivo(request):
-    tipos = TipoCultivo.objects.all().values('id', 'nombre_tipo')
-    return JsonResponse({'tipos': list(tipos)})
-
-
 
 # #endregion
 

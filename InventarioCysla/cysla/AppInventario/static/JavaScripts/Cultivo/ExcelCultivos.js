@@ -2,19 +2,12 @@
 // DATOS DE EJEMPLO Y CONFIGURACIÓN INICIAL
 // =============================================
 const sampleData = {
-    "CodigoCria": "001",
-    "Foto": "foto.jpg",
-    "Crias": "2",
-    "LitrosLeche": 20,
-    "CodigosCrias": "[002,003]",
-    "CodigoPapa": "PAPA01",
-    "CodigoMama": "MAMA01",
-    "Edad": "3",
-    "InfoVacunas": "Vacuna A, Vacuna B",
-    "Enfermedades": "Ninguna",
-    "Estado": "Activo",
-    "IdParcela": "1",
-    "Razas": "Holstein"
+    "nombre": "Tomate Cherry",
+    "tipo": "Fruta",
+    "fecha_siembra": "2025-01-10",
+    "fecha_cosecha": "2025-03-20",
+    "cantidad": 250,
+    "fertilizante": "NPK 20-20-20"
 };
 
 // =============================================
@@ -400,7 +393,6 @@ function buildQueryParams() {
             } else {
                 params[`sort_${field}`] = value;
             }
-
         }
     });
     
@@ -415,12 +407,12 @@ function handleTableDataSuccess(data) {
     }
     
     totalRegistros = data.total;
-    renderTableData(data.vacunos);
+    renderTableData(data.cultivos);
     updatePagination();
     updateTableInfo();
     
-    if (data.vacunos && data.vacunos.length > 0) {
-        showSuccessToast(`${data.vacunos.length} registros cargados`);
+    if (data.cultivos && data.cultivos.length > 0) {
+        showSuccessToast(`${data.cultivos.length} registros cargados`);
     }
 }
 
@@ -560,7 +552,7 @@ function handleExcelGeneration() {
     const queryString = new URLSearchParams(params).toString();
     
     // Create download link
-    const downloadUrl = `/exportar-excel- cultivos/?${queryString}`;
+    const downloadUrl = `/exportar-excel-cultivos/?${queryString}`;
     
     // Trigger download
     window.location.href = downloadUrl;
@@ -804,20 +796,23 @@ function showLoadingToast(message) {
 // INITIAL DATA LOADING
 // =============================================
 function loadInitialData() {
-    // Load razas for dynamic select
-    fetch('/api/tipos-cultivo/')
-    .then(res => res.json())
-    .then(data => {
-        if (data.tipos) {
-            window.tiposArray = data.tipos;
-        }
-    });
-
+    // Load tipos para el select dinámico
+    fetch('/consultar-cultivos/?fields=tipo&limit=1000')
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.cultivos) {
+                const tiposSet = new Set(data.cultivos.map(c => c.tipo).filter(Boolean));
+                window.tiposArray = Array.from(tiposSet).sort();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading tipos:', error);
+        });
     
-    // Initial render
     renderTableHeaders();
     fetchTableData();
 }
+
 
 function showInitialLoading() {
     // Show a brief loading state on app initialization
