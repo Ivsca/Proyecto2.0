@@ -17,36 +17,28 @@ urlpatterns = [
     path('Logueo/Logout/', views.logout_view, name='LogoutUser'),
     path('Cambiarrol/<int:id_usuario>/', views.Cambiarrol, name='Cambiarrol'),
     # endregion
-
-    # region Recuperación de contraseña
     path('olvidar-contra/', views.olvidar_contra, name='olvidar_contra'),
     path('verificar-codigo/', views.verificar_codigo, name='verificar_codigo'),
     path('restablecer-contra/', views.restablecer_contra, name='restablecer_contra'),
-
-    path('cambiocontra/olvidar_contra/', views.olvidar_contra, name='olvidar_contra_alt'),
-    path('cambiocontra/verificar_codigo/', views.verificar_codigo, name='verificar_codigo_alt'),
-    path('cambiocontra/restablecer_contra/', views.restablecer_contra, name='restablecer_contra_alt'),
-    # endregion
-
     # region Solicitudes de acceso
     path('Logueo/TablaSolicitudesUser/', views.TablaSolicitudesUsuarios, name='TablaSolicitudesUsuarios'),
-    path('Logueo/TablaSolicitudesUser/Eliminar/<int:id_solicitud>', views.EliminarSolicitud, name='EliminarSolicitud'),
     path('Logueo/TablaSolicitudesUser/aceptada/<int:id_solicitud>', views.SolicitudAceptada, name='SolicitudAceptada'),
+    path('Logueo/TablaSolicitudesUser/Eliminar/<int:id_solicitud>', views.EliminarSolicitud, name='EliminarSolicitud'),
     path('Logueo/TablaUsuarios/', views.TablaUsuarios, name='TablaUsuarios'),
     # endregion
 
     # region Ganado
     path('Ganado/Tabla/', views.TablaGanado, name="TablaGanado"),
-    path('Ganado/Tabla/Eliminar/vacuno/<int:id>', views.EliminarVacuno, name="EliminarVacunoTabla"),
+    path('Ganado/Tabla/Eliminar/vacuno/<int:id>', views.EliminarVacuno, name="EliminarVacuno"),
     path('Ganado/BuscarCodigo/', views.buscar_codigo_ganado, name='buscar_codigo_ganado'),
     path('registrar_ganado/', views.registrar_ganado, name='registrar_ganado'),
     path('actualizar_ganado/<int:id>/', views.actualizar_ganado, name='actualizar_ganado'),
     path('Ganado/api/obtener/<int:id>/', views.obtener_ganado, name='obtener_ganado'),
-
     path('Ganado/api/VacasInactivas', views.VacasInactivas, name='VacasInactivas'),
-    path("Ganado/api/Eliminar/<int:id>/", views.EliminarVacuno, name="EliminarVacunoApi"),
-    path('Ganado/api/Rehabilitar/<int:id>/', views.RehabilitarVacuno, name='RehabilitarVacuno'),
     # endregion
+    path('cambiocontra/olvidar_contra/', views.olvidar_contra, name='olvidar_contra'),
+    path('cambiocontra/verificar_codigo/', views.verificar_codigo, name='verificar_codigo'),
+    path('cambiocontra/restablecer_contra/', views.restablecer_contra, name='restablecer_contra'),
 
     # region Cultivo
     path('Cultivo/Tabla/', views.TablaCultivo, name="TablaCultivo"),
@@ -56,27 +48,30 @@ urlpatterns = [
     path('Cultivo/api/tipos/', views.obtener_tipoCultivos, name='obtener_tipos'),
     path('Cultivo/api/tipos/agregar/', views.agregar_tipoCultivo, name='agregar_tipo'),
     path('Cultivo/api/tipos/eliminar/<int:id>/', views.eliminar_tipoCultivo, name='eliminar_tipo'),
-    path('Cultivo/fertilizaciones/<int:cultivo_id>/', views.obtener_fertilizaciones, name='obtener_fertilizaciones'),
-    path('Cultivo/fertilizar/<int:cultivo_id>/', views.agregar_fertilizacion, name='agregar_fertilizacion'),
+    path('Cultivo/fertilizaciones/<int:cultivo_id>/', views.obtener_fertilizaciones),
+    path('Cultivo/fertilizar/<int:cultivo_id>/', views.agregar_fertilizacion),
     path('notificaciones/', views.obtener_notificaciones, name='obtener_notificaciones'),
 
-    # Servicios Excel Ganado
+
+    #servicios para excel de cultivos y vacas
+    #ganado
     path("excel/ganado/", views.PlantillaTablas, name="PlantillaTablas"), 
     path("consultar-vacunos/", views.ConsultarVacunos, name="ConsultarVacunos"),
     path("exportar-excel/", views.ExportarExcel, name="ExportarExcel"),
     
-    # Servicios Excel Cultivos
+    # # Cultivos
     path("excel/cultivos/", views.PlantillaCultivos, name="PlantillaCultivos"),
     path("consultar-cultivos/", views.ConsultarCultivos, name="ConsultarCultivos"),
     path("exportar-excel-cultivos/", views.ExportarExcelCultivos, name="ExportarExcelCultivos"),
     path("api/tipos-cultivo/", views.ApiTiposCultivo, name="ApiTiposCultivo"),
-    # endregion
+
+    # # endregion
 
     # region Parcela
     path('agregar-parcela/', views.agregar_parcela, name='agregar_parcela'),
     path('listar-parcelas/', views.listar_parcelas, name='listar_parcelas'),
-    path('parcelas/<int:registro_id>/cambiar-estado/', views.activar, name='activar_parcela'),
-    path('parcelas/<int:registro_id>/cambiar/', views.Desactivar, name='desactivar_parcela'),
+    path('parcelas/<int:registro_id>/cambiar-estado/', views.activar, name='cambiar_estado_parcela'),
+    path('parcelas/<int:registro_id>/cambiar/', views.Desactivar, name='cambiar_estado_parcela'),
     # endregion
 
     # region Razas
@@ -84,7 +79,7 @@ urlpatterns = [
     path('AgregarRaza/', views.AgregarRaza, name='AgregarRaza'),
     # endregion
 
-    # region Notificaciones
+    # region notificaciones
     path('SistemaNotficacionesGmail/', views.SistemaNotficacionesGmail, name='SistemaNotficacionesGmail'),
     # endregion
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
