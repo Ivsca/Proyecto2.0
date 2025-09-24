@@ -611,29 +611,29 @@ def eliminar_tipoCultivo(request, id):
         return JsonResponse({"success": True})
     return JsonResponse({"success": False}, status=400)
 
-def obtener_notificaciones(request):
-    hoy = date.today()
-    notificaciones = []
+# def obtener_notificaciones(request):
+#     hoy = date.today()
+#     notificaciones = []
 
-    cultivos = Cultivo.objects.all()
+#     cultivos = Cultivo.objects.all()
 
-    for cultivo in cultivos:
-        # Notificación por cosecha próxima
-        if 0 <= (cultivo.fecha_cosecha - hoy).days <= 3:
-            notificaciones.append({
-                "tipo": "cosecha",
-                "mensaje": f' El cultivo "{cultivo.nombre}" está cerca de su fecha de cosecha ({cultivo.fecha_cosecha})'
-            })
+#     for cultivo in cultivos:
+#         # Notificación por cosecha próxima
+#         if 0 <= (cultivo.fecha_cosecha - hoy).days <= 3:
+#             notificaciones.append({
+#                 "tipo": "cosecha",
+#                 "mensaje": f' El cultivo "{cultivo.nombre}" está cerca de su fecha de cosecha ({cultivo.fecha_cosecha})'
+#             })
 
-        # Notificación por inactividad
-        tiene_fertilizaciones = Fertilizacion.objects.filter(cultivo=cultivo).exists()
-        if not tiene_fertilizaciones:
-            notificaciones.append({
-                "tipo": "inactividad",
-                "mensaje": f'El cultivo "{cultivo.nombre}" nunca ha sido fertilizado.'
-            })
+#         # Notificación por inactividad
+#         tiene_fertilizaciones = Fertilizacion.objects.filter(cultivo=cultivo).exists()
+#         if not tiene_fertilizaciones:
+#             notificaciones.append({
+#                 "tipo": "inactividad",
+#                 "mensaje": f'El cultivo "{cultivo.nombre}" nunca ha sido fertilizado.'
+#             })
 
-    return JsonResponse({"notificaciones": notificaciones})
+#     return JsonResponse({"notificaciones": notificaciones})
 
 # endregion
 
