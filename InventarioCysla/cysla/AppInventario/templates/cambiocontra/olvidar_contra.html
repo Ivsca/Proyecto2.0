@@ -11,12 +11,7 @@
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-        }
-        .form-container {
-            max-height: 500px;
-        }
+        body { font-family: 'Roboto', sans-serif; }
     </style>
 </head>
 <body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-6">
@@ -28,17 +23,26 @@
         </a>
     </div>
 
-    <!-- Formulario -->
-    <form id="loginForm" action="{% url 'olvidar_contra' %}" method="post" class="max-h-[400px] overflow-y-auto p-1">
-        {% csrf_token %}
-        <div class="mb-4">
-            <label for="correo" class="block text-gray-700 text-center">Correo</label>
-            <input id="correo" class="w-full border p-2 rounded-lg" type="email" name="correo" required>
-        </div>
-        <button type="submit" class="bg-teal-600 text-white w-full py-2 rounded-lg">
-            Enviar código
-        </button>
-    </form>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        Swal.fire({
+            title: 'Recuperar contraseña',
+            html: `
+                <form id="recuperarForm" action="{% url 'olvidar_contra' %}" method="post">
+                    {% csrf_token %}
+                    <label for="correo" class="block text-gray-700 mb-2">Correo</label>
+                    <input id="correo" class="w-full border p-2 rounded-lg mb-4" type="email" name="correo" required>
+                    <button type="submit" class="bg-teal-600 text-white w-full py-2 rounded-lg">
+                        Enviar código
+                    </button>
+                </form>
+            `,
+            showConfirmButton: false,
+            showCloseButton: true,
+            width: '28rem'
+        });
+    });
+    </script>
 
     <!-- SweetAlert para errores y mensajes -->
     {% if error %}
