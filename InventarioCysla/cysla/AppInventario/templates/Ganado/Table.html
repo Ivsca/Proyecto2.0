@@ -319,9 +319,15 @@
     </div>
 </div>
 
+
 <!-- Inclusión de scripts -->
 <script src="{% static 'JavaScripts/bootstrap.bundle.min.js' %}"></script>
 <script src="{% static 'JavaScripts/Ganado/Alertas.js' %}"></script>
 <!-- SweetAlert2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function TransferirVacuno(id) {
+        console.log("Eliminar vacuno con ID:", id);  // Depuración
+    }
+</script>
 {% include 'inc/Footer.html' %}
