@@ -416,7 +416,7 @@ def obtener_ganado(request, id):
 def TablaCultivo(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
-        tipo_id = request.POST.get('tipo_id', '').strip()  # Cambiado de tipo_cultivo a tipo_id
+        tipo_id = request.POST.get('tipo_id', '').strip()  
         fecha_siembra = request.POST.get('fecha_siembra', '').strip()
         fecha_cosecha = request.POST.get('fecha_cosecha', '').strip()
         cantidad = request.POST.get('cantidad', '').strip()

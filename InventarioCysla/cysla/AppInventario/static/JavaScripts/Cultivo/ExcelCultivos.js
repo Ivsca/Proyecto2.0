@@ -798,7 +798,7 @@ function loadInitialData() {
     .then(res => res.json())
     .then(data => {
         if (data.tipos) {
-            window.tiposArray = data.tipos;
+            window.tiposArray = data.tipos.map(item => item.nombre_tipo);
         }
     });
 
