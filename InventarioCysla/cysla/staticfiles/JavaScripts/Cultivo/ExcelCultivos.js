@@ -401,12 +401,12 @@ function handleTableDataSuccess(data) {
     }
     
     totalRegistros = data.total;
-    renderTableData(data.vacunos);
+    renderTableData(data.cultivos);
     updatePagination();
     updateTableInfo();
     
-    if (data.vacunos && data.vacunos.length > 0) {
-        showSuccessToast(`${data.vacunos.length} registros cargados`);
+    if (data.cultivos && data.cultivos.length > 0) {
+        showSuccessToast(`${data.cultivos.length} registros cargados`);
     }
 }
 
