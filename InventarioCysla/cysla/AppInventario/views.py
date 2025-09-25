@@ -884,7 +884,7 @@ def ConsultarCultivos(request):
         # ✅ Filtro por tipo
         filter_tipo = request.GET.get('filter_tipo')
         if filter_tipo:
-            queryset = queryset.filter(tipo=filter_tipo)
+            queryset = queryset.filter(tipo__nombre_tipo=filter_tipo)
 
         # ✅ Orden dinámico
         order_fields = []

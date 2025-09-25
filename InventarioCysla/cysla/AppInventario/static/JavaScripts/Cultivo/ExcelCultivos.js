@@ -7,7 +7,9 @@ const sampleData = {
     "fecha_siembra": "2025-01-10",
     "fecha_cosecha": "2025-03-20",
     "cantidad": 250,
-    "fertilizante": "NPK 20-20-20"
+    "fertilizante": "NPK 20-20-20",
+    "fecha_fertilizacion": "2025-01-25",
+    "dosis_fertilizacion": "2kg"
 };
 
 // =============================================
