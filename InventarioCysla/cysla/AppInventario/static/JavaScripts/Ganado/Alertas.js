@@ -996,7 +996,7 @@ let html = `
 /**
  * Elimina un vacuno y lo pasa a inactivos.
  */
-function VacunoDesplazado(id) {
+function CambiarVacunoTabla(id) {
     Swal.fire({
         title: '¿Desactivar vacuno?',
         text: "El vacuno se moverá al inventario de inactivos. Podrás reactivarlo más adelante.",
