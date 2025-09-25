@@ -1019,33 +1019,37 @@ function EliminarVacuno(id) {
             fetch(`/EliminarVacuno/${id}/`, {
                 method: 'POST',
                 headers: {
+                    'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken')
-                }
+                },
+                body: JSON.stringify({})  // importante aunque sea vacío
             })
-            .then(response => {
-                if (response.ok) {
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
                     Swal.fire({
                         title: 'Desactivado ✅',
-                        text: 'El vacuno fue movido a ganado inactivo correctamente.',
+                        text: data.message,
                         icon: 'success',
                         confirmButtonColor: '#3085d6',
                         confirmButtonText: 'Entendido',
                         timer: 2500,
                         timerProgressBar: true
                     }).then(() => {
-                        location.reload(); // refresca lista después de eliminar
+                        location.reload();
                     });
                 } else {
-                    Swal.fire(
-                        'Error ❌',
-                        'No se pudo desactivar el vacuno. Intenta de nuevo.',
-                        'error'
-                    );
+                    Swal.fire('Error ❌', data.message, 'error');
                 }
+            })
+            .catch(error => {
+                Swal.fire('Error ❌', 'Error de conexión con el servidor.', 'error');
+                console.error(error);
             });
         }
     });
 }
+
 
 /**
  * Función auxiliar para obtener CSRF Token en Django
