@@ -48,8 +48,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
 ROOT_URLCONF = "cysla.urls"
 
 TEMPLATES = [
@@ -214,7 +212,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 
 # Carpeta donde collectstatic recopila archivos para producción
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Carpeta con tus archivos estáticos en desarrollo
 STATICFILES_DIRS = [
