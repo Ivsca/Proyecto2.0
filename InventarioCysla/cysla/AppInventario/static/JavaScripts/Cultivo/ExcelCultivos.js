@@ -1,14 +1,7 @@
 // =============================================
 // DATOS DE EJEMPLO Y CONFIGURACIÓN INICIAL
 // =============================================
-const sampleData = {
-    "nombre": "Tomate Cherry",
-    "tipo": "Fruta",
-    "fecha_siembra": "2025-01-10",
-    "fecha_cosecha": "2025-03-20",
-    "cantidad": 250,
-    "fertilizante": "NPK 20-20-20"
-};
+const sampleData = { "nombre": "Tomate Cherry", "tipo": "Fruta", "fecha_siembra": "2025-01-10", "fecha_cosecha": "2025-03-20", "cantidad": 250, "fertilizante": "NPK 20-20-20", "fecha_fertilizacion": "2025-01-25", "dosis_fertilizacion": "2kg" };
 
 // =============================================
 // VARIABLES GLOBALES
@@ -332,18 +325,20 @@ function getFilterOptions(column, currentValue = '') {
 }
 
 
+
+
 function handleFilterChange(event) {
     const select = event.target;
     const field = select.dataset.field;
     const value = select.value;
 
-    // Actualizar currentFilters
-    currentFilters[field] = value;
+    currentFilters[field] = value; // ← antes estaba guardando un [object Object]
 
     resetPagination();
     fetchTableData();
     showInfoToast('Filtros aplicados');
 }
+
 
 function fetchTableData() {
     if (selectedColumns.length === 0) {
@@ -393,6 +388,7 @@ function buildQueryParams() {
             } else {
                 params[`sort_${field}`] = value;
             }
+
         }
     });
     
@@ -552,7 +548,7 @@ function handleExcelGeneration() {
     const queryString = new URLSearchParams(params).toString();
     
     // Create download link
-    const downloadUrl = `/exportar-excel-cultivos/?${queryString}`;
+    const downloadUrl = `/exportar-excel- cultivos/?${queryString}`;
     
     // Trigger download
     window.location.href = downloadUrl;
@@ -796,23 +792,20 @@ function showLoadingToast(message) {
 // INITIAL DATA LOADING
 // =============================================
 function loadInitialData() {
-    // Load tipos para el select dinámico
-    fetch('/consultar-cultivos/?fields=tipo&limit=1000')
-        .then(res => res.json())
-        .then(data => {
-            if (data.success && data.cultivos) {
-                const tiposSet = new Set(data.cultivos.map(c => c.tipo).filter(Boolean));
-                window.tiposArray = Array.from(tiposSet).sort();
-            }
-        })
-        .catch(error => {
-            console.error('Error loading tipos:', error);
-        });
+    // Load razas for dynamic select
+    fetch('/api/tipos-cultivo/')
+    .then(res => res.json())
+    .then(data => {
+        if (data.tipos) {
+            window.tiposArray = data.tipos.map(item => item.nombre_tipo);
+        }
+    });
+
     
+    // Initial render
     renderTableHeaders();
     fetchTableData();
 }
-
 
 function showInitialLoading() {
     // Show a brief loading state on app initialization

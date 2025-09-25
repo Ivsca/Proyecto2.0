@@ -1,21 +1,7 @@
 // =============================================
 // DATOS DE EJEMPLO Y CONFIGURACIÓN INICIAL
 // =============================================
-const sampleData = {
-    "CodigoCria": "001",
-    "Foto": "foto.jpg",
-    "Crias": "2",
-    "LitrosLeche": 20,
-    "CodigosCrias": "[002,003]",
-    "CodigoPapa": "PAPA01",
-    "CodigoMama": "MAMA01",
-    "Edad": "3",
-    "InfoVacunas": "Vacuna A, Vacuna B",
-    "Enfermedades": "Ninguna",
-    "Estado": "Activo",
-    "IdParcela": "1",
-    "Razas": "Holstein"
-};
+const sampleData = { "nombre": "Tomate Cherry", "tipo": "Fruta", "fecha_siembra": "2025-01-10", "fecha_cosecha": "2025-03-20", "cantidad": 250, "fertilizante": "NPK 20-20-20", "fecha_fertilizacion": "2025-01-25", "dosis_fertilizacion": "2kg" };
 
 // =============================================
 // VARIABLES GLOBALES
@@ -415,12 +401,12 @@ function handleTableDataSuccess(data) {
     }
     
     totalRegistros = data.total;
-    renderTableData(data.vacunos);
+    renderTableData(data.cultivos);
     updatePagination();
     updateTableInfo();
     
-    if (data.vacunos && data.vacunos.length > 0) {
-        showSuccessToast(`${data.vacunos.length} registros cargados`);
+    if (data.cultivos && data.cultivos.length > 0) {
+        showSuccessToast(`${data.cultivos.length} registros cargados`);
     }
 }
 
