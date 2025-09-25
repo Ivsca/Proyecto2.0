@@ -996,6 +996,11 @@ let html = `
 /**
  * Elimina un vacuno y lo pasa a inactivos.
  */
+
+function EliminarVacuno(id) {
+    console.log("Eliminar vacuno con ID:", id);  // Depuración
+}
+
 function CambiarVacunoTabla(id) {
     Swal.fire({
         title: '¿Desactivar vacuno?',
