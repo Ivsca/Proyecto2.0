@@ -259,7 +259,7 @@ def VacasInactivas(request):
 
 # Eliminar vacuno (pasar a inactivos)
 @login_required
-def VacunoEliminado(request, id):
+def EliminarVacuno(request, id):
     return HttpResponse(f"Función de eliminar vacuno aún no implementada. id: {id}")
 
 # Rehabilitar un vacuno
