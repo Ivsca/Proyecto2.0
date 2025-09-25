@@ -311,10 +311,12 @@ function getFilterOptions(column, currentValue = '') {
         let options = '<option value="">Todos los tipos</option>';
         if (window.tiposArray) {
             window.tiposArray.forEach(tipo => {
-            const nombre = tipo.nombre_tipo || tipo.nombre;
-            options += `<option value="${nombre}" ${nombre === currentValue ? 'selected' : ''}>${nombre}</option>`;
-        });
+                const nombre = typeof tipo === 'string'
+                    ? tipo
+                    : tipo.nombre_tipo || tipo.nombre || '';
 
+                options += `<option value="${nombre}" ${nombre === currentValue ? 'selected' : ''}>${nombre}</option>`;
+            });
         }
         return options;
     } else {
@@ -327,18 +329,20 @@ function getFilterOptions(column, currentValue = '') {
 }
 
 
+
+
 function handleFilterChange(event) {
     const select = event.target;
     const field = select.dataset.field;
     const value = select.value;
 
-    // Actualizar currentFilters
-    currentFilters[field] = value;
+    currentFilters[field] = value; // ← antes estaba guardando un [object Object]
 
     resetPagination();
     fetchTableData();
     showInfoToast('Filtros aplicados');
 }
+
 
 function fetchTableData() {
     if (selectedColumns.length === 0) {
