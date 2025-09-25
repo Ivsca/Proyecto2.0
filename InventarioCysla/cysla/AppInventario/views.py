@@ -1121,6 +1121,7 @@ def verificar_codigo(request):
                     "error": f"Código incorrecto. Te quedan {intentos_restantes} intento(s)."
                 })
             
+            # Código correcto
             request.session["verified"] = True
             reset_obj.delete()
             return redirect("restablecer_contra")
@@ -1188,5 +1189,4 @@ def restablecer_contra(request):
             })
     
     return render(request, "cambiocontra/restablecer_contra.html")
-
 # endregion

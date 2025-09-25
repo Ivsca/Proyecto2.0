@@ -22,6 +22,7 @@ urlpatterns = [
     path('cambiocontra/olvidar_contra/', views.olvidar_contra, name='olvidar_contra'),
     path('cambiocontra/verificar_codigo/', views.verificar_codigo, name='verificar_codigo'),
     path('cambiocontra/restablecer_contra/', views.restablecer_contra, name='restablecer_contra'),
+
     # endregion
 
     # region Solicitudes de acceso
