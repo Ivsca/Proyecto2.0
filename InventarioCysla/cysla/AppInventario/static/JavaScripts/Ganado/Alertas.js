@@ -997,7 +997,7 @@ let html = `
  * Elimina un vacuno y lo pasa a inactivos.
  */
 
-function EliminarVacuno(id) {
+function TransferirVacuno(id) {
     console.log("Eliminar vacuno con ID:", id);  // Depuración
 }
 
@@ -1021,7 +1021,7 @@ function CambiarVacunoTabla(id) {
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`/TransferirVacuno/${id}/`, {
+            fetch(`//${id}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
