@@ -311,8 +311,10 @@ function getFilterOptions(column, currentValue = '') {
         let options = '<option value="">Todos los tipos</option>';
         if (window.tiposArray) {
             window.tiposArray.forEach(tipo => {
-                options += `<option value="${tipo}" ${tipo === currentValue ? 'selected' : ''}>${tipo}</option>`;
-            });
+            const nombre = tipo.nombre_tipo || tipo.nombre;
+            options += `<option value="${nombre}" ${nombre === currentValue ? 'selected' : ''}>${nombre}</option>`;
+        });
+
         }
         return options;
     } else {
