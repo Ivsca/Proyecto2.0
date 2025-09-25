@@ -2,65 +2,49 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="{% static 'Css/logueo/Logueo.css' %}">
-  <style>
-      body {
-          font-family: 'Roboto', sans-serif;
-      }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="{% static 'Css/logueo/Logueo.css' %}">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .form-container {
+            max-height: 500px;
+        }
+    </style>
 </head>
-<body class="bg-gradient-to-r from-teal-500 to-cyan-600 flex items-center justify-center min-h-screen p-4">
-
-  <!-- Contenedor principal -->
-  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-6">
 
     <!-- Botón volver -->
-    <div class="mb-6">
-      <a href="{% url 'Home' %}" 
-         class="flex items-center text-teal-600 hover:text-teal-800 font-medium">
-        <i class="fas fa-arrow-left mr-2"></i> Volver
-      </a>
-    </div>
-
-    <!-- Encabezado -->
-    <div class="text-center mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">Recuperar contraseña</h1>
-      <p class="text-gray-500 text-sm">Introduce tu correo para recibir un código de verificación</p>
+    <div class="w-full max-w-md mb-4">
+        <a href="{% url 'Home' %}" class="bg-teal-600 text-white px-4 py-2 rounded-lg inline-block">
+            Volver
+        </a>
     </div>
 
     <!-- Formulario -->
-    <form id="loginForm" action="{% url 'olvidar_contra' %}" method="post" class="space-y-5">
-      {% csrf_token %}
-
-      <div>
-        <label for="correo" class="block text-gray-700 font-medium mb-1">Correo electrónico</label>
-        <input id="correo" 
-               type="email" 
-               name="correo" 
-               required
-               placeholder="ejemplo@correo.com"
-               class="w-full border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-400 p-3 rounded-lg outline-none transition"/>
+<form id="loginForm" action="{% url 'olvidar_contra' %}" method="post" class="max-h-[400px] overflow-y-auto p-1">
+    {% csrf_token %}
+    <div class="mb-4">
+        <label for="correo" class="block text-gray-700 text-center">Correo</label>
+        <input id="correo" class="w-full border p-2 rounded-lg" type="email" name="correo" required>
         {% if error %}
-          <span class="text-red-500 text-sm mt-1 block">{{ error }}</span>
+            <span class="text-red-500 text-sm">{{ error }}</span>
         {% endif %}
-      </div>
-
-      <button type="submit" 
-              class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-lg shadow-md transition">
+    </div>
+    <button type="submit" class="bg-teal-600 text-white w-full py-2 rounded-lg">
         Enviar código
-      </button>
-    </form>
+    </button>
+</form>
 
-    <!-- Mensajes -->
-    {% if message %}
-      <p class="text-center text-red-500 mt-4">{{ message }}</p>
-    {% endif %}
-  </div>
+        {% if message %}
+            <p class="text-center text-red-500 mt-2">{{ message }}</p>
+        {% endif %}
+    </div>
 
 </body>
 </html>
