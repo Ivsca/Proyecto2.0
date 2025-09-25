@@ -278,11 +278,11 @@ def EliminarVacuno(request, id):
             idparcela=vacuno.idparcela,
             razas=vacuno.razas
         )
-
         vacuno.delete()
-        return JsonResponse({'success': True, 'message': 'Vacuno desactivado correctamente'})
+
+        return JsonResponse({"success": True, "message": "Vacuno desactivado con éxito."})
     except Exception as e:
-        return JsonResponse({'success': False, 'message': str(e)})
+        return JsonResponse({"success": False, "message": str(e)}, status=400)
 
 # Rehabilitar un vacuno
 @login_required

@@ -994,52 +994,78 @@ let html = `
 };
 
 /**
- * Elimina un vacuno y su registro asociado.
+ * Elimina un vacuno y lo pasa a inactivos.
  */
-// En Table.html - modificar la función EliminarVacuno
 function EliminarVacuno(id) {
     Swal.fire({
         title: '¿Desactivar vacuno?',
-        text: "El vacuno se moverá al inventario de vacas inactivas. Podrás reactivarlo posteriormente.",
+        text: "El vacuno se moverá al inventario de inactivos. Podrás reactivarlo más adelante.",
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#4CAF50',
-        confirmButtonText: 'Sí, desactivar',
-        cancelButtonText: 'Cancelar'
+        confirmButtonColor: '#e63946',
+        cancelButtonColor: '#43aa8b',
+        confirmButtonText: '<i class="fas fa-check-circle"></i> Sí, desactivar',
+        cancelButtonText: '<i class="fas fa-times-circle"></i> Cancelar',
+        background: '#fefefe',
+        color: '#333',
+        customClass: {
+            popup: 'rounded-4 shadow-lg',
+            title: 'fw-bold text-danger',
+            confirmButton: 'px-4 py-2 rounded-pill',
+            cancelButton: 'px-4 py-2 rounded-pill'
+        }
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`/Ganado/Inactivas/Eliminar/${id}/`, {
+            fetch(`/EliminarVacuno/${id}/`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({ id: id })
-            })
-            .then(response => {
-                if (!response.ok) throw new Error("Error en la respuesta del servidor");
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        title: 'Desactivado!',
-                        text: data.message,
-                        icon: 'success',
-                        confirmButtonColor: '#3085d6'
-                    }).then(() => location.reload());
-                } else {
-                    Swal.fire('Error', data.message, 'error');
+                    'X-CSRFToken': getCookie('csrftoken')
                 }
             })
-            .catch(error => {
-                Swal.fire('Error', 'Ocurrió un problema en la petición.', 'error');
-                console.error(error);
+            .then(response => {
+                if (response.ok) {
+                    Swal.fire({
+                        title: 'Desactivado ✅',
+                        text: 'El vacuno fue movido a ganado inactivo correctamente.',
+                        icon: 'success',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'Entendido',
+                        timer: 2500,
+                        timerProgressBar: true
+                    }).then(() => {
+                        location.reload(); // refresca lista después de eliminar
+                    });
+                } else {
+                    Swal.fire(
+                        'Error ❌',
+                        'No se pudo desactivar el vacuno. Intenta de nuevo.',
+                        'error'
+                    );
+                }
             });
         }
     });
 }
+
+/**
+ * Función auxiliar para obtener CSRF Token en Django
+ */
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+      
 
 
 
