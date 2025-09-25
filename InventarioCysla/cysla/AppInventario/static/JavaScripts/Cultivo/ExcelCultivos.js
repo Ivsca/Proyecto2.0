@@ -312,7 +312,7 @@ function getFilterOptions(column, currentValue = '') {
         if (window.tiposArray) {
             window.tiposArray.forEach(tipo => {
                 const nombre = tipo.nombre_tipo;  
-                options += `<option value="${nombre}" ${nombre === currentValue ? 'selected' : ''}>${nombre}</option>`;
+                options += `<option value="${tipo}" ${tipo === currentValue ? 'selected' : ''}>${tipo}</option>`;
             });
         }
         return options;
