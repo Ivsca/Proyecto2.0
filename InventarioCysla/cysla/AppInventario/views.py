@@ -5,10 +5,10 @@ import os
 import re
 import json
 import traceback
+import hashlib
+import random
 from datetime import datetime, date, timedelta
 from io import BytesIO
-from multiprocessing import connection
-from django.http import HttpResponse
 
 # ==========================
 # Librerías externas
@@ -27,10 +27,11 @@ from django.core.paginator import Paginator
 from django.core.serializers import serialize
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-
 from django.contrib.auth.decorators import login_required
-
 from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
+from django.utils import timezone
 
 # ==========================
 # Modelos locales
@@ -55,12 +56,6 @@ from .models import (
 # ==========================
 from .decoradores import login_required
 from AppInventario.Notificaciones import NotificacionesCultivos
-import hashlib, random
-from datetime import timedelta
-from django.utils import timezone
-from django.contrib.auth.models import User
-from django.contrib.auth.hashers import make_password
-from .utils import send_reset_email
 
 
 
@@ -1027,8 +1022,7 @@ def SistemaNotficacionesGmail(request):
 
 # endregion
 
-
-
+# region recuperación de contraseña
 # region recuperación de contraseña
 def olvidar_contra(request):
     if request.session.get("usuario_id"):
@@ -1038,7 +1032,9 @@ def olvidar_contra(request):
         correo = request.POST.get("correo", "").strip().lower()
         
         if not correo:
-            return render(request, "cambiocontra/olvidar_contra.html", {"error": "El correo es obligatorio"})
+            return render(request, "cambiocontra/olvidar_contra.html", {
+                "error": "El correo es obligatorio"
+            })
         
         try:
             user = Usuarios.objects.get(correo=correo)
@@ -1057,12 +1053,15 @@ def olvidar_contra(request):
                 attempts=0
             )
             
+            # ✅ CORREGIR: Guardar el ID del código en sesión
             request.session["reset_email"] = correo
             request.session["reset_user_id"] = user.id
+            request.session["reset_code_id"] = codigo_obj.id  # ← ESTO FALTABA
             
             # Enviar email
             try:
                 send_reset_email(user.correo, code)
+                print(f"Código enviado a {correo}: {code}")  # Debug
             except Exception as e:
                 print(f"Error enviando email: {e}")
                 return render(request, "cambiocontra/olvidar_contra.html", {
@@ -1083,13 +1082,15 @@ def olvidar_contra(request):
     return render(request, "cambiocontra/olvidar_contra.html")
 
 def verificar_codigo(request):
-    if not request.session.get("reset_email"):
+    # ✅ CORREGIR: Validar más campos de sesión
+    if not all(request.session.get(key) for key in ["reset_email", "reset_user_id", "reset_code_id"]):
         return redirect("olvidar_contra")
     
     if request.method == "POST":
         code = request.POST.get("code", "").strip()
         email = request.session.get("reset_email")
         user_id = request.session.get("reset_user_id")
+        code_id = request.session.get("reset_code_id")  # ← OBTENER ID DEL CÓDIGO
         
         if not code or len(code) != 6 or not code.isdigit():
             return render(request, "cambiocontra/verificar_codigo.html", {
@@ -1098,10 +1099,13 @@ def verificar_codigo(request):
         
         try:
             user = Usuarios.objects.get(id=user_id, correo=email)
-            reset_obj = codigo.objects.get(user_id=user.id)
+            # ✅ CORREGIR: Buscar por ID del código, no solo por user_id
+            reset_obj = codigo.objects.get(id=code_id, user_id=user.id)
             
             if reset_obj.is_expired():
                 reset_obj.delete()
+                # ✅ LIMPIAR SESIÓN SI EL CÓDIGO EXPIRÓ
+                request.session.pop("reset_code_id", None)
                 return render(request, "cambiocontra/verificar_codigo.html", {
                     "error": "El código ha expirado. Solicita uno nuevo."
                 })
@@ -1112,6 +1116,8 @@ def verificar_codigo(request):
                 
                 if reset_obj.attempts >= 3:
                     reset_obj.delete()
+                    # ✅ LIMPIAR SESIÓN SI SE SUPERAN LOS INTENTOS
+                    request.session.pop("reset_code_id", None)
                     return render(request, "cambiocontra/verificar_codigo.html", {
                         "error": "Demasiados intentos fallidos. Solicita un nuevo código."
                     })
@@ -1121,9 +1127,11 @@ def verificar_codigo(request):
                     "error": f"Código incorrecto. Te quedan {intentos_restantes} intento(s)."
                 })
             
-            # Código correcto
-            request.session["verified"] = True
+            # ✅ Código correcto - LIMPIAR CÓDIGO Y MARCAR VERIFICADO
             reset_obj.delete()
+            request.session["verified"] = True
+            request.session.pop("reset_code_id", None)  # ← LIMPIAR ID DEL CÓDIGO
+            
             return redirect("restablecer_contra")
             
         except Usuarios.DoesNotExist:
@@ -1143,6 +1151,7 @@ def verificar_codigo(request):
     return render(request, "cambiocontra/verificar_codigo.html")
 
 def restablecer_contra(request):
+    # ✅ CORREGIR: Validar que la sesión esté completamente verificada
     if not request.session.get("verified") or not request.session.get("reset_email"):
         return redirect("olvidar_contra")
     
@@ -1162,19 +1171,41 @@ def restablecer_contra(request):
                 "error": "Las contraseñas no coinciden"
             })
         
-        if len(new_password) < 8 or not re.search(r'[A-Z]', new_password) or not re.search(r'[0-9]', new_password):
+        # ✅ MEJORAR validación de contraseña (más estricta para texto plano)
+        if len(new_password) < 8:
             return render(request, "cambiocontra/restablecer_contra.html", {
-                "error": "La contraseña debe tener mínimo 8 caracteres, incluir una mayúscula y un número"
+                "error": "La contraseña debe tener mínimo 8 caracteres"
+            })
+        
+        if not re.search(r'[A-Z]', new_password):
+            return render(request, "cambiocontra/restablecer_contra.html", {
+                "error": "La contraseña debe incluir al menos una mayúscula"
+            })
+            
+        if not re.search(r'[a-z]', new_password):
+            return render(request, "cambiocontra/restablecer_contra.html", {
+                "error": "La contraseña debe incluir al menos una minúscula"
+            })
+            
+        if not re.search(r'[0-9]', new_password):
+            return render(request, "cambiocontra/restablecer_contra.html", {
+                "error": "La contraseña debe incluir al menos un número"
             })
         
         try:
             user = Usuarios.objects.get(id=user_id, correo=email)
-            # ✅ CAMBIO CLAVE: Guardar en texto plano (sin make_password)
-            user.clave = new_password  # ← Texto plano directamente
+            # ✅ CONTRASEÑA EN TEXTO PLANO (según requerimiento)
+            user.clave = new_password
             user.save()
             
-            # Limpiar sesión
-            request.session.flush()
+            # ✅ CORREGIR: Limpiar TODA la sesión de recuperación
+            session_keys_to_remove = [
+                "reset_email", "reset_user_id", "reset_code_id", 
+                "verified", "reset_attempts"
+            ]
+            for key in session_keys_to_remove:
+                if key in request.session:
+                    del request.session[key]
             
             messages.success(request, "¡Contraseña cambiada exitosamente! Ya puedes iniciar sesión.")
             return redirect("PlantillaLogueo")
@@ -1189,4 +1220,34 @@ def restablecer_contra(request):
             })
     
     return render(request, "cambiocontra/restablecer_contra.html")
+
+def send_reset_email(email, code):
+    """✅ ÚNICA función para enviar emails de recuperación"""
+    subject = 'Código de recuperación de contraseña'
+    message = f'''
+Hola,
+
+Has solicitado restablecer tu contraseña. 
+Tu código de verificación es: {code}
+
+Este código expirará en 15 minutos.
+
+Si no solicitaste este cambio, ignora este mensaje.
+
+Saludos,
+Equipo de soporte
+'''
+    
+    try:
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [email],
+            fail_silently=False,
+        )
+        return True
+    except Exception as e:
+        print(f"Error enviando email: {e}")
+        return False
 # endregion

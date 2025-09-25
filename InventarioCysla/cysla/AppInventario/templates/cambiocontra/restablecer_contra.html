@@ -5,55 +5,178 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" href="{% static 'Css/logueo/Logueo.css' %}">
+    <title>Nueva Contraseña</title>
     <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-        }
+        body { font-family: 'Roboto', sans-serif; }
+        .password-strength { transition: all 0.3s; }
     </style>
 </head>
 <body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-6">
-
-    <!-- Botón volver -->
-    <div class="w-full max-w-md mb-4">
-        <a href="{% url 'Home' %}" class="bg-teal-600 text-white px-4 py-2 rounded-lg inline-block">
-            Volver
+    <!-- Navegación -->
+    <div class="w-full max-w-md mb-6 space-y-2">
+        <a href="{% url 'Home' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg inline-flex items-center">
+            <i class="fas fa-home mr-2"></i> Inicio
         </a>
-    </div>
-        </div>
-        <div class="w-full max-w-md mb-4">
-        <a href="{% url 'verificar_codigo' %}" class="bg-teal-600 text-white px-4 py-2 rounded-lg inline-block">
-            Anterior
+        <a href="{% url 'verificar_codigo' %}" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg inline-flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i> Volver
         </a>
     </div>
 
-    <!-- Formulario nueva contraseña -->
-    <div class="container mx-auto p-6 bg-white rounded-lg shadow-lg max-w-md">
-        <h2 class="text-2xl font-bold text-center mb-4">Nueva contraseña</h2>
+    <!-- Formulario -->
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+        <h2 class="text-2xl font-bold text-center text-gray-800 mb-2">Nueva Contraseña</h2>
         
-       <form method="post" class="space-y-4">
-    {% csrf_token %}
-    <div>
-        <label for="new_password" class="block text-gray-700">Nueva contraseña</label>
-        <input id="new_password" type="password" name="new_password" class="w-full border p-2 rounded-lg" required>
-    </div>
-    <div>
-        <label for="confirm_password" class="block text-gray-700">Confirmar contraseña</label>
-        <input id="confirm_password" type="password" name="confirm_password" class="w-full border p-2 rounded-lg" required>
-    </div>
-    {% if error %}
-        <div class="text-red-500 text-sm">{{ error }}</div>
-    {% endif %}
-    <button type="submit" class="bg-teal-600 text-white w-full py-2 rounded-lg hover:bg-teal-700">
-        Cambiar contraseña
-    </button>
-</form>
-
-        {% if message %}
-            <p class="text-center text-red-500 mt-2">{{ message }}</p>
+        <!-- 🔴 ADVERTENCIA DE SEGURIDAD -->
+        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4 rounded">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <strong>Advertencia de Seguridad</strong>
+            </div>
+            <p class="text-sm mt-1">Las contraseñas se almacenan sin encriptación. Usa una contraseña única.</p>
+        </div>
+        
+        <p class="text-gray-600 text-center mb-6">Crea una contraseña segura para tu cuenta</p>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 p-3 rounded {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
         {% endif %}
+
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            
+            <div>
+                <label for="new_password" class="block text-gray-700 font-medium mb-2">Nueva Contraseña</label>
+                <input id="new_password" name="new_password" type="password" 
+                       class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                       placeholder="Mínimo 10 caracteres con mayúsculas, números y símbolos" required
+                       onkeyup="checkPasswordStrength(this.value)">
+                <div id="password-strength" class="password-strength mt-2 text-sm hidden">
+                    <div class="flex items-center mb-1">
+                        <span id="strength-text" class="font-medium"></span>
+                        <span id="strength-percentage" class="ml-auto"></span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div id="strength-bar" class="h-2 rounded-full transition-all duration-300"></div>
+                    </div>
+                    <ul id="password-requirements" class="mt-2 text-xs text-gray-600 space-y-1"></ul>
+                </div>
+            </div>
+            
+            <div>
+                <label for="confirm_password" class="block text-gray-700 font-medium mb-2">Confirmar Contraseña</label>
+                <input id="confirm_password" name="confirm_password" type="password" 
+                       class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                       placeholder="Repite tu contraseña" required
+                       onkeyup="checkPasswordMatch()">
+                <div id="password-match" class="mt-1 text-sm hidden"></div>
+            </div>
+            
+            {% if error %}
+                <div class="p-3 bg-red-100 text-red-700 rounded-lg">
+                    {{ error }}
+                </div>
+            {% endif %}
+            
+            <button type="submit" id="submit-btn"
+                    class="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-3 px-4 rounded-lg transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                <i class="fas fa-lock mr-2"></i> Cambiar Contraseña
+            </button>
+        </form>
+        
+        <div class="mt-4 text-center text-sm text-gray-500">
+            <p>¿Problemas? <a href="{% url 'olvidar_contra' %}" class="text-teal-600 hover:underline">Reiniciar proceso</a></p>
+        </div>
     </div>
 
+    <script>
+        function checkPasswordStrength(password) {
+            const strengthBar = document.getElementById('password-strength');
+            const requirements = {
+                length: password.length >= 10,  // Más estricto
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /[0-9]/.test(password),
+                special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+            };
+            
+            const metRequirements = Object.values(requirements).filter(Boolean).length;
+            const totalRequirements = Object.keys(requirements).length;
+            const strength = (metRequirements / totalRequirements) * 100;
+            
+            let strengthText, strengthColor;
+            if (strength < 40) {
+                strengthText = "Muy Débil";
+                strengthColor = "bg-red-500";
+            } else if (strength < 70) {
+                strengthText = "Moderada";
+                strengthColor = "bg-yellow-500";
+            } else if (strength < 90) {
+                strengthText = "Fuerte";
+                strengthColor = "bg-blue-500";
+            } else {
+                strengthText = "Muy Fuerte";
+                strengthColor = "bg-green-500";
+            }
+            
+            // Mostrar/ocultar barra
+            if (password.length > 0) {
+                strengthBar.classList.remove('hidden');
+            } else {
+                strengthBar.classList.add('hidden');
+            }
+            
+            // Actualizar UI
+            document.getElementById('strength-text').textContent = `Seguridad: ${strengthText}`;
+            document.getElementById('strength-percentage').textContent = `${Math.round(strength)}%`;
+            document.getElementById('strength-bar').className = `h-2 rounded-full ${strengthColor} transition-all duration-300`;
+            document.getElementById('strength-bar').style.width = `${strength}%`;
+            
+            // Lista de requisitos (más estricta)
+            const reqList = document.getElementById('password-requirements');
+            reqList.innerHTML = `
+                <li class="${requirements.length ? 'text-green-600' : 'text-red-600'}">✓ Mínimo 10 caracteres</li>
+                <li class="${requirements.uppercase ? 'text-green-600' : 'text-red-600'}">✓ Al menos una mayúscula</li>
+                <li class="${requirements.lowercase ? 'text-green-600' : 'text-red-600'}">✓ Al menos una minúscula</li>
+                <li class="${requirements.number ? 'text-green-600' : 'text-red-600'}">✓ Al menos un número</li>
+                <li class="${requirements.special ? 'text-green-600' : 'text-red-600'}">✓ Al menos un símbolo</li>
+            `;
+        }
+        
+        function checkPasswordMatch() {
+            const password = document.getElementById('new_password').value;
+            const confirm = document.getElementById('confirm_password').value;
+            const matchDiv = document.getElementById('password-match');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            if (confirm.length === 0) {
+                matchDiv.classList.add('hidden');
+                return;
+            }
+            
+            if (password === confirm) {
+                matchDiv.innerHTML = '<span class="text-green-600">✓ Las contraseñas coinciden</span>';
+                matchDiv.classList.remove('hidden');
+                submitBtn.disabled = false;
+            } else {
+                matchDiv.innerHTML = '<span class="text-red-600">✗ Las contraseñas no coinciden</span>';
+                matchDiv.classList.remove('hidden');
+                submitBtn.disabled = true;
+            }
+        }
+        
+        // Validar al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const password = document.getElementById('new_password').value;
+            if (password) {
+                checkPasswordStrength(password);
+            }
+        });
+    </script>
 </body>
 </html>
