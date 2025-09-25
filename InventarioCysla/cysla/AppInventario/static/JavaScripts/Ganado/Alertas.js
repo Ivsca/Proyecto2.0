@@ -996,7 +996,7 @@ let html = `
 /**
  * Elimina un vacuno y lo pasa a inactivos.
  */
-function EliminarVacuno(id) {
+function VacunoDesplazado(id) {
     Swal.fire({
         title: '¿Desactivar vacuno?',
         text: "El vacuno se moverá al inventario de inactivos. Podrás reactivarlo más adelante.",
@@ -1016,7 +1016,7 @@ function EliminarVacuno(id) {
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`/EliminarVacuno/${id}/`, {
+            fetch(`/TransferirVacuno/${id}/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
