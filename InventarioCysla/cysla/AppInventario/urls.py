@@ -19,9 +19,6 @@ urlpatterns = [
     # endregion
 
     # region Recuperación de contraseña
-    path('olvidar-contra/', views.olvidar_contra, name='olvidar_contra'),
-    path('verificar-codigo/', views.verificar_codigo, name='verificar_codigo'),
-    path('restablecer-contra/', views.restablecer_contra, name='restablecer_contra'),
     path('cambiocontra/olvidar_contra/', views.olvidar_contra, name='olvidar_contra'),
     path('cambiocontra/verificar_codigo/', views.verificar_codigo, name='verificar_codigo'),
     path('cambiocontra/restablecer_contra/', views.restablecer_contra, name='restablecer_contra'),
