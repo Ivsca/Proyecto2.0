@@ -12,6 +12,20 @@ const sampleData = {
     "dosis_fertilizacion": "2kg"
 };
 
+function getHeaderLabel(field) {
+    const etiquetas = {
+        nombre: "Nombre",
+        tipo: "Tipo",
+        cantidad: "Cantidad",
+        fecha_siembra: "Fecha de Siembra",
+        fecha_cosecha: "Fecha de Cosecha",
+        fecha_fertilizacion: "Fecha del primer fertilizante",
+        dosis_fertilizacion: "Dosis fertilizante"
+    };
+    return etiquetas[field] || field;
+}
+
+
 // =============================================
 // VARIABLES GLOBALES
 // =============================================
@@ -298,8 +312,9 @@ function renderTableHeaders() {
         const currentValue = currentFilters[col] || '';
         headerHtml += `<th>
             <div class="header-content">
-                <span class="header-title">${col}</span>
-                <select class="table-filter form-select form-select-sm mt-1" data-field="${col}" ${col === 'razas' ? 'data-filter="raza"' : ''}>
+                <span class="header-title">${getHeaderLabel(col)}</span>
+                <select class="table-filter form-select form-select-sm mt-1" data-field="${col}">
+
                     ${getFilterOptions(col, currentValue)}
                 </select>
             </div>
