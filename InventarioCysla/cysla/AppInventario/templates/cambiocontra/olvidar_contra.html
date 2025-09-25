@@ -8,6 +8,8 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="{% static 'Css/logueo/Logueo.css' %}">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -27,24 +29,39 @@
     </div>
 
     <!-- Formulario -->
-<form id="loginForm" action="{% url 'olvidar_contra' %}" method="post" class="max-h-[400px] overflow-y-auto p-1">
-    {% csrf_token %}
-    <div class="mb-4">
-        <label for="correo" class="block text-gray-700 text-center">Correo</label>
-        <input id="correo" class="w-full border p-2 rounded-lg" type="email" name="correo" required>
-        {% if error %}
-            <span class="text-red-500 text-sm">{{ error }}</span>
-        {% endif %}
-    </div>
-    <button type="submit" class="bg-teal-600 text-white w-full py-2 rounded-lg">
-        Enviar código
-    </button>
-</form>
+    <form id="loginForm" action="{% url 'olvidar_contra' %}" method="post" class="max-h-[400px] overflow-y-auto p-1">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label for="correo" class="block text-gray-700 text-center">Correo</label>
+            <input id="correo" class="w-full border p-2 rounded-lg" type="email" name="correo" required>
+        </div>
+        <button type="submit" class="bg-teal-600 text-white w-full py-2 rounded-lg">
+            Enviar código
+        </button>
+    </form>
 
-        {% if message %}
-            <p class="text-center text-red-500 mt-2">{{ message }}</p>
-        {% endif %}
-    </div>
+    <!-- SweetAlert para errores y mensajes -->
+    {% if error %}
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: '{{ error }}',
+                confirmButtonColor: '#0d9488'
+            });
+        </script>
+    {% endif %}
+
+    {% if message %}
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: '{{ message }}',
+                confirmButtonColor: '#0d9488'
+            });
+        </script>
+    {% endif %}
 
 </body>
 </html>
