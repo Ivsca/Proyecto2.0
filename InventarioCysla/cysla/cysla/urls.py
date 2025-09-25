@@ -8,6 +8,7 @@ urlpatterns = [
     path("", include("AppInventario.urls")),
 ]
 
-# 👇 Esto sirve las imágenes en desarrollo
+# 👇 Esto solo sirve los archivos de MEDIA en desarrollo (DEBUG=True)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

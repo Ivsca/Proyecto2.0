@@ -34,5 +34,8 @@ RUN python manage.py collectstatic --noinput
 # Exponer el puerto (opcional pero recomendado)
 EXPOSE 8000
 
+RUN mkdir -p /app/media
+
+
 # Iniciar Gunicorn (ajusta "cysla" si tu proyecto principal se llama distinto)
 CMD ["gunicorn", "cysla.wsgi:application", "--bind", "0.0.0.0:8000"]
