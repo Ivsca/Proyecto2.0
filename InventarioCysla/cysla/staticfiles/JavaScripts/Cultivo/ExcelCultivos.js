@@ -1,29 +1,7 @@
 // =============================================
 // DATOS DE EJEMPLO Y CONFIGURACIÓN INICIAL
 // =============================================
-const sampleData = {
-    "nombre": "Tomate Cherry",
-    "tipo": "Fruta",
-    "fecha_siembra": "2025-01-10",
-    "fecha_cosecha": "2025-03-20",
-    "cantidad": 250,
-    "fertilizante": "NPK 20-20-20",
-    "fecha_fertilizacion": "2025-01-25",
-    "dosis_fertilizacion": "2kg"
-};
-
-function getHeaderLabel(field) {
-    const etiquetas = {
-        nombre: "Nombre",
-        tipo: "Tipo",
-        cantidad: "Cantidad",
-        fecha_siembra: "Fecha de Siembra",
-        fecha_cosecha: "Fecha de Cosecha",
-        fecha_fertilizacion: "Fecha del primer fertilizante",
-        dosis_fertilizacion: "Dosis fertilizante"
-    };
-    return etiquetas[field] || field;
-}
+const sampleData = { "nombre": "Tomate Cherry", "tipo": "Fruta", "fecha_siembra": "2025-01-10", "fecha_cosecha": "2025-03-20", "cantidad": 250, "fertilizante": "NPK 20-20-20", "fecha_fertilizacion": "2025-01-25", "dosis_fertilizacion": "2kg" };
 
 // =============================================
 // VARIABLES GLOBALES
@@ -311,9 +289,8 @@ function renderTableHeaders() {
         const currentValue = currentFilters[col] || '';
         headerHtml += `<th>
             <div class="header-content">
-                <span class="header-title">${getHeaderLabel(col)}</span>
-                <select class="table-filter form-select form-select-sm mt-1" data-field="${col}">
-
+                <span class="header-title">${col}</span>
+                <select class="table-filter form-select form-select-sm mt-1" data-field="${col}" ${col === 'razas' ? 'data-filter="raza"' : ''}>
                     ${getFilterOptions(col, currentValue)}
                 </select>
             </div>
@@ -813,7 +790,7 @@ function showLoadingToast(message) {
 // INITIAL DATA LOADING
 // =============================================
 function loadInitialData() {
-    
+    // Load razas for dynamic select
     fetch('/api/tipos-cultivo/')
     .then(res => res.json())
     .then(data => {

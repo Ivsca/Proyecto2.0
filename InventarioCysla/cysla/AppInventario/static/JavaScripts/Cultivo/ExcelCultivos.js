@@ -1,30 +1,7 @@
 // =============================================
 // DATOS DE EJEMPLO Y CONFIGURACIÓN INICIAL
 // =============================================
-const sampleData = {
-    "nombre": "Tomate Cherry",
-    "tipo": "Fruta",
-    "fecha_siembra": "2025-01-10",
-    "fecha_cosecha": "2025-03-20",
-    "cantidad": 250,
-    "fertilizante": "NPK 20-20-20",
-    "fecha_fertilizacion": "2025-01-25",
-    "dosis_fertilizacion": "2kg"
-};
-
-function getHeaderLabel(field) {
-    const etiquetas = {
-        nombre: "Nombre",
-        tipo: "Tipo",
-        cantidad: "Cantidad",
-        fecha_siembra: "Fecha de Siembra",
-        fecha_cosecha: "Fecha de Cosecha",
-        fecha_fertilizacion: "Fecha del primer fertilizante",
-        dosis_fertilizacion: "Dosis fertilizante"
-    };
-    return etiquetas[field] || field;
-}
-
+const sampleData = { "nombre": "Tomate Cherry", "tipo": "Fruta", "fecha_siembra": "2025-01-10", "fecha_cosecha": "2025-03-20", "cantidad": 250, "fertilizante": "NPK 20-20-20", "fecha_fertilizacion": "2025-01-25", "dosis_fertilizacion": "2kg" };
 
 // =============================================
 // VARIABLES GLOBALES
@@ -312,9 +289,8 @@ function renderTableHeaders() {
         const currentValue = currentFilters[col] || '';
         headerHtml += `<th>
             <div class="header-content">
-                <span class="header-title">${getHeaderLabel(col)}</span>
-                <select class="table-filter form-select form-select-sm mt-1" data-field="${col}">
-
+                <span class="header-title">${col}</span>
+                <select class="table-filter form-select form-select-sm mt-1" data-field="${col}" ${col === 'razas' ? 'data-filter="raza"' : ''}>
                     ${getFilterOptions(col, currentValue)}
                 </select>
             </div>
@@ -410,6 +386,7 @@ function buildQueryParams() {
             } else {
                 params[`sort_${field}`] = value;
             }
+
         }
     });
     
@@ -424,12 +401,12 @@ function handleTableDataSuccess(data) {
     }
     
     totalRegistros = data.total;
-    renderTableData(data.cultivos);
+    renderTableData(data.vacunos);
     updatePagination();
     updateTableInfo();
     
-    if (data.cultivos && data.cultivos.length > 0) {
-        showSuccessToast(`${data.cultivos.length} registros cargados`);
+    if (data.vacunos && data.vacunos.length > 0) {
+        showSuccessToast(`${data.vacunos.length} registros cargados`);
     }
 }
 
@@ -569,7 +546,7 @@ function handleExcelGeneration() {
     const queryString = new URLSearchParams(params).toString();
     
     // Create download link
-    const downloadUrl = `/exportar-excel-cultivos/?${queryString}`;
+    const downloadUrl = `/exportar-excel- cultivos/?${queryString}`;
     
     // Trigger download
     window.location.href = downloadUrl;
@@ -813,23 +790,20 @@ function showLoadingToast(message) {
 // INITIAL DATA LOADING
 // =============================================
 function loadInitialData() {
-    // Load tipos para el select dinámico
-    fetch('/consultar-cultivos/?fields=tipo&limit=1000')
-        .then(res => res.json())
-        .then(data => {
-            if (data.success && data.cultivos) {
-                const tiposSet = new Set(data.cultivos.map(c => c.tipo).filter(Boolean));
-                window.tiposArray = Array.from(tiposSet).sort();
-            }
-        })
-        .catch(error => {
-            console.error('Error loading tipos:', error);
-        });
+    // Load razas for dynamic select
+    fetch('/api/tipos-cultivo/')
+    .then(res => res.json())
+    .then(data => {
+        if (data.tipos) {
+            window.tiposArray = data.tipos;
+        }
+    });
+
     
+    // Initial render
     renderTableHeaders();
     fetchTableData();
 }
-
 
 function showInitialLoading() {
     // Show a brief loading state on app initialization
