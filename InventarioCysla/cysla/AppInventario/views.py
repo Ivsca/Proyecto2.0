@@ -8,6 +8,7 @@ import traceback
 from datetime import datetime, date, timedelta
 from io import BytesIO
 from multiprocessing import connection
+from django.http import HttpResponse
 
 # ==========================
 # Librerías externas
@@ -258,31 +259,8 @@ def VacasInactivas(request):
 
 # Eliminar vacuno (pasar a inactivos)
 @login_required
-@require_POST
 def EliminarVacuno(request, id):
-    try:
-        vacuno = get_object_or_404(Ganado, id=id)
-
-        # Mover a inactivos
-        GanadoInactivo.objects.create(
-            codigocria=vacuno.codigocria,
-            foto=vacuno.foto,
-            crias=vacuno.crias,
-            codigoscrias=vacuno.codigoscrias,
-            codigopapa=vacuno.codigopapa,
-            codigomama=vacuno.codigomama,
-            edad=vacuno.edad,
-            infovacunas=vacuno.infovacunas,
-            enfermedades=vacuno.enfermedades,
-            estado=vacuno.estado,
-            idparcela=vacuno.idparcela,
-            razas=vacuno.razas
-        )
-        vacuno.delete()
-
-        return JsonResponse({"success": True, "message": "Vacuno desactivado con éxito."})
-    except Exception as e:
-        return JsonResponse({"success": False, "message": str(e)}, status=400)
+    return HttpResponse(f"Función de eliminar vacuno aún no implementada. id: {id}")
 
 # Rehabilitar un vacuno
 @login_required
