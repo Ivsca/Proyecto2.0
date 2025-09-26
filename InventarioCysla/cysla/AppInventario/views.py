@@ -245,6 +245,15 @@ def TablaGanado(request):
         'parcelas': parcelas
     })
 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.db import transaction
+from .models import Ganado, GanadoInactivo
+
+# List inactives page
 @login_required
 def VacasInactivas(request):
     vacas_inactivas = GanadoInactivo.objects.all()
@@ -252,16 +261,18 @@ def VacasInactivas(request):
         'vacas_inactivas': vacas_inactivas
     })
 
-# Eliminar vacuno (pasar a inactivos)
+
+# Move active -> inactivo (AJAX POST expected)
 @login_required
-@csrf_exempt
+@csrf_exempt  # if you prefer to manage CSRF via cookie, you can remove this
 def EliminarVacuno(request, id):
-    if request.method == "POST":
-        try:
-            # Obtener el vacuno de la tabla Ganado
+    if request.method != "POST":
+        return JsonResponse({"success": False, "message": "Método no permitido."}, status=405)
+
+    try:
+        with transaction.atomic():
             vacuno = get_object_or_404(Ganado, id=id)
 
-            # Crear un registro en GanadoInactivo con los mismos datos
             GanadoInactivo.objects.create(
                 codigocria=vacuno.codigocria,
                 foto=vacuno.foto,
@@ -277,74 +288,57 @@ def EliminarVacuno(request, id):
                 razas=vacuno.razas,
             )
 
-            # Eliminar de Ganado
             vacuno.delete()
 
-            return JsonResponse({
-                "success": True,
-                "message": f"El vacuno {vacuno.codigocria} fue desactivado correctamente."
-            })
+        return JsonResponse({"success": True, "message": f"El vacuno {vacuno.codigocria} fue desactivado correctamente."})
+    except Exception as e:
+        return JsonResponse({"success": False, "message": f"Error al desactivar el vacuno: {str(e)}"})
 
-        except Exception as e:
-            return JsonResponse({
-                "success": False,
-                "message": f"Error al desactivar el vacuno: {str(e)}"
-            })
-    else:
-        return JsonResponse({
-            "success": False,
-            "message": "Método no permitido."
-        }, status=405)
 
-# Rehabilitar un vacuno
+# Rehabilitar vía API (AJAX GET) — devuelve JSON para que tu fetch lo maneje
 @login_required
-def RehabilitarVacuno(request, id):
-    vacuno_inactivo = get_object_or_404(GanadoInactivo, id=id)
+def RehabilitarApi(request, id):
+    # Your JS uses GET; keep GET for simple rehabilitate action.
+    try:
+        with transaction.atomic():
+            vacuno_inactivo = get_object_or_404(GanadoInactivo, id=id)
 
-    # Pasar a la tabla principal
-    Ganado.objects.create(
-        codigocria=vacuno_inactivo.codigocria,
-        foto=vacuno_inactivo.foto,
-        crias=vacuno_inactivo.crias,
-        codigoscrias=vacuno_inactivo.codigoscrias,
-        codigopapa=vacuno_inactivo.codigopapa,
-        codigomama=vacuno_inactivo.codigomama,
-        edad=vacuno_inactivo.edad,
-        infovacunas=vacuno_inactivo.infovacunas,
-        enfermedades=vacuno_inactivo.enfermedades,
-        estado=vacuno_inactivo.estado,
-        idparcela=vacuno_inactivo.idparcela,
-        razas=vacuno_inactivo.razas,
-        activo=True
-    )
+            Ganado.objects.create(
+                codigocria=vacuno_inactivo.codigocria,
+                foto=vacuno_inactivo.foto,
+                crias=vacuno_inactivo.crias,
+                codigoscrias=vacuno_inactivo.codigoscrias,
+                codigopapa=vacuno_inactivo.codigopapa,
+                codigomama=vacuno_inactivo.codigomama,
+                edad=vacuno_inactivo.edad,
+                infovacunas=vacuno_inactivo.infovacunas,
+                enfermedades=vacuno_inactivo.enfermedades,
+                estado=vacuno_inactivo.estado,
+                idparcela=vacuno_inactivo.idparcela,
+                razas=vacuno_inactivo.razas,
+                activo=True
+            )
 
-    # Eliminar de inactivos
-    vacuno_inactivo.delete()
-    messages.success(request, "El vacuno fue rehabilitado correctamente.")
-    return redirect('VacasInactivas')
+            vacuno_inactivo.delete()
 
+        return JsonResponse({"success": True, "message": "Vacuno rehabilitado correctamente."})
+    except Exception as e:
+        return JsonResponse({"success": False, "message": f"Error al rehabilitar: {str(e)}"}, status=500)
+
+
+# Eliminar permanentemente (AJAX POST expected)
 @login_required
 @csrf_exempt
 def EliminarPermanente(request, id):
-    if request.method == "POST":
-        try:
-            vacuno = get_object_or_404(GanadoInactivo, id=id)
-            vacuno.delete()
-            
-            return JsonResponse({
-                "success": True,
-                "message": f"El vacuno {vacuno.codigocria} fue eliminado permanentemente."
-            })
-        except Exception as e:
-            return JsonResponse({
-                "success": False,
-                "message": f"Error al eliminar el vacuno: {str(e)}"
-            })
-    else:
-        return JsonResponse({
-            "success": False,
-            "message": "Método no permitido."
-        }, status=405)
+    if request.method != "POST":
+        return JsonResponse({"success": False, "message": "Método no permitido."}, status=405)
+    try:
+        vacuno = get_object_or_404(GanadoInactivo, id=id)
+        vacuno.delete()
+        return JsonResponse({"success": True, "message": f"El vacuno {vacuno.codigocria} fue eliminado permanentemente."})
+    except Exception as e:
+        return JsonResponse({"success": False, "message": f"Error al eliminar el vacuno: {str(e)}"})
+
 
 @login_required
 def buscar_codigo_ganado(request):

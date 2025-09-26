@@ -2,6 +2,7 @@
 {% include 'inc/Header.html' %}
 <title>Vacunos Inactivos</title>
 
+{# CSRF token meta (fallback). We also read csrftoken cookie in JS. #}
 <meta name="csrf-token" content="{{ csrf_token }}">
 
 <div class="container mt-4">
@@ -81,7 +82,7 @@
                                     <button class="btn btn-outline-success" onclick="rehabilitarVacuno({{ vaca.id }})" title="Reactivar vacuno">
                                         <i class="fas fa-undo-alt"></i>
                                     </button>
-                                    <button class="btn btn-outline-danger" onclick="eliminarVacunoPermanente('{{ vaca.id }}')" title="Eliminar permanentemente">
+                                    <button class="btn btn-outline-danger" onclick="eliminarVacunoPermanente({{ vaca.id }})" title="Eliminar permanentemente">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </div>
@@ -127,14 +128,60 @@
     </div>
 </div>
 
-<!-- SweetAlert -->
+<!-- SweetAlert & JS logic -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-// =========================[ REGION: Funciones para Vacunos Inactivos ]========================
 
-/**
- * Rehabilitar un vacuno inactivo (volver a activos)
- */
+<script>
+/* =========================
+   CSRF helpers
+   ========================= */
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+function getCSRFToken() {
+    const c = getCookie('csrftoken');
+    if (c) return c;
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.getAttribute('content') : '';
+}
+
+/* =========================
+   Search filter
+   ========================= */
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInactivos');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchText = this.value.toLowerCase();
+            const rows = document.querySelectorAll('.vacuno-row');
+
+            rows.forEach(row => {
+                const codigo = (row.getAttribute('data-codigo') || '').toLowerCase();
+                const raza = (row.getAttribute('data-raza') || '').toLowerCase();
+                const estado = (row.getAttribute('data-estado') || '').toLowerCase();
+
+                const matches = !searchText || codigo.includes(searchText) || raza.includes(searchText) || estado.includes(searchText);
+                row.style.display = matches ? '' : 'none';
+            });
+        });
+    }
+});
+
+/* =========================
+   Rehabilitar (AJAX GET expected)
+   Endpoint: /Ganado/api/Rehabilitar/<id>/
+   ========================= */
 function rehabilitarVacuno(id) {
     Swal.fire({
         title: "¿Rehabilitar vacuno?",
@@ -146,77 +193,70 @@ function rehabilitarVacuno(id) {
         confirmButtonText: "Sí, rehabilitar",
         cancelButtonText: "Cancelar"
     }).then((result) => {
-        if (result.isConfirmed) {
-            // Mostrar loading
-            Swal.fire({
-                title: 'Rehabilitando...',
-                text: 'Por favor espere',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-            
-            // Realizar la petición
-            fetch(`/Ganado/api/Rehabilitar/${id}/`, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': getCSRFToken()
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Error en la respuesta del servidor');
-                }
-            })
-            .then(data => {
-                Swal.close();
-                if (data.success) {
-                    Swal.fire({
-                        title: '¡Rehabilitado!',
-                        text: 'El vacuno ha sido rehabilitado correctamente.',
-                        icon: 'success',
-                        confirmButtonColor: '#198754'
-                    }).then(() => {
-                        // Recargar la página para mostrar los cambios
-                        window.location.reload();
-                    });
-                } else {
-                    Swal.fire('Error', data.message || 'No se pudo rehabilitar el vacuno.', 'error');
-                }
-            })
-            .catch(error => {
-                Swal.close();
-                Swal.fire('Error', 'Ocurrió un error al rehabilitar el vacuno: ' + error.message, 'error');
-            });
-        }
+        if (!result.isConfirmed) return;
+
+        Swal.fire({
+            title: 'Rehabilitando...',
+            text: 'Por favor espere',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        fetch(`/Ganado/api/Rehabilitar/${id}/`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCSRFToken()
+            }
+        })
+        .then(async response => {
+            const text = await response.text();
+            try {
+                return JSON.parse(text);
+            } catch (err) {
+                throw new Error('Respuesta inesperada del servidor: ' + text);
+            }
+        })
+        .then(data => {
+            Swal.close();
+            if (data.success) {
+                Swal.fire({
+                    title: '¡Rehabilitado!',
+                    text: data.message || 'El vacuno ha sido rehabilitado correctamente.',
+                    icon: 'success',
+                    confirmButtonColor: '#198754'
+                }).then(() => window.location.reload());
+            } else {
+                Swal.fire('Error', data.message || 'No se pudo rehabilitar el vacuno.', 'error');
+            }
+        })
+        .catch(error => {
+            Swal.close();
+            Swal.fire('Error', 'Ocurrió un error al rehabilitar el vacuno: ' + error.message, 'error');
+        });
     });
 }
 
-/**
- * Eliminar permanentemente un vacuno inactivo
- */
+/* =========================
+   Eliminar permanentemente (AJAX POST)
+   Endpoint: /Ganado/EliminarPermanente/<id>/
+   ========================= */
 function eliminarVacunoPermanente(id) {
-    // Configurar el modal de Bootstrap para eliminación permanente
     const modal = new bootstrap.Modal(document.getElementById('eliminarPermanenteModal'));
     modal.show();
-    
-    // Configurar el evento del botón de confirmación
-    document.getElementById('confirmarEliminacionPermanente').onclick = function() {
+
+    // Remove previous handlers to avoid multiple binds
+    const confirmarBtn = document.getElementById('confirmarEliminacionPermanente');
+    const newHandler = function() {
         modal.hide();
-        
+
         Swal.fire({
             title: 'Eliminando...',
             text: 'Por favor espere',
             allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
+            didOpen: () => { Swal.showLoading(); }
         });
-        
+
         fetch(`/Ganado/EliminarPermanente/${id}/`, {
             method: 'POST',
             headers: {
@@ -224,11 +264,12 @@ function eliminarVacunoPermanente(id) {
                 'X-CSRFToken': getCSRFToken()
             }
         })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Error en la respuesta del servidor');
+        .then(async response => {
+            const text = await response.text();
+            try {
+                return JSON.parse(text);
+            } catch {
+                throw new Error('Respuesta inesperada del servidor: ' + text);
             }
         })
         .then(data => {
@@ -236,13 +277,10 @@ function eliminarVacunoPermanente(id) {
             if (data.success) {
                 Swal.fire({
                     title: '¡Eliminado!',
-                    text: 'El vacuno ha sido eliminado permanentemente.',
+                    text: data.message || 'El vacuno ha sido eliminado permanentemente.',
                     icon: 'success',
                     confirmButtonColor: '#198754'
-                }).then(() => {
-                    // Recargar la página para mostrar los cambios
-                    window.location.reload();
-                });
+                }).then(() => window.location.reload());
             } else {
                 Swal.fire('Error', data.message || 'No se pudo eliminar el vacuno.', 'error');
             }
@@ -252,226 +290,118 @@ function eliminarVacunoPermanente(id) {
             Swal.fire('Error', 'Ocurrió un error al eliminar el vacuno: ' + error.message, 'error');
         });
     };
+
+    // Remove all existing click listeners by cloning the node
+    const clone = confirmarBtn.cloneNode(true);
+    confirmarBtn.parentNode.replaceChild(clone, confirmarBtn);
+    clone.addEventListener('click', newHandler);
 }
 
-/**
- * Función auxiliar para obtener CSRF Token
- */
-function getCSRFToken() {
-    const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
-    if (csrfTokenMeta) {
-        return csrfTokenMeta.getAttribute('content');
-    }
-    
-    const csrfTokenInput = document.querySelector('[name=csrfmiddlewaretoken]');
-    if (csrfTokenInput) {
-        return csrfTokenInput.value;
-    }
-    
-    return '';
-}
-
-/**
- * Búsqueda en tiempo real para la tabla de inactivos
- */
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInactivos');
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const searchText = this.value.toLowerCase();
-            const rows = document.querySelectorAll('.vacuno-row');
-            
-            rows.forEach(row => {
-                const codigo = row.getAttribute('data-codigo');
-                const raza = row.getAttribute('data-raza');
-                const estado = row.getAttribute('data-estado');
-                
-                const matches = codigo.includes(searchText) || 
-                               raza.includes(searchText) || 
-                               estado.includes(searchText);
-                
-                row.style.display = matches ? '' : 'none';
-            });
-        });
-    }
-});
-
-// =========================[ REGION: Integración con funciones existentes ]========================
-
-/**
- * Función para abrir el formulario de ver detalles (ya existente)
- * Se mantiene igual que en tu código original
- */
+/* =========================
+   Abrir formulario/ver detalles (usa tu endpoint existente)
+   Mantengo la función que buscaba por código y abría modal con datos.
+   ========================= */
 window.abrirFormularioVer = function(codigoCria) {
     fetch(`/Ganado/BuscarCodigo/?q=${encodeURIComponent(codigoCria)}`)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) throw new Error('Error buscando vacuno');
+            return response.json();
+        })
         .then(data => {
             if (!data.length) {
                 Swal.fire('Error', 'No se encontró el vacuno.', 'error');
                 return;
             }
             const vacunoId = data[0].id;
-            fetch(`/Ganado/api/obtener/${vacunoId}/`)
-                .then(r => r.json())
-                .then(vacuno => {
-                    let enfermedades = [];
-                    let vacunas = [];
-                    let crias = [];
-                    try {
-                        enfermedades = JSON.parse(vacuno.enfermedades || '[]');
-                        vacunas = JSON.parse(vacuno.infovacunas || '[]');
-                        crias = JSON.parse(vacuno.codigoscrias || '[]');
-                    } catch {}
+            return fetch(`/Ganado/api/obtener/${vacunoId}/`);
+        })
+        .then(r => {
+            if (!r) return;
+            if (!r.ok) throw new Error('Error obteniendo detalles del vacuno');
+            return r.json();
+        })
+        .then(vacuno => {
+            if (!vacuno) return;
+            let enfermedades = [];
+            let vacunas = [];
+            let crias = [];
+            try {
+                enfermedades = JSON.parse(vacuno.enfermedades || '[]');
+                vacunas = JSON.parse(vacuno.infovacunas || '[]');
+                crias = JSON.parse(vacuno.codigoscrias || '[]');
+            } catch {}
+            // Construcción del HTML (breve) y mostrar con Swal
+            let enfermedadesHtml = enfermedades.length
+                ? enfermedades.map(e => `<tr><td style="padding:6px;border-bottom:1px solid #e5e7eb;">${e.disease}</td><td style="padding:6px;border-bottom:1px solid #e5e7eb;">${e.date}</td></tr>`).join('')
+                : `<tr><td colspan="2" style="padding:8px;text-align:center;color:#059669;">No hay enfermedades registradas</td></tr>`;
 
-                    // Tabla de enfermedades
-                    let enfermedadesTable = `
-                        <table style="width:100%;border-collapse:collapse;margin-bottom:12px;font-size:1.05rem;">
-                            <thead>
-                                <tr style="background:#f3f4f6;">
-                                    <th style="padding:8px 6px;border-bottom:2px solid #ef4444;text-align:left;">Enfermedad</th>
-                                    <th style="padding:8px 6px;border-bottom:2px solid #ef4444;text-align:left;">Fecha</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${
-                                    enfermedades.length
-                                    ? enfermedades.map(e => `
-                                        <tr>
-                                            <td style="padding:6px 6px;border-bottom:1px solid #e5e7eb;">${e.disease}</td>
-                                            <td style="padding:6px 6px;border-bottom:1px solid #e5e7eb;">${e.date}</td>
-                                        </tr>
-                                    `).join('')
-                                    : `<tr><td colspan="2" style="color:#059669;padding:8px;text-align:center;">No hay enfermedades registradas</td></tr>`
-                                }
-                            </tbody>
-                        </table>
-                    `;
+            let vacunasHtml = vacunas.length
+                ? vacunas.map(v => `<tr><td style="padding:6px;border-bottom:1px solid #e5e7eb;">${v.vaccine}</td><td style="padding:6px;border-bottom:1px solid #e5e7eb;">${v.amount}</td><td style="padding:6px;border-bottom:1px solid #e5e7eb;">${v.type}</td><td style="padding:6px;border-bottom:1px solid #e5e7eb;">${v.date}</td></tr>`).join('')
+                : `<tr><td colspan="4" style="padding:8px;text-align:center;color:#059669;">No hay vacunas aplicadas</td></tr>`;
 
-                    // Tabla de vacunas
-                    let vacunasTable = vacunas.length ? `
-                        <table style="width:100%;border-collapse:collapse;font-size:1.05rem;">
-                            <thead>
-                                <tr style="background:#f3f4f6;">
-                                    <th style="padding:8px 6px;border-bottom:2px solid #3b82f6;text-align:left;">Vacuna</th>
-                                    <th style="padding:8px 6px;border-bottom:2px solid #3b82f6;text-align:left;">Dosis (ml)</th>
-                                    <th style="padding:8px 6px;border-bottom:2px solid #3b82f6;text-align:left;">Tipo</th>
-                                    <th style="padding:8px 6px;border-bottom:2px solid #3b82f6;text-align:left;">Fecha</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${
-                                    vacunas.map(v => `
-                                        <tr>
-                                            <td style="padding:6px 6px;border-bottom:1px solid #e5e7eb;">${v.vaccine}</td>
-                                            <td style="padding:6px 6px;border-bottom:1px solid #e5e7eb;">${v.amount}</td>
-                                            <td style="padding:6px 6px;border-bottom:1px solid #e5e7eb;">${v.type}</td>
-                                            <td style="padding:6px 6px;border-bottom:1px solid #e5e7eb;">${v.date}</td>
-                                        </tr>
-                                    `).join('')
-                                }
-                            </tbody>
-                        </table>
-                    ` : `<div style="color:#059669;font-size:1.08rem;text-align:center;margin:10px 0 18px 0;">No hay vacunas aplicadas</div>`;
+            let criasHtml = crias.length
+                ? crias.map(c => `<tr><td style="padding:6px;border-bottom:1px solid #e5e7eb;">${c}</td></tr>`).join('')
+                : `<tr><td style="padding:8px;text-align:center;color:#059669;">No hay crías registradas</td></tr>`;
 
-                    // Tabla de crías
-                    let criasTable = `
-                        <table style="width:100%;border-collapse:collapse;font-size:1.05rem;">
-                            <thead>
-                                <tr style="background:#f3f4f6;">
-                                    <th style="padding:8px 6px;border-bottom:2px solid #10b981;text-align:left;">Códigos de crías</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${
-                                    crias.length
-                                    ? crias.map(c => `
-                                        <tr>
-                                            <td style="padding:6px 6px;border-bottom:1px solid #e5e7eb;">${c}</td>
-                                        </tr>
-                                    `).join('')
-                                    : `<tr><td style="color:#059669;padding:8px;text-align:center;">No hay crías registradas</td></tr>`
-                                }
-                            </tbody>
-                        </table>
-                    `;
-
-                    let html = `
-                    <div style="display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start; min-width: 340px; max-width: 1200px;">
-                        <div style="flex: 1 1 400px; max-width: 440px; min-width: 260px; display: flex; flex-direction: column; align-items: center;">
-                            ${vacuno.foto ? `
-                                <img src="${vacuno.foto}" alt="Imagen" style="width:100%;max-width:400px;height:420px;object-fit:cover;border-radius:22px;box-shadow:0 2px 16px rgba(16,185,129,0.13);border:4px solid #10b981;">
-                            ` : `
-                                <div class="placeholder" style="width:400px;height:420px;display:flex;align-items:center;justify-content:center;background:#f8f9fa;border-radius:22px;">
-                                    <i class="fas fa-camera" style="font-size:80px;color:#bbb;"></i>
-                                </div>
-                            `}
-                            <div style="margin-top:16px;font-size:18px;color:#10b981;font-weight:700;letter-spacing:1px;">
-                                ${vacuno.codigocria || 'Sin código'}
-                            </div>
-                            <div class="badge bg-warning text-dark mt-2">INACTIVO</div>
+            const html = `
+                <div style="display:flex;flex-wrap:wrap;gap:24px;min-width:320px;">
+                    <div style="flex:1 1 320px;max-width:420px;">
+                        ${vacuno.foto ? `<img src="${vacuno.foto}" style="width:100%;height:320px;object-fit:cover;border-radius:12px;margin-bottom:12px;">` : `<div style="width:100%;height:320px;background:#f8f9fa;border-radius:12px;display:flex;align-items:center;justify-content:center;"><i class="fas fa-camera" style="font-size:60px;color:#bbb;"></i></div>`}
+                        <div style="font-weight:700;color:#10b981;font-size:18px;text-align:center;">${vacuno.codigocria || 'Sin código'}</div>
+                        <div style="text-align:center;margin-top:6px;"><span class="badge bg-warning text-dark">INACTIVO</span></div>
+                    </div>
+                    <div style="flex:2 1 420px;">
+                        <h3 style="color:#10b981;margin-bottom:12px;text-align:center;">Detalles del Vacuno</h3>
+                        <div style="display:flex;flex-wrap:wrap;gap:12px;">
+                            <div style="flex:1 1 200px;"><b>Madre:</b> ${vacuno.codigomama || 'N/A'}</div>
+                            <div style="flex:1 1 200px;"><b>Padre:</b> ${vacuno.codigopapa || 'N/A'}</div>
+                            <div style="flex:1 1 200px;"><b>Parcela:</b> ${vacuno.idparcela || 'N/A'}</div>
+                            <div style="flex:1 1 200px;"><b>Raza:</b> ${vacuno.razas || 'N/A'}</div>
+                            <div style="flex:1 1 200px;"><b>Edad:</b> ${vacuno.edad || 'N/A'} meses</div>
+                            <div style="flex:1 1 200px;"><b>Estado:</b> ${vacuno.estado || 'N/A'}</div>
                         </div>
-                        <div style="flex: 2 1 600px; min-width: 260px;">
-                            <h1 style="color:#10b981;font-weight:900;font-size:2.3rem;margin-bottom:18px;letter-spacing:1px;text-align:center;">
-                                Detalles del Vacuno
-                            </h1>
-                            <div style="display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 22px;">
-                                <!-- Columna izquierda: info -->
-                                <div style="flex:1 1 260px; min-width:220px;">
-                                    <div style="margin-bottom:10px;">
-                                        <span style="font-size:1.13rem;"><b>Madre:</b> <span style="color:#f59e42;">${vacuno.codigomama || 'N/A'}</span></span>
-                                    </div>
-                                    <div style="margin-bottom:10px;">
-                                        <span style="font-size:1.13rem;"><b>Padre:</b> <span style="color:#f59e42;">${vacuno.codigopapa || 'N/A'}</span></span>
-                                    </div>
-                                    <div style="margin-bottom:10px;">
-                                        <span style="font-size:1.13rem;"><b>Parcela:</b> <span style="color:#6366f1;">${vacuno.idparcela || 'N/A'}</span></span>
-                                    </div>
-                                    <div style="margin-bottom:10px;">
-                                        <span style="font-size:1.13rem;"><b>Raza:</b> <span style="color:#4b5563;">${vacuno.razas || 'N/A'}</span></span>
-                                    </div>
-                                    <div style="margin-bottom:10px;">
-                                        <span style="font-size:1.13rem;"><b>Edad:</b> <span style="color:#4b5563;">${vacuno.edad || 'N/A'} meses</span></span>
-                                    </div>
-                                    <div style="margin-bottom:10px;">
-                                        <span style="font-size:1.13rem;"><b>Estado:</b> <span style="color:#059669;">${vacuno.estado || 'N/A'}</span></span>
-                                    </div>
-                                </div>
-                                <!-- Columna derecha: tabla de crías -->
-                                <div style="flex:1 1 260px; min-width:220px;">
-                                    <div style="font-size:1.15rem;font-weight:700;color:#10b981; margin-bottom:8px; text-align:center;">Crías</div>
-                                    ${criasTable}
-                                </div>
-                            </div>
-                            <hr style="margin:22px 0;">
-                            <div style="margin-bottom:18px;">
-                                <span style="font-size:1.15rem;font-weight:700;color:#ef4444;display:block;margin-bottom:6px;">Enfermedades</span>
-                                ${enfermedadesTable}
-                            </div>
-                            <div>
-                                <span style="font-size:1.15rem;font-weight:700;color:#3b82f6;display:block;margin-bottom:6px;">Vacunas</span>
-                                ${vacunasTable}
-                            </div>
+
+                        <hr>
+
+                        <div style="margin-bottom:12px;">
+                            <strong style="color:#ef4444;display:block;margin-bottom:6px;">Enfermedades</strong>
+                            <table style="width:100%;border-collapse:collapse;">
+                                <thead><tr style="background:#f3f4f6;"><th style="padding:8px;border-bottom:2px solid #ef4444;text-align:left;">Enfermedad</th><th style="padding:8px;border-bottom:2px solid #ef4444;text-align:left;">Fecha</th></tr></thead>
+                                <tbody>${enfermedadesHtml}</tbody>
+                            </table>
+                        </div>
+
+                        <div>
+                            <strong style="color:#3b82f6;display:block;margin-bottom:6px;">Vacunas</strong>
+                            <table style="width:100%;border-collapse:collapse;">
+                                <thead><tr style="background:#f3f4f6;"><th style="padding:8px;border-bottom:2px solid #3b82f6;text-align:left;">Vacuna</th><th style="padding:8px;border-bottom:2px solid #3b82f6;text-align:left;">Dosis</th><th style="padding:8px;border-bottom:2px solid #3b82f6;text-align:left;">Tipo</th><th style="padding:8px;border-bottom:2px solid #3b82f6;text-align:left;">Fecha</th></tr></thead>
+                                <tbody>${vacunasHtml}</tbody>
+                            </table>
+                        </div>
+
+                        <div style="margin-top:12px;">
+                            <strong style="color:#10b981;display:block;margin-bottom:6px;">Crías</strong>
+                            <table style="width:100%;border-collapse:collapse;">
+                                <thead><tr style="background:#f3f4f6;"><th style="padding:8px;border-bottom:2px solid #10b981;text-align:left;">Código</th></tr></thead>
+                                <tbody>${criasHtml}</tbody>
+                            </table>
                         </div>
                     </div>
-                    `;
+                </div>
+            `;
 
-                    Swal.fire({
-                        title: `Detalles de ${vacuno.codigocria} (Inactivo)`,
-                        html: html,
-                        width: '90%',
-                        heightAuto: true,
-                        padding: '1.5em',
-                        showCloseButton: true,
-                        backdrop: 'rgba(16,185,129,0.15)',
-                        customClass: {
-                            popup: 'detalle-vacuno-popup'
-                        }
-                    });
-                });
+            Swal.fire({
+                title: `Detalles de ${vacuno.codigocria || ''} (Inactivo)`,
+                html: html,
+                width: '90%',
+                showCloseButton: true,
+                didOpen: () => {}
+            });
+        })
+        .catch(err => {
+            Swal.fire('Error', err.message || 'Ocurrió un error al obtener los datos.', 'error');
         });
 };
 </script>
 
 {% include 'inc/Footer.html' %}
-
-<!-- ya me dio la cuenta -->
