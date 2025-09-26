@@ -324,6 +324,29 @@ def RehabilitarVacuno(request, id):
     return redirect('VacasInactivas')
 
 @login_required
+@csrf_exempt
+def EliminarPermanente(request, id):
+    if request.method == "POST":
+        try:
+            vacuno = get_object_or_404(GanadoInactivo, id=id)
+            vacuno.delete()
+            
+            return JsonResponse({
+                "success": True,
+                "message": f"El vacuno {vacuno.codigocria} fue eliminado permanentemente."
+            })
+        except Exception as e:
+            return JsonResponse({
+                "success": False,
+                "message": f"Error al eliminar el vacuno: {str(e)}"
+            })
+    else:
+        return JsonResponse({
+            "success": False,
+            "message": "Método no permitido."
+        }, status=405)
+
+@login_required
 def buscar_codigo_ganado(request):
     q = request.GET.get('q', '').strip()
     resultados = []
