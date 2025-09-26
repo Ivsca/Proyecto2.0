@@ -462,7 +462,6 @@ def obtener_ganado(request, id):
 # endregion
 
 # region cultivo
-@login_required
 def TablaCultivo(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
