@@ -254,8 +254,47 @@ def VacasInactivas(request):
 
 # Eliminar vacuno (pasar a inactivos)
 @login_required
+@csrf_exempt
 def EliminarVacuno(request, id):
-    return HttpResponse(f"Función de eliminar vacuno aún no implementada. id: {id}")
+    if request.method == "POST":
+        try:
+            # Obtener el vacuno de la tabla Ganado
+            vacuno = get_object_or_404(Ganado, id=id)
+
+            # Crear un registro en GanadoInactivo con los mismos datos
+            GanadoInactivo.objects.create(
+                codigocria=vacuno.codigocria,
+                foto=vacuno.foto,
+                crias=vacuno.crias,
+                codigoscrias=vacuno.codigoscrias,
+                codigopapa=vacuno.codigopapa,
+                codigomama=vacuno.codigomama,
+                edad=vacuno.edad,
+                infovacunas=vacuno.infovacunas,
+                enfermedades=vacuno.enfermedades,
+                estado=vacuno.estado,
+                idparcela=vacuno.idparcela,
+                razas=vacuno.razas,
+            )
+
+            # Eliminar de Ganado
+            vacuno.delete()
+
+            return JsonResponse({
+                "success": True,
+                "message": f"El vacuno {vacuno.codigocria} fue desactivado correctamente."
+            })
+
+        except Exception as e:
+            return JsonResponse({
+                "success": False,
+                "message": f"Error al desactivar el vacuno: {str(e)}"
+            })
+    else:
+        return JsonResponse({
+            "success": False,
+            "message": "Método no permitido."
+        }, status=405)
 
 # Rehabilitar un vacuno
 @login_required
